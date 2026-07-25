@@ -220,12 +220,14 @@ export function initFlyThrough(map, pathPoints, onProgress) {
             btn.title = 'Pause flythrough';
             btn.classList.add('active');
             if (stopBtn) stopBtn.style.display = 'flex';
+            if (backBtn) backBtn.style.display = 'flex';
         } else {
             playIcon.style.display = 'block';
             pauseIcon.style.display = 'none';
             btn.title = progress > 0 && progress < totalLen ? 'Resume flythrough' : 'Play flythrough';
             btn.classList.remove('active');
             if (stopBtn) stopBtn.style.display = progress > 0 ? 'flex' : 'none';
+            if (backBtn) backBtn.style.display = progress > 0 ? 'flex' : 'none';
         }
     }
 
@@ -309,5 +311,5 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         if (onProgress) onProgress(progress, totalLen);
     }
 
-    return { moveRunner, showRunner, hideRunner, setProgress };
+    return { moveRunner, showRunner, hideRunner, setProgress, isRunning: () => running };
 }

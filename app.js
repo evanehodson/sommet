@@ -1,6 +1,15 @@
 import { createTorusLayer } from './torus.js';
 import { initFlyThrough } from './fly_through.js';
 
+const demSource = new mlcontour.DemSource({
+    url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+    encoding: 'terrarium',
+    maxzoom: 15,
+    worker: true,
+    cacheSize: 100
+});
+demSource.setupMaplibre(maplibregl);
+
 const map = new maplibregl.Map({
     container: 'map',
     style: {
@@ -10,10 +19,13 @@ const map = new maplibregl.Map({
                 type: 'raster',
                 tiles: ['https://tiles.versatiles.org/tiles/satellite/{z}/{x}/{y}'],
                 tileSize: 256,
-                maxzoom: 18
+                maxzoom: 16,
+                attribution: 'VersaTiles'
             }
         },
-        layers: [{ id: 'satellite-layer', type: 'raster', source: 'satellite' }],
+        layers: [
+            { id: 'satellite-layer', type: 'raster', source: 'satellite' }
+        ],
         lights: [
             {
                 id: 'sun',
@@ -144,13 +156,87 @@ document.addEventListener('mouseup', (e) => {
 map.on('load', async () => {
     map.addSource('terrainSource', {
         type: 'raster-dem',
-        tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+        tiles: [demSource.sharedDemProtocolUrl],
         encoding: 'terrarium',
         tileSize: 256,
         maxzoom: 15
     });
 
     map.setTerrain({ source: 'terrainSource', exaggeration: 1.5 });
+
+    // ── Vector tile source (landcover, water, labels) ─────────
+
+    map.addSource('openfreemap', {
+        type: 'vector',
+        url: 'https://tiles.openfreemap.org/planet'
+    });
+
+    // ── Contour lines from DEM ──────────────────────────────
+
+    map.addSource('contour-source', {
+        type: 'vector',
+        tiles: [
+            demSource.contourProtocolUrl({
+                multiplier: 3.28084,
+                thresholds: {
+                    8: [200, 400],
+                    10: [100, 200],
+                    12: [100, 200],
+                    14: [50, 100],
+                    15: [20, 100],
+                    16: [10, 100],
+                    17: [10, 100],
+                    18: [10, 100]
+                },
+                contourLayer: 'contours',
+                elevationKey: 'ele',
+                levelKey: 'level',
+                extent: 4096,
+                buffer: 1
+            })
+        ],
+        maxzoom: 18
+    });
+
+    map.addLayer({
+        id: 'contour-lines',
+        type: 'line',
+        source: 'contour-source',
+        'source-layer': 'contours',
+        paint: {
+            'line-color': 'rgba(120, 80, 40, 0.45)',
+            'line-width': ['match', ['get', 'level'], 1, 1.2, 0.5]
+        }
+    });
+
+    map.addLayer({
+        id: 'contour-labels',
+        type: 'symbol',
+        source: 'contour-source',
+        'source-layer': 'contours',
+        filter: ['>', ['get', 'level'], 0],
+        layout: {
+            'symbol-placement': 'line',
+            'symbol-spacing': [
+                'interpolate', ['linear'], ['zoom'],
+                9, 200, 12, 120, 15, 80, 18, 40
+            ],
+            'text-size': [
+                'interpolate', ['linear'], ['zoom'],
+                9, 9, 12, 10, 14, 12, 16, 14, 18, 16
+            ],
+            'text-field': ['concat', ['to-string', ['get', 'ele']], "'"],
+            'text-font': ['Noto Sans Italic'],
+            'text-pitch-alignment': 'map',
+            'text-rotation-alignment': 'map',
+            'text-allow-overlap': true
+        },
+        paint: {
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 1,
+            'text-color': 'rgba(120, 80, 40, 0.85)'
+        }
+    });
 
     map.setSky({
         'sky-color': '#1a6fb5',
@@ -162,14 +248,7 @@ map.on('load', async () => {
         'atmosphere-blend': 0.8
     });
 
-    // ── Vector tile labels (peaks, park names) ────────────────
-
-    map.addSource('openfreemap', {
-        type: 'vector',
-        url: 'https://tiles.openfreemap.org/planet'
-    });
-
-    // Mountain peak icon (sharp brown triangle + rounded outward white buffer stroke)
+    // ── Mountain peak icon ────────────────────────────────────
     const S = 32;
     const triData = new Uint8Array(S * S * 4);
     function segDist(px, py, ax, ay, bx, by) {
@@ -352,7 +431,7 @@ map.on('load', async () => {
                 'icon-size': 0.35,
                 'icon-anchor': 'bottom',
                 'text-field': ['concat', ['get', 'name'], '\n', ['get', 'ele_ft'], ' ft'],
-                'text-font': ['Noto Sans Italic'],
+            'text-font': ['Noto Sans Italic'],
                 'text-size': 9,
                 'text-anchor': 'bottom',
                 'text-offset': [0, -1.2],
@@ -532,11 +611,13 @@ map.on('load', async () => {
 
         toggleBtn.addEventListener('click', () => {
             profilePanel.classList.toggle('collapsed');
+            document.getElementById('flythrough-controls').classList.toggle('profile-collapsed');
         });
 
         // ── Hover tracking: map → runner + profile ────
 
         map.on('mousemove', (e) => {
+            if (flyThrough.isRunning()) return;
             let minSq = Infinity;
             let nearest = null;
             let nearestPt = null;
@@ -600,6 +681,7 @@ map.on('load', async () => {
         // ── Hover tracking: elevation profile → runner ────
 
         canvas.addEventListener('mousemove', (e) => {
+            if (flyThrough.isRunning()) return;
             const rect = canvas.getBoundingClientRect();
             const mx = e.clientX - rect.left;
             const pad = { top: 20, bottom: 24, left: 42, right: 14 };
