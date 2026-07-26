@@ -1,23 +1,23 @@
-var POLE_HEIGHT_M = 180;
-var PENNANT_WIDTH_M = 70;
-var PENNANT_HEIGHT_M = 60;
+var POLE_HEIGHT_M = 200;
+var PENNANT_WIDTH_M = 80;
+var PENNANT_HEIGHT_M = 70;
 var ELEVATION_BIAS = 2.0;
 
 function makeFlagCanvas(label) {
     var c = document.createElement('canvas');
-    c.width = 512;
+    c.width = 1024;
     c.height = 1024;
     var cx = c.getContext('2d');
 
-    cx.clearRect(0, 0, 512, 1024);
+    cx.clearRect(0, 0, 1024, 1024);
 
-    var poleX = 70;
-    var poleTop = 120;
+    var poleX = 80;
+    var poleTop = 100;
     var poleBottom = 1024;
 
     // Pole shadow
     cx.strokeStyle = 'rgba(0,0,0,0.3)';
-    cx.lineWidth = 44;
+    cx.lineWidth = 48;
     cx.lineCap = 'round';
     cx.beginPath();
     cx.moveTo(poleX + 5, poleBottom);
@@ -25,64 +25,53 @@ function makeFlagCanvas(label) {
     cx.stroke();
 
     // Pole body
-    cx.strokeStyle = '#aaaaaa';
-    cx.lineWidth = 36;
+    cx.strokeStyle = '#999999';
+    cx.lineWidth = 38;
     cx.beginPath();
     cx.moveTo(poleX, poleBottom);
     cx.lineTo(poleX, poleTop);
     cx.stroke();
 
     // Pole highlight
-    cx.strokeStyle = '#ffffff';
-    cx.lineWidth = 10;
+    cx.strokeStyle = '#dddddd';
+    cx.lineWidth = 12;
     cx.beginPath();
-    cx.moveTo(poleX - 6, poleBottom);
-    cx.lineTo(poleX - 6, poleTop);
+    cx.moveTo(poleX - 7, poleBottom);
+    cx.lineTo(poleX - 7, poleTop);
     cx.stroke();
 
-    // Pennant
+    // Pennant - fills most of the canvas width
     var pTop = poleTop;
     var pLeft = poleX;
-    var pRight = poleX + 400;
-    var pBottom = pTop + 220;
+    var pRight = 960;
+    var pMid = pTop + 180;
+    var pBottom = pTop + 360;
 
     cx.fillStyle = '#ff3366';
     cx.beginPath();
     cx.moveTo(pLeft, pTop);
-    cx.lineTo(pRight, pTop + 110);
+    cx.lineTo(pRight, pMid);
     cx.lineTo(pLeft, pBottom);
     cx.closePath();
     cx.fill();
 
     cx.strokeStyle = '#ffffff';
-    cx.lineWidth = 5;
+    cx.lineWidth = 6;
     cx.beginPath();
     cx.moveTo(pLeft, pTop);
-    cx.lineTo(pRight, pTop + 110);
+    cx.lineTo(pRight, pMid);
     cx.lineTo(pLeft, pBottom);
     cx.closePath();
     cx.stroke();
 
     cx.fillStyle = '#ffffff';
-    cx.font = 'bold 56px Oswald, sans-serif';
+    cx.font = '700 80px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     cx.textAlign = 'center';
     cx.textBaseline = 'middle';
-    cx.fillText(label, poleX + 170, pTop + 90);
+    cx.fillText(label, (pLeft + pRight) / 2 + 30, pTop + 160);
 
     return c;
 }
-
-function bearingBetween(p1, p2) {
-    var dLon = (p2.lon - p1.lon) * Math.PI / 180;
-    var lat1 = p1.lat * Math.PI / 180;
-    var lat2 = p2.lat * Math.PI / 180;
-    var y = Math.sin(dLon) * Math.cos(lat2);
-    var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
-}
-
-function metersToDegLat(m) { return m / 111320; }
-function metersToDegLon(m, lat) { return m / (111320 * Math.cos(lat * Math.PI / 180)); }
 
 function translateMatrix(matrix, x, y, z) {
     var t = new Float32Array(matrix);
@@ -175,51 +164,42 @@ export function createFlagsLayer(map, pathPoints, sectionMiles, KNOWN_LENGTH_MI,
             gl.uniform1i(this.uTex, 0);
             gl.activeTexture(gl.TEXTURE0);
 
-            var center = this.map.getCenter();
-            var centerLng = center.lng || center.lon;
-            var centerLat = center.lat;
+            var bearing = this.map.getBearing() * Math.PI / 180;
 
             for (var i = 0; i < flagDefs.length; i++) {
                 var def = flagDefs[i];
                 if (!def.wp || isNaN(def.wp.lon) || isNaN(def.wp.lat)) continue;
 
                 var te = this.map.queryTerrainElevation([def.wp.lon, def.wp.lat]);
-                if (te == null || isNaN(te)) te = def.wp.ele;
-                if (te == null || isNaN(te)) te = 0;
+                if (te == null || isNaN(te)) te = def.wp.ele || 0;
 
-                // Billboard: compute bearing from flag to camera (map center)
-                var camBearing = bearingBetween(def.wp, { lat: centerLat, lon: centerLng });
-                if (isNaN(camBearing)) camBearing = 0;
-                var perpRad = (camBearing + 90) * Math.PI / 180;
-                var cosLat = Math.cos(def.wp.lat * Math.PI / 180);
-                var perpLon = Math.sin(perpRad);
-                var perpLat = Math.cos(perpRad);
+                var origin = maplibregl.MercatorCoordinate.fromLngLat(
+                    [def.wp.lon, def.wp.lat],
+                    te + ELEVATION_BIAS
+                );
 
-                var totalH = POLE_HEIGHT_M + PENNANT_HEIGHT_M;
-                var halfW = PENNANT_WIDTH_M / 2;
-                var centerLonM = perpLon * (-halfW * 0.3);
-                var centerLatM = perpLat * (-halfW * 0.3);
+                var meterScale = origin.meterInMercatorCoordinateUnits();
+                var w = PENNANT_WIDTH_M * meterScale;
+                var h = (POLE_HEIGHT_M + PENNANT_HEIGHT_M) * meterScale;
 
-                var baseLon = def.wp.lon + metersToDegLon(centerLonM, def.wp.lat);
-                var baseLat = def.wp.lat + metersToDegLat(centerLatM);
+                var cosB = Math.cos(-bearing);
+                var sinB = Math.sin(-bearing);
 
-                var origin = maplibregl.MercatorCoordinate.fromLngLat([baseLon, baseLat], te + ELEVATION_BIAS);
-
-                var corners = [
-                    { dLon: 0,               eleOff: 0,      u: 0, v: 1 },
-                    { dLon: PENNANT_WIDTH_M, eleOff: 0,      u: 1, v: 1 },
-                    { dLon: 0,               eleOff: totalH, u: 0, v: 0 },
-                    { dLon: PENNANT_WIDTH_M, eleOff: totalH, u: 1, v: 0 }
+                var localCorners = [
+                    { x: 0, y: 0, u: 0, v: 1 },
+                    { x: w, y: 0, u: 1, v: 1 },
+                    { x: 0, y: h, u: 0, v: 0 },
+                    { x: w, y: h, u: 1, v: 0 }
                 ];
 
                 var verts = [];
                 var order = [0, 2, 3, 0, 3, 1];
                 for (var k = 0; k < order.length; k++) {
-                    var c = corners[order[k]];
-                    var cLon = baseLon + metersToDegLon(perpLon * c.dLon, def.wp.lat);
-                    var cLat = baseLat + metersToDegLat(perpLat * c.dLon);
-                    var mc = maplibregl.MercatorCoordinate.fromLngLat([cLon, cLat], te + c.eleOff + ELEVATION_BIAS);
-                    verts.push(mc.x - origin.x, mc.y - origin.y, mc.z - origin.z, c.u, c.v, 0, 0, 0);
+                    var c = localCorners[order[k]];
+                    var mx = c.x * cosB;
+                    var my = c.x * sinB;
+                    var mz = c.y;
+                    verts.push(mx, my, mz, c.u, c.v, 0, 0, 0);
                 }
 
                 var translatedMatrix = translateMatrix(matrix, origin.x, origin.y, origin.z);
