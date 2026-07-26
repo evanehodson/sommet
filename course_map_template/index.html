@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Course Map</title>
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="map"></div>
+    <div id="flythrough-controls">
+        <button id="flythrough-back" title="Back to beginning" style="display:none;">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="2" y="3" width="2" height="12" fill="currentColor"/>
+                <polygon points="15,3 15,15 5,9" fill="currentColor"/>
+            </svg>
+        </button>
+        <button id="flythrough-btn" title="Play flythrough">
+            <svg id="play-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <polygon points="4,2 4,16 15,9" fill="currentColor"/>
+            </svg>
+            <svg id="pause-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:none;">
+                <rect x="3" y="2" width="4" height="14" fill="currentColor"/>
+                <rect x="11" y="2" width="4" height="14" fill="currentColor"/>
+            </svg>
+        </button>
+        <button id="flythrough-stop" title="Stop flythrough">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="3" y="3" width="12" height="12" fill="currentColor"/>
+            </svg>
+        </button>
+    </div>
+    <div id="top-controls">
+        <div id="compass" title="Drag to rotate view">
+                <div id="compass-arrow">
+                    <span id="compass-n">N</span>
+                    <span id="compass-arrow-icon">▲</span>
+                    <span id="compass-s">S</span>
+                </div>
+            </div>
+        <div id="button-pill">
+            <button id="zoom-in">+</button>
+            <button id="zoom-out">−</button>
+            <button id="mode-btn">2D</button>
+        </div>
+    </div>
+    <div id="elevation-profile">
+        <button id="profile-toggle" title="Toggle elevation profile">
+            <span id="toggle-arrow">▲</span>
+        </button>
+        <div id="profile-content">
+            <canvas id="profile-canvas"></canvas>
+        </div>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GPS Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, sans-serif;
+            background: #000;
+            color: #fff;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #track-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid #ff3366;
+            background: transparent;
+            color: #ff3366;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #track-btn:active { transform: scale(0.95); }
+        #track-btn.active {
+            background: #ff3366;
+            color: #fff;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,51,102,0.5); }
+            50% { box-shadow: 0 0 0 20px rgba(255,51,102,0); }
+        }
+        #status {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            min-height: 20px;
+        }
+        #status.ok { color: #00cc66; }
+        #status.err { color: #cc0000; }
+        #coords {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #444;
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+<body>
+    <button id="track-btn">Share<br>Location</button>
+    <div id="status">Tap to start</div>
+    <div id="coords"></div>
+    <script>
+        const btn = document.getElementById('track-btn');
+        const status = document.getElementById('status');
+        const coords = document.getElementById('coords');
+        let ws, watchId, prevPos, lastSend = 0;
+
+        function setStatus(t, cls) { status.textContent = t; status.className = cls || ''; }
+
+        function connect() {
+            const p = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(p + '//' + location.host);
+            ws.onopen = () => { if (watchId) setStatus('Sharing location', 'ok'); else setStatus('Connected - tap to start', ''); };
+            ws.onclose = () => { setStatus('Reconnecting...', ''); setTimeout(connect, 2000); };
+            ws.onerror = () => setStatus('Connection error', 'err');
+        }
+
+        function toRad(d) { return d * Math.PI / 180; }
+        function toDeg(r) { return r * 180 / Math.PI; }
+        function calcHeading(a, b) {
+            if (!a || !b) return null;
+            var dLon = toRad(b.lon - a.lon);
+            var y = Math.sin(dLon) * Math.cos(toRad(b.lat));
+            var x = Math.cos(toRad(a.lat)) * Math.sin(toRad(b.lat)) -
+                    Math.sin(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.cos(dLon);
+            return ((toDeg(Math.atan2(y, x)) + 360) % 360) || null;
+        }
+
+        function onPos(pos) {
+            var now = Date.now();
+            if (now - lastSend < 1000) return;
+            lastSend = now;
+            var c = pos.coords;
+            var heading = c.heading || calcHeading(prevPos, { lat: c.latitude, lon: c.longitude });
+            prevPos = { lat: c.latitude, lon: c.longitude };
+
+            var msg = { type:'position', lat:c.latitude, lon:c.longitude, alt:c.altitude,
+                        accuracy:c.accuracy, heading:heading, speed:c.speed, timestamp:pos.timestamp };
+            if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg));
+
+            setStatus('Sharing location', 'ok');
+            coords.textContent = Math.round(c.accuracy) + 'm accuracy';
+        }
+
+        function onErr(e) {
+            setStatus('GPS error: ' + e.message, 'err');
+        }
+
+        btn.addEventListener('click', function() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                btn.classList.remove('active');
+                btn.innerHTML = 'Share<br>Location';
+                setStatus('Stopped', '');
+                coords.textContent = '';
+                return;
+            }
+            if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+            watchId = navigator.geolocation.watchPosition(onPos, onErr,
+                { enableHighAccuracy: true, maximumAge: 500 });
+            btn.classList.add('active');
+            btn.innerHTML = 'Stop';
+            setStatus('Requesting GPS...', '');
+        });
+
+        connect();
+    </script>
+</body>
+</html>
