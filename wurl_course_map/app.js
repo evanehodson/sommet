@@ -19,11 +19,9 @@ const map = new maplibregl.Map({
         sources: {
             'satellite': {
                 type: 'raster',
-                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                tiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg'],
                 tileSize: 256,
-                minzoom: 13,
-                maxzoom: 16,
-                attribution: 'Esri, Maxar, Earthstar Geographics'
+                attribution: 'Sentinel-2 cloudless by EOX IT Services GmbH'
             }
         },
         layers: [
@@ -219,6 +217,7 @@ map.on('load', async () => {
         'source-layer': 'contours',
         filter: ['>', ['get', 'level'], 0],
         layout: {
+            'symbol-sort-key': 5,
             'symbol-placement': 'line',
             'symbol-spacing': [
                 'interpolate', ['linear'], ['zoom'],
@@ -291,6 +290,7 @@ map.on('load', async () => {
         'source-layer': 'park',
         minzoom: 9,
         layout: {
+            'symbol-sort-key': 10,
             'text-field': '{name}',
             'text-font': ['Noto Sans Italic'],
             'text-size': 12,
@@ -421,9 +421,6 @@ map.on('load', async () => {
 
         map.addLayer(createTorusLayer(map, pathPoints, waypoints));
 
-        const flagsLayer = createFlagsLayer(map, pathPoints, SECTION_BOUNDARY_MILES, KNOWN_LENGTH_MI, cumDist, cumDistArr);
-        map.addLayer(flagsLayer);
-
         // Peak labels on top of everything
         map.addLayer({
             id: 'mountain-peaks',
@@ -433,6 +430,7 @@ map.on('load', async () => {
             filter: ['==', 'class', 'peak'],
             minzoom: 10,
             layout: {
+                'symbol-sort-key': 10,
                 'icon-image': 'peak-icon',
                 'icon-size': 0.35,
                 'icon-anchor': 'bottom',
@@ -450,6 +448,8 @@ map.on('load', async () => {
                 'text-halo-width': 1.2
             }
         });
+
+        createFlagsLayer(map, pathPoints, SECTION_BOUNDARY_MILES, KNOWN_LENGTH_MI, cumDist, cumDistArr);
 
         // ── Elevation Profile ────
 
