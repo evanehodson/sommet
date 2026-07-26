@@ -26,8 +26,8 @@ export default {
   demCacheSize: 100,
 
   // ── Satellite Tiles ─────────────────────────────────────────
-  satelliteUrl: ['https://tiles.versatiles.org/tiles/satellite/{z}/{x}/{y}'],
-  satelliteAttribution: 'VersaTiles',
+  satelliteUrl: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+  satelliteAttribution: 'Esri, Maxar, Earthstar Geographics',
   satelliteTileSize: 256,
   satelliteMaxzoom: 16,
 

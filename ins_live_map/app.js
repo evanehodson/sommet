@@ -16,10 +16,10 @@ const map = new maplibregl.Map({
         sources: {
             'satellite': {
                 type: 'raster',
-                tiles: ['https://tiles.versatiles.org/tiles/satellite/{z}/{x}/{y}'],
+                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
                 tileSize: 256,
                 maxzoom: 16,
-                attribution: 'VersaTiles'
+                attribution: 'Esri, Maxar, Earthstar Geographics'
             }
         },
         layers: [{ id: 'satellite-layer', type: 'raster', source: 'satellite' }],

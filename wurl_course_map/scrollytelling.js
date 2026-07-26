@@ -6,8 +6,8 @@ const SECTIONS = [
         mileStart: 0.0,
         mileEnd: 6.3,
         description: "You start in forest, climbing fast through Ferguson Canyon before the trees give way to granite walls. By the time you break out above treeline, you've gained more than five thousand feet without a flat stretch to recover on. The quartzite ridge above Stairs Gulch is regarded as one of the range's better sunrise vantage points, given its east-facing aspect and elevation. This opening stretch carries the steepest sustained vert on the entire route.",
-        photoHighlight: "The granite approach out of Ferguson Canyon, early light on the quartzite ridge above Stairs Gulch.",
-        photoUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=320&fit=crop&crop=top"
+        photoUrl: "https://live.staticflickr.com/7564/16086963896_d2d426a23b.jpg",
+        attribution: "Photo: Andrey Zharkikh / CC BY 2.0"
     },
     {
         id: 2,
@@ -16,8 +16,8 @@ const SECTIONS = [
         mileStart: 6.3,
         mileEnd: 9.2,
         description: "The trail disappears around Broad Fork Twin, replaced by a narrowing spine of rock with Snowbird visible far below. From here across Dromedary, Monte Cristo, and toward Superior, the route is sustained class 3–4 scrambling, hands on rock for most of the traverse. There is no maintained bailout once you're committed to this ridge, and no section of easier walking to break up the exposure.",
-        photoHighlight: "The exposed ridgeline scramble on Mount Superior's south ridge, Little Cottonwood Canyon dropping away on both sides.",
-        photoUrl: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&h=320&fit=crop&crop=left"
+        photoUrl: "https://live.staticflickr.com/8492/8304971251_16fa414283.jpg",
+        attribution: "Photo: Tristan Higbee / CC BY 2.0"
     },
     {
         id: 3,
@@ -26,8 +26,8 @@ const SECTIONS = [
         mileStart: 9.2,
         mileEnd: 13.2,
         description: "Cardiff Pass marks a brief drop in grade, and Flagstaff and Davenport Hill are runnable in a way little before them has been. Then the route climbs onto the Honeycomb Cliffs, banded rock walls rising above Alta with a layered, almost architectural look from a distance. The exposed traverses along the cliff band are technically less severe than Superior's ridge, but they arrive after roughly ten miles and 9,000 feet of climbing already logged.",
-        photoHighlight: "The banded rock of the Honeycomb Cliffs rising above Alta's terrain.",
-        photoUrl: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=320&fit=crop"
+        photoUrl: "https://live.staticflickr.com/1019/820335874_19c633e50c.jpg",
+        attribution: "Photo: summitcheese / CC BY-SA 2.0"
     },
     {
         id: 4,
@@ -36,8 +36,8 @@ const SECTIONS = [
         mileStart: 13.2,
         mileEnd: 17.0,
         description: "Past Catherine's Pass, the route drops through Alta's ski runs before climbing back onto exposed rock at Devil's Castle, a jagged, castellated summit block visible from miles away. The crossing is a knife-edge traverse with significant fall exposure on both sides, and it is the section most frequently cited in trip reports as the technical highlight of the route, independent of length.",
-        photoHighlight: "The jagged, castellated summit block of Devil's Castle against open sky.",
-        photoUrl: "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=600&h=320&fit=crop&crop=bottom"
+        photoUrl: "https://live.staticflickr.com/2642/3828064916_9c75df0970.jpg",
+        attribution: "Photo: summitcheese / CC BY-SA 2.0"
     },
     {
         id: 5,
@@ -46,8 +46,8 @@ const SECTIONS = [
         mileStart: 17.0,
         mileEnd: 19.4,
         description: "Sugarloaf and Baldy lead to Snowbird's Hidden Peak, where the tram terminal sits at just under 11,000 feet. This is the only reliable resupply point on the route, food and water accessible without carrying it in. Past this point, the terrain grows more remote and the route no longer crosses any maintained infrastructure until the finish.",
-        photoHighlight: "Hidden Peak and the Snowbird tram terminal, with the Wasatch stretching out behind it.",
-        photoUrl: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=600&h=320&fit=crop&crop=center"
+        photoUrl: "https://live.staticflickr.com/3452/3954320605_5e00e323df.jpg",
+        attribution: "Photo: John Morgan / CC BY 2.0"
     },
     {
         id: 6,
@@ -56,8 +56,8 @@ const SECTIONS = [
         mileStart: 19.4,
         mileEnd: 24.7,
         description: "The American Fork Twins lead into the stretch most frequently cited as the technical crux of the route: Red Stack, Red Baldy, and White Baldy, connected by loose rock and sustained class 3–4 climbing. The Pfeifferhorn follows, a sharp, distinctive summit prominent enough that it draws climbers as a standalone objective independent of the WURL. On this route, it marks roughly two-thirds of the distance and elevation gain.",
-        photoHighlight: "The Pfeifferhorn's distinctive summit ridge, one of the most photographed peaks in the range.",
-        photoUrl: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=600&h=320&fit=crop&crop=top"
+        photoUrl: "https://live.staticflickr.com/1334/696686505_c7b7c09d8c.jpg",
+        attribution: "Photo: summitcheese / CC BY-SA 2.0"
     },
     {
         id: 7,
@@ -66,8 +66,8 @@ const SECTIONS = [
         mileStart: 24.7,
         mileEnd: 29.1,
         description: "UPWOP, South Thunder, and Bighorn Peak occupy the most remote stretch of the route, well removed from any trailhead. Most parties cross this section at night, given typical start times and cumulative pace, navigating undulating, unmarked terrain by headlamp. Trip reports consistently identify this as the section with the highest rate of route-finding delays.",
-        photoHighlight: "The remote, undulating ridgeline toward South Thunder and Bighorn Peak, far from any trail access.",
-        photoUrl: "https://images.unsplash.com/photo-1489392191049-fc10c97e64b6?w=600&h=320&fit=crop&crop=bottom"
+        photoUrl: "https://live.staticflickr.com/65535/52270931818_e1daf74b74.jpg",
+        attribution: "Photo: DanL2011 / CC BY-SA 2.0"
     },
     {
         id: 8,
@@ -76,8 +76,8 @@ const SECTIONS = [
         mileStart: 29.1,
         mileEnd: 35.6,
         description: "The summit of Lone Peak offers a view back across the full horseshoe, including the Question Mark Wall in the cirque below. The descent leaves the summit ridge and drops through a steep, loose gully into Bells Canyon, terrain that has been the site of serious falls, including at least one fatality. Below the gully, the route joins the maintained Bells Canyon trail for the final miles to the trailhead.",
-        photoHighlight: "The Lone Peak summit view back across the traverse, and the falls along Bells Canyon on the way out.",
-        photoUrl: "https://images.unsplash.com/photo-1464278533981-50106e6176b1?w=600&h=320&fit=crop&crop=bottom"
+        photoUrl: "https://live.staticflickr.com/2348/2529743908_811dbb59e2.jpg",
+        attribution: "Photo: Zach Taylor / CC BY 2.0"
     }
 ];
 
@@ -113,6 +113,7 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
                     '</div>' +
                     '<h3 class="section-title">' + sec.title + '</h3>' +
                     '<p class="section-description">' + sec.description + '</p>' +
+                    (sec.attribution ? '<div class="section-attribution">' + sec.attribution + '</div>' : '') +
                 '</div>';
             scrollContainer.appendChild(card);
         });
