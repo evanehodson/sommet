@@ -16,68 +16,195 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            gap: 14px;
             -webkit-user-select: none;
             user-select: none;
         }
-        #track-btn {
-            width: 180px;
-            height: 180px;
+        .row { display: flex; gap: 16px; align-items: center; }
+        .btn-track {
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             border: 4px solid #ff3366;
             background: transparent;
             color: #ff3366;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
             -webkit-tap-highlight-color: transparent;
+            line-height: 1.3;
         }
-        #track-btn:active { transform: scale(0.95); }
-        #track-btn.active {
+        .btn-track:active { transform: scale(0.95); }
+        .btn-track.active {
             background: #ff3366;
             color: #fff;
             animation: heartbeat 1.5s ease-in-out infinite;
         }
         @keyframes heartbeat {
             0%, 100% { box-shadow: 0 0 0 0 rgba(255,51,102,0.5); }
-            50% { box-shadow: 0 0 0 20px rgba(255,51,102,0); }
+            50% { box-shadow: 0 0 0 16px rgba(255,51,102,0); }
         }
-        #status {
-            margin-top: 24px;
+        .btn-timer {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid;
+            background: transparent;
             font-size: 14px;
-            color: #666;
-            text-align: center;
-            min-height: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
+        .btn-timer:active { transform: scale(0.95); }
+        #start-btn { border-color: #00cc66; color: #00cc66; }
+        #start-btn.active { background: #00cc66; color: #000; }
+        #finish-btn { border-color: #cc0000; color: #cc0000; }
+        #finish-btn.active { background: #cc0000; color: #fff; }
+        #finish-btn:disabled { opacity: 0.25; cursor: default; }
+        #status { font-size: 13px; color: #555; text-align: center; min-height: 18px; }
         #status.ok { color: #00cc66; }
         #status.err { color: #cc0000; }
-        #coords {
-            margin-top: 12px;
-            font-size: 13px;
-            color: #444;
-            font-variant-numeric: tabular-nums;
+        #coords { font-size: 12px; color: #333; font-variant-numeric: tabular-nums; }
+        #clock { font-size: 36px; font-weight: 700; font-variant-numeric: tabular-nums; color: #fff; letter-spacing: 2px; min-height: 44px; }
+
+        #msg-wrap {
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
         }
+        #msg-input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+        }
+        #msg-input::placeholder { color: #555; }
+        #msg-input:focus { border-color: #ff3366; }
+        #msg-send {
+            background: #ff3366;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 10px 14px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #msg-send:active { transform: scale(0.95); }
+
+        #chat-log {
+            width: 100%;
+            max-width: 320px;
+            max-height: 100px;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
+        .chat-msg { padding: 2px 0; }
     </style>
 </head>
 <body>
-    <button id="track-btn">Share<br>Location</button>
+    <div id="clock">0:00:00</div>
+    <div class="row">
+        <button class="btn-timer" id="start-btn">START</button>
+        <button class="btn-timer" id="finish-btn" disabled>FINISH</button>
+    </div>
+    <button class="btn-track" id="track-btn">Share<br>Location</button>
+    <div id="msg-wrap">
+        <input id="msg-input" type="text" placeholder="Quick update..." maxlength="200" enterkeyhint="send" />
+        <button id="msg-send">Send</button>
+    </div>
+    <div id="chat-log"></div>
     <div id="status">Tap to start</div>
     <div id="coords"></div>
     <script>
-        const btn = document.getElementById('track-btn');
+        const trackBtn = document.getElementById('track-btn');
+        const startBtn = document.getElementById('start-btn');
+        const finishBtn = document.getElementById('finish-btn');
         const status = document.getElementById('status');
         const coords = document.getElementById('coords');
+        const clockEl = document.getElementById('clock');
+        const msgInput = document.getElementById('msg-input');
+        const msgSend = document.getElementById('msg-send');
+        const chatLog = document.getElementById('chat-log');
         let ws, watchId, prevPos, lastSend = 0;
+        let raceStartTime = null, clockInterval = null;
 
         function setStatus(t, cls) { status.textContent = t; status.className = cls || ''; }
 
         function connect() {
             const p = location.protocol === 'https:' ? 'wss:' : 'ws:';
             ws = new WebSocket(p + '//' + location.host);
-            ws.onopen = () => { if (watchId) setStatus('Sharing location', 'ok'); else setStatus('Connected - tap to start', ''); };
+            ws.onopen = () => { if (watchId) setStatus('Sharing location', 'ok'); else setStatus('Connected', ''); };
             ws.onclose = () => { setStatus('Reconnecting...', ''); setTimeout(connect, 2000); };
             ws.onerror = () => setStatus('Connection error', 'err');
+            ws.onmessage = (e) => {
+                try {
+                    const msg = JSON.parse(e.data);
+                    if (msg.type === 'start') { raceStartTime = msg.time; startClock(); }
+                    else if (msg.type === 'finish') { stopClock(msg.time); }
+                    else if (msg.type === 'update') { showChat(msg.text, msg.time); }
+                } catch(er) {}
+            };
         }
+
+        function fmtTime(ms) {
+            var s = Math.floor(ms / 1000);
+            var h = Math.floor(s / 3600);
+            var m = Math.floor((s % 3600) / 60);
+            var sec = s % 60;
+            return h + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+        }
+
+        function startClock() {
+            startBtn.classList.add('active');
+            startBtn.textContent = 'RUNNING';
+            finishBtn.disabled = false;
+            if (clockInterval) clearInterval(clockInterval);
+            clockInterval = setInterval(() => {
+                clockEl.textContent = fmtTime(Date.now() - raceStartTime);
+            }, 200);
+        }
+
+        function stopClock(ft) {
+            if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
+            clockEl.textContent = fmtTime(ft - raceStartTime);
+            startBtn.classList.remove('active');
+            startBtn.textContent = 'START';
+            finishBtn.classList.add('active');
+            finishBtn.textContent = 'DONE';
+            finishBtn.disabled = true;
+        }
+
+        function showChat(text, time) {
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            div.textContent = text;
+            chatLog.prepend(div);
+            while (chatLog.children.length > 10) chatLog.lastChild.remove();
+        }
+
+        function sendMsg() {
+            const text = msgInput.value.trim();
+            if (!text) return;
+            if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'update', text, time: Date.now() }));
+            showChat(text);
+            msgInput.value = '';
+        }
+
+        msgSend.addEventListener('click', sendMsg);
+        msgInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMsg(); });
 
         function toRad(d) { return d * Math.PI / 180; }
         function toDeg(r) { return r * 180 / Math.PI; }
@@ -106,16 +233,14 @@
             coords.textContent = Math.round(c.accuracy) + 'm accuracy';
         }
 
-        function onErr(e) {
-            setStatus('GPS error: ' + e.message, 'err');
-        }
+        function onErr(e) { setStatus('GPS error: ' + e.message, 'err'); }
 
-        btn.addEventListener('click', function() {
+        trackBtn.addEventListener('click', function() {
             if (watchId) {
                 navigator.geolocation.clearWatch(watchId);
                 watchId = null;
-                btn.classList.remove('active');
-                btn.innerHTML = 'Share<br>Location';
+                trackBtn.classList.remove('active');
+                trackBtn.innerHTML = 'Share<br>Location';
                 setStatus('Stopped', '');
                 coords.textContent = '';
                 return;
@@ -123,9 +248,23 @@
             if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
             watchId = navigator.geolocation.watchPosition(onPos, onErr,
                 { enableHighAccuracy: true, maximumAge: 500 });
-            btn.classList.add('active');
-            btn.innerHTML = 'Stop';
+            trackBtn.classList.add('active');
+            trackBtn.innerHTML = 'Stop';
             setStatus('Requesting GPS...', '');
+        });
+
+        startBtn.addEventListener('click', function() {
+            if (raceStartTime) return;
+            raceStartTime = Date.now();
+            if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'start', time: raceStartTime }));
+            startClock();
+        });
+
+        finishBtn.addEventListener('click', function() {
+            if (!raceStartTime || finishBtn.disabled) return;
+            var ft = Date.now();
+            if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'finish', time: ft }));
+            stopClock(ft);
         });
 
         connect();

@@ -12,10 +12,15 @@
 </head>
 <body>
     <div id="map"></div>
-    <div id="radar-pulse">
-        <div class="radar-ring"></div>
-        <div class="radar-ring"></div>
-        <div class="radar-ring"></div>
+    <div id="race-hud">
+        <div id="race-clock">0:00:00</div>
+        <div id="race-stats">
+            <span id="race-dist">0.00 mi</span>
+            <span class="sep">&middot;</span>
+            <span id="race-pace">--:-- /mi</span>
+        </div>
+        <div id="race-splits"></div>
+        <div id="race-updates"></div>
     </div>
     <div id="top-controls">
         <div id="compass" title="Drag to rotate view">
@@ -41,10 +46,6 @@
             <line x1="15" y1="10" x2="19" y2="10" stroke="currentColor" stroke-width="1.5"/>
         </svg>
     </button>
-    <div id="connection-status" title="WebSocket connection">
-        <span id="conn-dot"></span>
-        <span id="conn-label">No signal</span>
-    </div>
     <div id="elevation-profile">
         <button id="profile-toggle" title="Toggle elevation profile">
             <span id="toggle-arrow">▲</span>

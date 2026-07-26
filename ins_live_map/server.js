@@ -58,10 +58,10 @@ wss.on('connection', (ws, req) => {
             const msg = JSON.parse(raw);
             if (msg.type === 'position') {
                 latestPosition = msg;
-                for (const client of wss.clients) {
-                    if (client !== ws && client.readyState === 1) {
-                        client.send(JSON.stringify(msg));
-                    }
+            }
+            for (const client of wss.clients) {
+                if (client !== ws && client.readyState === 1) {
+                    client.send(JSON.stringify(msg));
                 }
             }
         } catch (e) {
