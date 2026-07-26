@@ -92,6 +92,12 @@ document.addEventListener('mouseup', (e) => { if (e.button === 2) pitching = fal
 let livePosition = null;
 let followEnabled = true;
 let trailPoints = null;
+let trailCumDist = null;
+let trailProfile = null;
+let runnerDist = null;
+let drawProfileFn = null;
+let lastSnapSegIdx = -1;
+let snapCacheKey = null, snapCacheVal = null;
 
 const followBtn = document.getElementById('follow-btn');
 followBtn.addEventListener('click', () => {
@@ -166,7 +172,8 @@ function animateRadar() {
 // ── Race HUD ────────────────────────────────────────────────
 
 let raceStartTime = null, raceFinishTime = null, raceClockInterval = null;
-let raceDistMi = 0, prevRacePos = null, lastMileIdx = 0;
+let raceDistMi = 0, lastMileIdx = 0;
+let startTrackDist = null;
 const mileSplits = [];
 
 const clockEl = document.getElementById('race-clock');
@@ -202,10 +209,12 @@ function stopRaceClock(ft) {
 }
 
 function updateRaceStats() {
-    if (!livePosition || !prevRacePos || !raceStartTime) return;
-    const distMi = haversine(prevRacePos.lon, prevRacePos.lat, livePosition.lon, livePosition.lat) / 1609.344;
-    raceDistMi += distMi;
-    prevRacePos = { lon: livePosition.lon, lat: livePosition.lat };
+    if (!livePosition || !raceStartTime) return;
+    const snap = snapToTrack(livePosition.lon, livePosition.lat);
+    if (!snap) return;
+    if (startTrackDist === null) { startTrackDist = snap.trackDist; return; }
+    raceDistMi = snap.trackDist - startTrackDist;
+    if (raceDistMi < 0) raceDistMi = 0;
     distEl.textContent = raceDistMi.toFixed(2) + ' mi';
 
     const end = raceFinishTime || Date.now();
@@ -252,7 +261,11 @@ function wsConnect() {
             if (msg.type === 'position') handleLivePosition(msg);
             else if (msg.type === 'start') {
                 raceStartTime = msg.time;
-                prevRacePos = livePosition ? { lon: livePosition.lon, lat: livePosition.lat } : null;
+                startTrackDist = null;
+                lastSnapSegIdx = -1;
+                snapCacheKey = null;
+                raceDistMi = 0;
+                lastMileIdx = 0;
                 startRaceClock();
             }
             else if (msg.type === 'finish') stopRaceClock(msg.time);
@@ -377,9 +390,11 @@ map.on('load', async () => {
         }
 
         trailPoints = pathPoints;
-        const KNOWN_LENGTH_MI = 35.6;
+        trailCumDist = cumDistArr;
+        const KNOWN_LENGTH_MI = 20.1;
         const distScale = KNOWN_LENGTH_MI / cumDist;
         profile.forEach(p => p.dist *= distScale);
+        trailProfile = profile;
 
         const wptEls = xml.getElementsByTagName('wpt');
         const waypoints = [];
@@ -454,21 +469,6 @@ map.on('load', async () => {
 
         // ── Trail split ─────────────────────────────────────
 
-        function updateTrailSplit(lon, lat) {
-            let bestIdx = 0, bestSq = Infinity;
-            for (let i = 0; i < pathPoints.length; i++) {
-                const dx = pathPoints[i].lon - lon, dy = pathPoints[i].lat - lat;
-                const sq = dx * dx + dy * dy;
-                if (sq < bestSq) { bestSq = sq; bestIdx = i; }
-            }
-            map.getSource('trail-completed').setData({
-                type: 'Feature', geometry: { type: 'LineString', coordinates: pathPoints.slice(0, bestIdx + 1).map(p => [p.lon, p.lat]) }
-            });
-            map.getSource('trail-remaining').setData({
-                type: 'Feature', geometry: { type: 'LineString', coordinates: pathPoints.slice(bestIdx).map(p => [p.lon, p.lat]) }
-            });
-        }
-
         map.addLayer(createTorusLayer(map, pathPoints, waypoints));
 
         map.addLayer({ id: 'mountain-peaks', type: 'symbol', source: 'openfreemap', 'source-layer': 'mountain_peak',
@@ -512,18 +512,6 @@ map.on('load', async () => {
         const ctx = canvas.getContext('2d');
         const profilePanel = document.getElementById('elevation-profile');
         const toggleBtn = document.getElementById('profile-toggle');
-        let runnerDist = null;
-
-        function updateProfileRunner(lon, lat) {
-            let bestIdx = 0, bestSq = Infinity;
-            for (let i = 0; i < pathPoints.length; i++) {
-                const dx = pathPoints[i].lon - lon, dy = pathPoints[i].lat - lat;
-                const sq = dx * dx + dy * dy;
-                if (sq < bestSq) { bestSq = sq; bestIdx = i; }
-            }
-            runnerDist = profile[bestIdx] ? profile[bestIdx].dist : null;
-            drawProfile();
-        }
 
         function drawProfile() {
             const parent = canvas.parentElement;
@@ -631,6 +619,7 @@ map.on('load', async () => {
             }
         }
 
+        drawProfileFn = drawProfile;
         drawProfile();
         window.addEventListener('resize', drawProfile);
         profilePanel.addEventListener('transitionend', () => drawProfile());
@@ -646,4 +635,80 @@ function haversine(lon1, lat1, lon2, lat2) {
     const dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// ── Course Snapping ──────────────────────────────────────────
+
+function snapToTrack(lon, lat) {
+    if (!trailPoints || !trailCumDist) return null;
+    const key = lon + ',' + lat;
+    if (key === snapCacheKey) return snapCacheVal;
+
+    function projDist(ax, ay, bx, by) {
+        const abx = bx - ax, aby = by - ay;
+        const apx = lon - ax, apy = lat - ay;
+        const ab2 = abx * abx + aby * aby;
+        if (ab2 < 1e-15) return { sq: Infinity, t: 0 };
+        const t = Math.max(0, Math.min(1, (apx * abx + apy * aby) / ab2));
+        const cx = ax + t * abx, cy = ay + t * aby;
+        const dx = lon - cx, dy = lat - cy;
+        return { sq: dx * dx + dy * dy, t };
+    }
+
+    let bestSeg = 0, bestSq = Infinity, bestT = 0;
+
+    // Search window around previous snap
+    let lo = 0, hi = trailPoints.length - 1;
+    if (lastSnapSegIdx >= 0) {
+        lo = Math.max(0, lastSnapSegIdx - 50);
+        hi = Math.min(trailPoints.length - 1, lastSnapSegIdx + 150);
+    }
+    for (let i = lo; i < hi; i++) {
+        const r = projDist(trailPoints[i].lon, trailPoints[i].lat, trailPoints[i + 1].lon, trailPoints[i + 1].lat);
+        if (r.sq < bestSq) { bestSq = r.sq; bestSeg = i; bestT = r.t; }
+    }
+
+    // Fallback: if best snap is >100m away, do full search
+    const latMid = (trailPoints[bestSeg].lat + trailPoints[bestSeg + 1].lat) / 2 * Math.PI / 180;
+    if (Math.sqrt(bestSq) * 111320 * Math.cos(latMid) > 100 && lastSnapSegIdx >= 0) {
+        for (let i = 0; i < trailPoints.length - 1; i++) {
+            if (i >= lo && i < hi) continue;
+            const r = projDist(trailPoints[i].lon, trailPoints[i].lat, trailPoints[i + 1].lon, trailPoints[i + 1].lat);
+            if (r.sq < bestSq) { bestSq = r.sq; bestSeg = i; bestT = r.t; }
+        }
+    }
+
+    const segLen = trailCumDist[bestSeg + 1] - trailCumDist[bestSeg];
+    const trackDist = trailCumDist[bestSeg] + bestT * segLen;
+    const distMeters = Math.sqrt(bestSq) * 111320 * Math.cos(
+        (trailPoints[bestSeg].lat + trailPoints[bestSeg + 1].lat) / 2 * Math.PI / 180
+    );
+
+    lastSnapSegIdx = bestSeg;
+    snapCacheKey = key;
+    snapCacheVal = { trackDist, segIdx: bestSeg, t: bestT, distMeters };
+    return snapCacheVal;
+}
+
+function updateTrailSplit(lon, lat) {
+    if (!trailPoints) return;
+    const snap = snapToTrack(lon, lat);
+    const splitIdx = snap ? snap.segIdx + 1 : 0;
+    map.getSource('trail-completed').setData({
+        type: 'Feature', geometry: { type: 'LineString', coordinates: trailPoints.slice(0, splitIdx).map(p => [p.lon, p.lat]) }
+    });
+    map.getSource('trail-remaining').setData({
+        type: 'Feature', geometry: { type: 'LineString', coordinates: trailPoints.slice(Math.max(0, splitIdx - 1)).map(p => [p.lon, p.lat]) }
+    });
+}
+
+function updateProfileRunner(lon, lat) {
+    const snap = snapToTrack(lon, lat);
+    if (snap && trailProfile) {
+        const profileDist = snap.trackDist * (trailProfile[trailProfile.length - 1].dist / trailCumDist[trailCumDist.length - 1]);
+        runnerDist = profileDist;
+    } else {
+        runnerDist = null;
+    }
+    if (drawProfileFn) drawProfileFn();
 }

@@ -49,7 +49,7 @@ function interpAt(cum, pts, dist) {
 
 export function initFlyThrough(map, pathPoints, onProgress) {
     var SPEED = 1200;
-    var CAM_ABOVE = 3000;
+    var CAM_ABOVE = 1800;
     var EARTH_CIRC = 40075016.686;
     var HEADING_FORWARD = SPEED * 2;
     var LOOK_AHEAD = SPEED * 2;
@@ -302,14 +302,65 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         });
     }
 
+    function applyCamera(d) {
+        var dot = interpAt(cumDist, pathPoints, d);
+
+        moveRunner(dot.lon, dot.lat);
+        showRunner();
+
+        var headingDx = 0, headingDy = 0;
+        var hSamples = 20;
+        var aheadEnd = Math.min(d + HEADING_FORWARD, totalLen);
+        for (var i = 0; i < hSamples; i++) {
+            var d1 = d + (aheadEnd - d) * i / hSamples;
+            var d2 = Math.min(d1 + SPEED * 0.1, aheadEnd);
+            var p1 = interpAt(cumDist, pathPoints, d1);
+            var p2 = interpAt(cumDist, pathPoints, d2);
+            var b = toRad(bearingDeg(p1.lon, p1.lat, p2.lon, p2.lat));
+            headingDx += Math.cos(b);
+            headingDy += Math.sin(b);
+        }
+        var targetBearing = (toDeg(Math.atan2(headingDy, headingDx)) + 360) % 360;
+
+        var maxAheadEle = dot.ele;
+        for (var t = 0; t <= LOOK_AHEAD; t += SPEED * 0.5) {
+            var p = interpAt(cumDist, pathPoints, Math.min(d + t, totalLen));
+            if (p.ele > maxAheadEle) maxAheadEle = p.ele;
+        }
+        var targetZoom = Math.log2(EARTH_CIRC * Math.cos(toRad(dot.lat)) / (maxAheadEle * 1.5 + CAM_ABOVE));
+        targetZoom = Math.max(2, Math.min(18, targetZoom));
+
+        var surfEle = dot.ele;
+        try {
+            var qe = map.queryTerrainElevation([dot.lon, dot.lat]);
+            if (qe != null && !isNaN(qe)) surfEle = qe;
+        } catch (e) { }
+
+        var headRad = toRad(targetBearing);
+        var cosLat = Math.cos(toRad(dot.lat));
+        var dLat = surfEle * Math.cos(headRad) / 111320;
+        var dLon = surfEle * Math.sin(headRad) / (111320 * cosLat);
+
+        map.stop();
+        map.easeTo({
+            center: [dot.lon + dLon, dot.lat + dLat],
+            bearing: targetBearing,
+            pitch: 45,
+            zoom: targetZoom,
+            duration: 600,
+            easing: function(t) { return t; }
+        });
+    }
+
     function setProgress(meters) {
         progress = Math.max(0, Math.min(meters, totalLen));
         lastTime = null;
         smoothBearing = null;
         smoothZoom = null;
         smoothSurfEle = null;
+        applyCamera(progress);
         if (onProgress) onProgress(progress, totalLen);
     }
 
-    return { moveRunner, showRunner, hideRunner, setProgress, isRunning: () => running };
+    return { moveRunner, showRunner, hideRunner, setProgress, isRunning: () => running, stop: stopAll };
 }

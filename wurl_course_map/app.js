@@ -1,5 +1,7 @@
 import { createTorusLayer } from './torus.js';
 import { initFlyThrough } from './fly_through.js';
+import { initScrollytelling, SECTION_BOUNDARY_MILES } from './scrollytelling.js';
+import { createFlagsLayer } from './flags.js';
 
 const demSource = new mlcontour.DemSource({
     url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
@@ -418,6 +420,9 @@ map.on('load', async () => {
 
         map.addLayer(createTorusLayer(map, pathPoints, waypoints));
 
+        const flagsLayer = createFlagsLayer(map, pathPoints, SECTION_BOUNDARY_MILES, KNOWN_LENGTH_MI, cumDist, cumDistArr);
+        map.addLayer(flagsLayer);
+
         // Peak labels on top of everything
         map.addLayer({
             id: 'mountain-peaks',
@@ -459,6 +464,34 @@ map.on('load', async () => {
             runnerDist = progress > 0 ? (progress / 1609.34) * (KNOWN_LENGTH_MI / cumDist) : null;
             drawProfile();
         });
+
+        const scrollytelling = initScrollytelling({
+            onMileChange: function(mile) {
+                var flyMeters = mile * 1609.34;
+                flyThrough.setProgress(flyMeters);
+                runnerDist = mile;
+                drawProfile();
+            },
+            onSidebarToggle: function(isOpen) {
+                const flythroughEl = document.getElementById('flythrough-controls');
+                if (isOpen) {
+                    flythroughEl.style.display = 'none';
+                    if (flyThrough.isRunning()) flyThrough.stop();
+                } else {
+                    flythroughEl.style.display = '';
+                }
+            }
+        });
+
+        // Resize map when sidebar transition finishes
+        document.getElementById('scrollytelling-sidebar').addEventListener('transitionend', function() {
+            map.resize();
+        });
+
+        // Open sidebar by default
+        setTimeout(function() {
+            scrollytelling.open();
+        }, 600);
 
         function interpProfileCoords(d) {
             const scale = KNOWN_LENGTH_MI / cumDist;
@@ -572,6 +605,37 @@ map.on('load', async () => {
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
+            // Section boundary markers on profile
+            ctx.save();
+            for (let si = 0; si < SECTION_BOUNDARY_MILES.length; si++) {
+                const mile = SECTION_BOUNDARY_MILES[si];
+                const sx = pad.left + (mile / maxD) * pw;
+                ctx.beginPath();
+                ctx.setLineDash([3, 3]);
+                ctx.moveTo(sx, pad.top);
+                ctx.lineTo(sx, pad.top + ph);
+                ctx.strokeStyle = 'rgba(255, 51, 102, 0.25)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.setLineDash([]);
+                if (si > 0 && si < SECTION_BOUNDARY_MILES.length - 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(sx, pad.top + 2);
+                    ctx.lineTo(sx, pad.top - 10);
+                    ctx.strokeStyle = '#ff3366';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(sx, pad.top - 10);
+                    ctx.lineTo(sx + 7, pad.top - 6);
+                    ctx.lineTo(sx, pad.top - 2);
+                    ctx.closePath();
+                    ctx.fillStyle = '#ff3366';
+                    ctx.fill();
+                }
+            }
+            ctx.restore();
+
             // Runner scrubber on profile
             const scrubDist = hoverDist !== null ? hoverDist : runnerDist;
             if (scrubDist !== null && scrubDist > 0) {
@@ -674,6 +738,7 @@ map.on('load', async () => {
                 map.jumpTo({
                     center: [nearestPt.lon, nearestPt.lat]
                 });
+                scrollytelling.jumpToMile(runnerDist);
                 drawProfile();
             }
         });
@@ -739,6 +804,7 @@ map.on('load', async () => {
             map.jumpTo({
                 center: [coords.lon, coords.lat]
             });
+            scrollytelling.jumpToMile(clickDist);
             drawProfile();
         });
 
