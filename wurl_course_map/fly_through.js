@@ -69,6 +69,7 @@ export function initFlyThrough(map, pathPoints, onProgress, onStateChange) {
     var compassDragStart = 0, isDraggingCompass = false;
     var lastFrameZoom = null;
     var viewMode = 'follow';
+    var skipPitchFrame = false;
 
     var btn = document.getElementById('flythrough-btn');
     var playIcon = document.getElementById('play-icon');
@@ -260,9 +261,10 @@ export function initFlyThrough(map, pathPoints, onProgress, onStateChange) {
 
         if (userPitch === null) {
             userPitch = curPitch;
-        } else if (Math.abs(curPitch - userPitch) > 0.5) {
+        } else if (!skipPitchFrame && Math.abs(curPitch - userPitch) > 0.5) {
             userPitch = curPitch;
         }
+        skipPitchFrame = false;
 
         // ── Final bearing = trail heading + orbit offset ──
         var finalBearing = ((smoothBearing + orbitDegrees) % 360 + 360) % 360;
@@ -449,6 +451,14 @@ export function initFlyThrough(map, pathPoints, onProgress, onStateChange) {
 
     function setViewMode(mode) {
         viewMode = mode;
+        if (mode === 'follow') {
+            userPitch = 60;
+            userZoom = null;
+            lastFrameZoom = null;
+            smoothBearing = null;
+            smoothSurfEle = null;
+            skipPitchFrame = true;
+        }
     }
 
     function getViewMode() {

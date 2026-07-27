@@ -45,10 +45,10 @@ const map = new maplibregl.Map({
         ],
         glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf'
     },
-    center: [-111.70, 40.56],
+    center: [-111.818258, 40.576073],
     zoom: 11,
     pitch: 60,
-    bearing: -15,
+    bearing: 90,
     maxPitch: 85
 });
 
@@ -518,6 +518,12 @@ map.on('load', async () => {
             state.setMile(mile, 'flythrough');
         }, updateControls);
 
+        document.getElementById('flythrough-btn').addEventListener('click', () => {
+            if (flyThrough.isRunning() && is2D) {
+                map.fitBounds(courseBounds, { padding: { top: 60, right: 60, bottom: 280, left: 60 }, duration: 1000, pitch: 0, bearing: 0 });
+            }
+        });
+
         const scrollytelling = initScrollytelling({
             onMileChange: function(mile) {
                 var flyMeters = mile * 1609.34;
@@ -848,7 +854,7 @@ map.on('load', async () => {
             state.setMile(clickDist, 'profile-click');
         });
 
-        map.fitBounds(courseBounds, { padding: { top: 60, right: 60, bottom: 280, left: 60 }, duration: 3500, pitch: 55, bearing: -15 });
+        map.fitBounds(courseBounds, { padding: { top: 60, right: 60, bottom: 280, left: 60 }, duration: 3500, pitch: 55, bearing: 90 });
 
         updateControls();
 
