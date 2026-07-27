@@ -93,7 +93,19 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
     let isProgrammaticScroll = false;
     let activeSectionIdx = -1;
     let currentMile = 0;
-    const CARD_HEIGHT = 500;
+    let cardHeight = 500;
+
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+
+    function measureCardHeight() {
+        const firstCard = scrollContainer.querySelector('.section-card');
+        if (firstCard) {
+            const h = firstCard.getBoundingClientRect().height;
+            if (h > 0) cardHeight = h;
+        }
+    }
 
     function buildCards() {
         scrollContainer.innerHTML = '';
@@ -102,8 +114,6 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
             const card = document.createElement('div');
             card.className = 'section-card';
             card.dataset.index = i;
-            card.style.height = CARD_HEIGHT + 'px';
-            card.style.overflow = 'hidden';
             card.innerHTML =
                 '<img class="section-photo" src="' + sec.photoUrl + '" alt="' + sec.title + '" loading="lazy">' +
                 '<div class="section-card-body">' +
@@ -118,20 +128,31 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
             scrollContainer.appendChild(card);
         });
 
+        if (!isMobile()) {
+            const cards = scrollContainer.querySelectorAll('.section-card');
+            cards.forEach(function(c) {
+                c.style.height = cardHeight + 'px';
+                c.style.overflow = 'hidden';
+            });
+        }
+
         var spacer = document.createElement('div');
-        spacer.style.height = CARD_HEIGHT + 'px';
+        spacer.style.height = cardHeight + 'px';
+        spacer.className = 'scroll-spacer';
         scrollContainer.appendChild(spacer);
     }
 
     buildCards();
 
+    setTimeout(measureCardHeight, 100);
+
     function scrollPosToMile(scrollTop) {
-        var cardIdx = Math.floor(scrollTop / CARD_HEIGHT);
+        var cardIdx = Math.floor(scrollTop / cardHeight);
         if (cardIdx >= SECTIONS.length) cardIdx = SECTIONS.length - 1;
         if (cardIdx < 0) cardIdx = 0;
 
-        var withinCard = scrollTop - cardIdx * CARD_HEIGHT;
-        var fraction = Math.max(0, Math.min(1, withinCard / CARD_HEIGHT));
+        var withinCard = scrollTop - cardIdx * cardHeight;
+        var fraction = Math.max(0, Math.min(1, withinCard / cardHeight));
         var sec = SECTIONS[cardIdx];
         return sec.mileStart + fraction * (sec.mileEnd - sec.mileStart);
     }
@@ -147,7 +168,7 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
         var sec = SECTIONS[cardIdx];
         var fraction = (mile - sec.mileStart) / (sec.mileEnd - sec.mileStart);
         fraction = Math.max(0, Math.min(1, fraction));
-        return cardIdx * CARD_HEIGHT + fraction * CARD_HEIGHT;
+        return cardIdx * cardHeight + fraction * cardHeight;
     }
 
     function updateActiveSection(idx) {
@@ -166,7 +187,7 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
         if (scrollMax <= 0) return;
 
         currentMile = scrollPosToMile(scrollTop);
-        var cardIdx = Math.min(Math.floor(scrollTop / CARD_HEIGHT), SECTIONS.length - 1);
+        var cardIdx = Math.min(Math.floor(scrollTop / cardHeight), SECTIONS.length - 1);
 
         updateActiveSection(cardIdx);
         if (onMileChange) onMileChange(currentMile);
@@ -178,6 +199,7 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
         toggleBtn.classList.add('hidden');
         if (onSidebarToggle) onSidebarToggle(true);
         updateActiveSection(activeSectionIdx >= 0 ? activeSectionIdx : 0);
+        setTimeout(measureCardHeight, 50);
     }
 
     function close() {
@@ -190,12 +212,22 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
     toggleBtn.addEventListener('click', open);
     closeBtn.addEventListener('click', close);
 
+    window.addEventListener('resize', function() {
+        measureCardHeight();
+        if (isOpen) {
+            var targetTop = mileToScrollTop(currentMile);
+            isProgrammaticScroll = true;
+            scrollContainer.scrollTop = targetTop;
+            setTimeout(function() { isProgrammaticScroll = false; }, 50);
+        }
+    });
+
     function jumpToMile(mile) {
         currentMile = mile;
         if (!isOpen) return;
 
         var targetTop = mileToScrollTop(mile);
-        var cardIdx = Math.min(Math.floor(targetTop / CARD_HEIGHT), SECTIONS.length - 1);
+        var cardIdx = Math.min(Math.floor(targetTop / cardHeight), SECTIONS.length - 1);
 
         isProgrammaticScroll = true;
         scrollContainer.scrollTop = targetTop;
@@ -207,6 +239,7 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
     return {
         jumpToMile: jumpToMile,
         isSidebarOpen: function() { return isOpen; },
-        open: open
+        open: open,
+        close: close
     };
 }

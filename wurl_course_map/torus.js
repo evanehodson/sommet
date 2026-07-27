@@ -27,10 +27,10 @@ function makeTextCanvas(label) {
     const c = document.createElement('canvas');
     c.width = 1024; c.height = 256;
     const cx = c.getContext('2d');
-    cx.fillStyle = '#ff3366';
+    cx.fillStyle = '#FF3B30';
     cx.fillRect(0, 0, 1024, 256);
     cx.fillStyle = '#ffffff';
-    cx.font = 'bold 80px Oswald, sans-serif';
+    cx.font = 'bold 80px Inter, sans-serif';
     cx.textAlign = 'center';
     cx.textBaseline = 'middle';
     for (let i = 0; i < 3; i++) {

@@ -2,6 +2,7 @@ import { createTorusLayer } from './torus.js';
 import { initFlyThrough } from './fly_through.js';
 import { initScrollytelling, SECTION_BOUNDARY_MILES } from './scrollytelling.js';
 import { createFlagsLayer } from './flags.js';
+import * as state from './state.js';
 
 const demSource = new mlcontour.DemSource({
     url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
@@ -97,6 +98,37 @@ document.addEventListener('mouseup', () => {
     if (dragging) {
         dragging = false;
         compass.style.cursor = 'grab';
+    }
+});
+
+compass.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    e.preventDefault();
+    dragging = true;
+    const touch = e.touches[0];
+    const rect = compass.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    dragStartAngle = Math.atan2(touch.clientX - cx, cy - touch.clientY) * 180 / Math.PI;
+    dragStartBearing = map.getBearing();
+}, { passive: false });
+
+document.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const touch = e.touches[0];
+    const rect = compass.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const angle = Math.atan2(touch.clientX - cx, cy - touch.clientY) * 180 / Math.PI;
+    let delta = angle - dragStartAngle;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    map.setBearing(((dragStartBearing - delta) % 360 + 360) % 360);
+}, { passive: true });
+
+document.addEventListener('touchend', () => {
+    if (dragging) {
+        dragging = false;
     }
 });
 
@@ -354,43 +386,33 @@ map.on('load', async () => {
             waypoints.push({ name, lon, lat, ele: nearestEle, eleFt: nearestEle * 3.28084 });
         }
 
+        // Smooth path: interpolate intermediate points for crisp curves
+        function smoothPath(pts, factor) {
+            var out = [];
+            for (var i = 0; i < pts.length - 1; i++) {
+                for (var s = 0; s < factor; s++) {
+                    var t = s / factor;
+                    out.push({
+                        lon: pts[i].lon + (pts[i + 1].lon - pts[i].lon) * t,
+                        lat: pts[i].lat + (pts[i + 1].lat - pts[i].lat) * t
+                    });
+                }
+            }
+            out.push(pts[pts.length - 1]);
+            return out;
+        }
+        var smoothPoints = smoothPath(pathPoints, 4);
+
         map.addSource('trail-line', {
             type: 'geojson',
             data: {
                 type: 'Feature',
                 geometry: {
                     type: 'LineString',
-                    coordinates: pathPoints.map(p => [p.lon, p.lat])
+                    coordinates: smoothPoints.map(p => [p.lon, p.lat])
                 }
             }
         });
-        map.addLayer({
-            id: 'trail-outline',
-            type: 'line',
-            source: 'trail-line',
-            layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            paint: {
-                'line-color': '#ffffff',
-                'line-width': [
-                    'interpolate', ['exponential', 2], ['zoom'],
-                    9, 0.415,
-                    10, 0.83,
-                    11, 1.66,
-                    12, 3.32,
-                    13, 6.64,
-                    14, 13.29,
-                    15, 26.58,
-                    16, 53.15,
-                    17, 106.3,
-                    18, 212.6
-                ],
-                'line-opacity': 1.0,
-                'line-blur': 0
-            }
-        }, 'park-labels');
         map.addLayer({
             id: 'trail-line',
             type: 'line',
@@ -400,7 +422,7 @@ map.on('load', async () => {
                 'line-cap': 'round'
             },
             paint: {
-                'line-color': '#ff3366',
+                'line-color': '#FF3B30',
                 'line-width': [
                     'interpolate', ['exponential', 2], ['zoom'],
                     9, 0.215,
@@ -459,30 +481,30 @@ map.on('load', async () => {
         const toggleBtn = document.getElementById('profile-toggle');
 
         let hoverDist = null;
-        let runnerDist = null;
 
         const flyThrough = initFlyThrough(map, pathPoints, (progress) => {
-            runnerDist = progress > 0 ? (progress / 1609.34) * (KNOWN_LENGTH_MI / cumDist) : null;
-            drawProfile();
+            const mile = progress > 0 ? (progress / 1609.34) * (KNOWN_LENGTH_MI / cumDist) : null;
+            state.setMile(mile, 'flythrough');
         });
 
         const scrollytelling = initScrollytelling({
             onMileChange: function(mile) {
                 var flyMeters = mile * 1609.34;
                 flyThrough.setProgress(flyMeters);
-                runnerDist = mile;
-                drawProfile();
+                state.setMile(mile, 'scroll');
             },
             onSidebarToggle: function(isOpen) {
                 const flythroughEl = document.getElementById('flythrough-controls');
                 if (isOpen) {
                     flythroughEl.style.display = 'none';
-                    if (flyThrough.isRunning()) flyThrough.stop();
+                    if (flyThrough.isRunning()) flyThrough.pause();
                 } else {
                     flythroughEl.style.display = '';
                 }
             }
         });
+
+        state.onMileChange(() => drawProfile());
 
         // Resize map when sidebar transition finishes
         document.getElementById('scrollytelling-sidebar').addEventListener('transitionend', function() {
@@ -525,12 +547,11 @@ map.on('load', async () => {
             canvas.width = w * devicePixelRatio;
             canvas.height = h * devicePixelRatio;
             ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-            const pad = { top: 20, bottom: 24, left: 42, right: 14 };
+            const pad = { top: 16, bottom: 22, left: 40, right: 12 };
             const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
 
             ctx.clearRect(0, 0, w, h);
-
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#faf8f5';
             ctx.fillRect(0, 0, w, h);
 
             if (profile.length < 2) return;
@@ -541,8 +562,7 @@ map.on('load', async () => {
             const maxD = dists[dists.length - 1];
             const rangeE = maxE - minE || 1;
 
-            // Horizontal grid
-            ctx.strokeStyle = '#e0e0e0';
+            ctx.strokeStyle = 'rgba(0,0,0,0.07)';
             ctx.lineWidth = 0.5;
             for (let g = 0; g <= 4; g++) {
                 const y = pad.top + (g / 4) * ph;
@@ -552,37 +572,29 @@ map.on('load', async () => {
                 ctx.stroke();
                 const val = maxE - (g / 4) * rangeE;
                 ctx.fillStyle = '#999';
-                ctx.font = '8px sans-serif';
+                ctx.font = '9px Inter, sans-serif';
                 ctx.textAlign = 'right';
                 ctx.fillText(`${Math.round(val)}'`, pad.left - 5, y + 3);
             }
 
-            // Vertical grid + mile markers
             const totalMi = maxD;
-            ctx.font = '8px sans-serif';
+            ctx.font = '9px Inter, sans-serif';
             ctx.textAlign = 'center';
             for (let m = 1; m <= totalMi; m++) {
                 const mx = pad.left + (m / totalMi) * pw;
-                ctx.strokeStyle = '#f0f0f0';
+                ctx.strokeStyle = 'rgba(0,0,0,0.05)';
                 ctx.lineWidth = 0.5;
                 ctx.beginPath();
                 ctx.moveTo(mx, pad.top);
                 ctx.lineTo(mx, pad.top + ph);
                 ctx.stroke();
-                ctx.strokeStyle = '#ccc';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(mx, pad.top + ph);
-                ctx.lineTo(mx, pad.top + ph + 4);
-                ctx.stroke();
                 ctx.fillStyle = '#999';
-                ctx.fillText(`${m}`, mx, pad.top + ph + 14);
+                ctx.fillText(`${m}`, mx, pad.top + ph + 13);
             }
 
-            // Fill under curve
             const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ph);
-            grad.addColorStop(0, 'rgba(255, 51, 102, 0.12)');
-            grad.addColorStop(1, 'rgba(255, 51, 102, 0.01)');
+            grad.addColorStop(0, 'rgba(255, 59, 48, 0.12)');
+            grad.addColorStop(1, 'rgba(255, 59, 48, 0.01)');
             ctx.beginPath();
             ctx.moveTo(pad.left, pad.top + ph);
             for (let i = 0; i < profile.length; i++) {
@@ -595,50 +607,47 @@ map.on('load', async () => {
             ctx.fillStyle = grad;
             ctx.fill();
 
-            // Elevation line
             ctx.beginPath();
             for (let i = 0; i < profile.length; i++) {
                 const x = pad.left + (dists[i] / maxD) * pw;
                 const y = pad.top + ph - ((elevs[i] - minE) / rangeE) * ph;
                 i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
             }
-            ctx.strokeStyle = '#ff3366';
+            ctx.strokeStyle = '#FF3B30';
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
-            // Section boundary markers on profile
             ctx.save();
             for (let si = 0; si < SECTION_BOUNDARY_MILES.length; si++) {
                 const mile = SECTION_BOUNDARY_MILES[si];
                 const sx = pad.left + (mile / maxD) * pw;
                 ctx.beginPath();
-                ctx.setLineDash([3, 3]);
+                ctx.setLineDash([2, 3]);
                 ctx.moveTo(sx, pad.top);
                 ctx.lineTo(sx, pad.top + ph);
-                ctx.strokeStyle = 'rgba(255, 51, 102, 0.25)';
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+                ctx.lineWidth = 0.75;
                 ctx.stroke();
                 ctx.setLineDash([]);
                 if (si > 0 && si < SECTION_BOUNDARY_MILES.length - 1) {
                     ctx.beginPath();
-                    ctx.moveTo(sx, pad.top + 2);
-                    ctx.lineTo(sx, pad.top - 10);
-                    ctx.strokeStyle = '#ff3366';
-                    ctx.lineWidth = 1.5;
+                    ctx.moveTo(sx, pad.top);
+                    ctx.lineTo(sx, pad.top - 8);
+                    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+                    ctx.lineWidth = 1;
                     ctx.stroke();
                     ctx.beginPath();
-                    ctx.moveTo(sx, pad.top - 10);
-                    ctx.lineTo(sx + 7, pad.top - 6);
+                    ctx.moveTo(sx, pad.top - 8);
+                    ctx.lineTo(sx + 5, pad.top - 5);
                     ctx.lineTo(sx, pad.top - 2);
                     ctx.closePath();
-                    ctx.fillStyle = '#ff3366';
+                    ctx.fillStyle = 'rgba(0,0,0,0.18)';
                     ctx.fill();
                 }
             }
             ctx.restore();
 
-            // Runner scrubber on profile
-            const scrubDist = hoverDist !== null ? hoverDist : runnerDist;
+            const scrubDist = hoverDist !== null ? hoverDist : state.getMile();
             if (scrubDist !== null && scrubDist > 0) {
                 const sx = pad.left + (scrubDist / maxD) * pw;
                 let sy = pad.top, eleAtScrub = minE;
@@ -653,20 +662,20 @@ map.on('load', async () => {
                 ctx.beginPath();
                 ctx.moveTo(sx, pad.top);
                 ctx.lineTo(sx, pad.top + ph);
-                ctx.strokeStyle = 'rgba(255, 51, 102, 0.4)';
+                ctx.strokeStyle = 'rgba(255,59,48,0.25)';
                 ctx.lineWidth = 1;
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.arc(sx, sy, 4, 0, Math.PI * 2);
-                ctx.fillStyle = '#ff3366';
+                ctx.arc(sx, sy, 3.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#FF3B30';
                 ctx.fill();
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
-                ctx.fillStyle = '#333';
-                ctx.font = 'bold 10px sans-serif';
+                ctx.fillStyle = '#2d2d2d';
+                ctx.font = '600 9px Inter, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(`${scrubDist.toFixed(1)} mi  ·  ${Math.round(eleAtScrub)} ft`, sx, pad.top - 5);
+                ctx.fillText(`${scrubDist.toFixed(1)} mi  ·  ${Math.round(eleAtScrub)} ft`, sx, pad.top - 4);
             }
         }
 
@@ -697,8 +706,8 @@ map.on('load', async () => {
                 flyThrough.showRunner();
             } else {
                 hoverDist = null;
-                if (runnerDist !== null) {
-                    const c = interpProfileCoords(runnerDist);
+                if (state.getMile() !== null) {
+                    const c = interpProfileCoords(state.getMile());
                     flyThrough.moveRunner(c.lon, c.lat);
                 } else {
                     flyThrough.hideRunner();
@@ -709,8 +718,8 @@ map.on('load', async () => {
 
         map.on('mouseleave', () => {
             hoverDist = null;
-            if (runnerDist !== null) {
-                const c = interpProfileCoords(runnerDist);
+            if (state.getMile() !== null) {
+                const c = interpProfileCoords(state.getMile());
                 flyThrough.moveRunner(c.lon, c.lat);
             } else {
                 flyThrough.hideRunner();
@@ -733,14 +742,14 @@ map.on('load', async () => {
             if (minSq < 900 && nearestPt) {
                 const meterDist = milesToFlyMeters(cumDistArr[nearestIdx]);
                 flyThrough.setProgress(meterDist);
-                runnerDist = (meterDist / 1609.34) * (KNOWN_LENGTH_MI / cumDist);
+                const mile = (meterDist / 1609.34) * (KNOWN_LENGTH_MI / cumDist);
                 flyThrough.moveRunner(nearestPt.lon, nearestPt.lat);
                 flyThrough.showRunner();
                 map.jumpTo({
                     center: [nearestPt.lon, nearestPt.lat]
                 });
-                scrollytelling.jumpToMile(runnerDist);
-                drawProfile();
+                scrollytelling.jumpToMile(mile);
+                state.setMile(mile, 'map-click');
             }
         });
 
@@ -755,8 +764,8 @@ map.on('load', async () => {
             const relX = mx - pad.left;
             if (relX < 0 || relX > pw) {
                 hoverDist = null;
-                if (runnerDist !== null) {
-                    const c = interpProfileCoords(runnerDist);
+                if (state.getMile() !== null) {
+                    const c = interpProfileCoords(state.getMile());
                     flyThrough.moveRunner(c.lon, c.lat);
                 } else {
                     flyThrough.hideRunner();
@@ -775,8 +784,8 @@ map.on('load', async () => {
 
         canvas.addEventListener('mouseleave', () => {
             hoverDist = null;
-            if (runnerDist !== null) {
-                const c = interpProfileCoords(runnerDist);
+            if (state.getMile() !== null) {
+                const c = interpProfileCoords(state.getMile());
                 flyThrough.moveRunner(c.lon, c.lat);
             } else {
                 flyThrough.hideRunner();
@@ -801,12 +810,11 @@ map.on('load', async () => {
             flyThrough.setProgress(meterDist);
             flyThrough.moveRunner(coords.lon, coords.lat);
             flyThrough.showRunner();
-            runnerDist = clickDist;
             map.jumpTo({
                 center: [coords.lon, coords.lat]
             });
             scrollytelling.jumpToMile(clickDist);
-            drawProfile();
+            state.setMile(clickDist, 'profile-click');
         });
 
         map.fitBounds(bounds, { padding: 60, duration: 3500, pitch: 55, bearing: -15 });

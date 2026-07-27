@@ -17,17 +17,13 @@ function makePoleIconCanvas() {
     cx.lineTo(poleX, poleTop);
     cx.stroke();
 
-    cx.fillStyle = '#ff3366';
+    cx.fillStyle = '#FF3B30';
     cx.beginPath();
     cx.moveTo(poleX, poleTop);
     cx.lineTo(poleX + 130, poleTop + 34);
     cx.lineTo(poleX, poleTop + 68);
     cx.closePath();
     cx.fill();
-
-    cx.strokeStyle = '#ffffff';
-    cx.lineWidth = 3;
-    cx.stroke();
 
     return c;
 }

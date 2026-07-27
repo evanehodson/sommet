@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Web — 3D Course Visualizations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: #0a0a0f;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 24px;
+        }
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 16px;
+            margin-bottom: 48px;
+        }
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            width: 100%;
+        }
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 32px;
+            text-decoration: none;
+            color: #fff;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+        }
+        .card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,51,102,0.4);
+            transform: translateY(-4px);
+        }
+        .card-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+        }
+        .card-tag.primary { background: #ff3366; color: #fff; }
+        .card-tag.live { background: #22c55e; color: #fff; }
+        .card-tag.template { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+        .card h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .card p {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        footer {
+            margin-top: 64px;
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Race Web</h1>
+    <p class="subtitle">Interactive 3D race course visualizations</p>
+    <div class="projects">
+        <a href="wurl_course_map/" class="card">
+            <span class="card-tag primary">Featured</span>
+            <h2>WURL 3D Theater</h2>
+            <p>Wasatch Ultimate Ridge Linkup — 35.6 miles of exposed ridge traversal with scrollytelling, fly-through, and elevation profile.</p>
+        </a>
+        <a href="ins_live_map/" class="card">
+            <span class="card-tag live">Live</span>
+            <h2>Inner North Summits</h2>
+            <p>Live GPS race tracking with WebSocket relay, real-time position on a 3D terrain map.</p>
+        </a>
+        <a href="course_map_template/" class="card">
+            <span class="card-tag template">Template</span>
+            <h2>Course Map Template</h2>
+            <p>Reusable template for any race — configurable colors, speeds, and thresholds via config.js.</p>
+        </a>
+    </div>
+    <footer>v0.29.0</footer>
+</body>
+</html>

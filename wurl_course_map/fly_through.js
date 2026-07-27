@@ -62,11 +62,23 @@ export function initFlyThrough(map, pathPoints, onProgress) {
     var lastTime = null;
     var smoothBearing = null, smoothZoom = null, smoothSurfEle = null;
 
+    // User camera freedom: zoom, pitch are user-controlled. Orbit is additive to bearing.
+    var userZoom = null, userPitch = null;
+    var orbitDegrees = 0;
+    var dragStartBearing = 0, isDragging = false;
+
     var btn = document.getElementById('flythrough-btn');
     var playIcon = document.getElementById('play-icon');
     var pauseIcon = document.getElementById('pause-icon');
     var backBtn = document.getElementById('flythrough-back');
     var stopBtn = document.getElementById('flythrough-stop');
+
+    // Detect user drag-rotate on map canvas
+    var canvas = map.getCanvas();
+    canvas.addEventListener('mousedown', function() { isDragging = true; dragStartBearing = map.getBearing(); });
+    canvas.addEventListener('mouseup', function() { isDragging = false; });
+    canvas.addEventListener('touchstart', function() { isDragging = true; dragStartBearing = map.getBearing(); }, { passive: true });
+    canvas.addEventListener('touchend', function() { isDragging = false; });
 
     // Create runner source and layer once
     map.addSource('fly-runner', {
@@ -79,11 +91,11 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         var c = document.createElement('canvas');
         c.width = S; c.height = S;
         var cx = c.getContext('2d');
-        cx.shadowColor = '#ff3366';
-        cx.shadowBlur = 12;
+        cx.shadowColor = 'rgba(218,44,56,0.45)';
+        cx.shadowBlur = 6;
         cx.beginPath();
         cx.arc(S / 2, S / 2, S / 2 - 2, 0, Math.PI * 2);
-        cx.fillStyle = '#ff3366';
+        cx.fillStyle = '#FF3B30';
         cx.fill();
         cx.shadowBlur = 0;
         cx.lineWidth = 7;
@@ -130,6 +142,14 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         map.setLayoutProperty('fly-runner-layer', 'visibility', 'none');
     }
 
+    function computeCameraTarget(dot, targetBearing, smoothSurfEle) {
+        var headRad = toRad(targetBearing);
+        var cosLat = Math.cos(toRad(dot.lat));
+        var dLat = smoothSurfEle * Math.cos(headRad) / 111320;
+        var dLon = smoothSurfEle * Math.sin(headRad) / (111320 * cosLat);
+        return [dot.lon + dLon, dot.lat + dLat];
+    }
+
     function tick(now) {
         if (!running) return;
 
@@ -146,6 +166,7 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         moveRunner(dot.lon, dot.lat);
         showRunner();
 
+        // ── Bearing: always smooth-interpolate to face forward ──
         var headingDx = 0, headingDy = 0;
         var hSamples = 20;
         var aheadEnd = Math.min(progress + HEADING_FORWARD, totalLen);
@@ -160,12 +181,15 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         }
         var targetBearing = (toDeg(Math.atan2(headingDy, headingDx)) + 360) % 360;
 
+        // ── Camera height from terrain lookahead ──
         var maxAheadEle = dot.ele;
         for (var t = 0; t <= LOOK_AHEAD; t += SPEED * 0.5) {
             var p = interpAt(cumDist, pathPoints, Math.min(progress + t, totalLen));
             if (p.ele > maxAheadEle) maxAheadEle = p.ele;
         }
-        var targetZoom = Math.log2(EARTH_CIRC * Math.cos(toRad(dot.lat)) / (maxAheadEle * 1.5 + CAM_ABOVE));
+        var camAbove = maxAheadEle * 1.5 + CAM_ABOVE;
+        if (window.innerWidth <= 768) camAbove *= 2.5;
+        var targetZoom = Math.log2(EARTH_CIRC * Math.cos(toRad(dot.lat)) / camAbove);
         targetZoom = Math.max(2, Math.min(18, targetZoom));
 
         if (smoothBearing === null) {
@@ -190,19 +214,48 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         } catch (e) { }
         smoothSurfEle += (surfEle - smoothSurfEle) * slowLerp;
 
-        var headRad = toRad(smoothBearing);
+        // ── Detect orbit: user drag-rotates the map while playing ──
+        var curBearing = map.getBearing();
+        var curZoom = map.getZoom();
+        var curPitch = map.getPitch();
+
+        if (isDragging) {
+            var bearingDelta = curBearing - dragStartBearing;
+            if (bearingDelta > 180) bearingDelta -= 360;
+            if (bearingDelta < -180) bearingDelta += 360;
+            if (Math.abs(bearingDelta) > 0.1) {
+                orbitDegrees += bearingDelta;
+                dragStartBearing = curBearing;
+            }
+        }
+
+        // Detect zoom/pitch changes
+        if (userZoom !== null && Math.abs(curZoom - userZoom) > 0.005) {
+            userZoom = curZoom;
+        } else if (userZoom === null) {
+            userZoom = targetZoom;
+        }
+        if (userPitch !== null && Math.abs(curPitch - userPitch) > 0.5) {
+            userPitch = curPitch;
+        } else if (userPitch === null) {
+            userPitch = map.getPitch();
+        }
+
+        // ── Final bearing = trail heading + orbit offset ──
+        var finalBearing = ((smoothBearing + orbitDegrees) % 360 + 360) % 360;
+
+        // ── Camera center: follow runner with bearing offset ──
+        var headRad = toRad(finalBearing);
         var cosLat = Math.cos(toRad(dot.lat));
         var dLat = smoothSurfEle * Math.cos(headRad) / 111320;
         var dLon = smoothSurfEle * Math.sin(headRad) / (111320 * cosLat);
+        var targetCenter = [dot.lon + dLon, dot.lat + dLat];
 
-        var easeMs = Math.max(Math.round(dt * 1000), 1);
-        map.easeTo({
-            center: [dot.lon + dLon, dot.lat + dLat],
-            bearing: smoothBearing,
-            pitch: 45,
-            zoom: smoothZoom,
-            duration: easeMs,
-            easing: function(t) { return t; }
+        map.jumpTo({
+            center: targetCenter,
+            bearing: finalBearing,
+            zoom: userZoom,
+            pitch: userPitch
         });
 
         if (progress >= totalLen) {
@@ -231,6 +284,22 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         }
     }
 
+    function startAll() {
+        userZoom = null;
+        userPitch = null;
+        orbitDegrees = 0;
+        isDragging = false;
+        running = true;
+        lastTime = null;
+        updateButtons();
+        try {
+            animFrame = requestAnimationFrame(tick);
+        } catch (e) {
+            running = false;
+            updateButtons();
+        }
+    }
+
     function pauseAll() {
         running = false;
         if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
@@ -248,21 +317,13 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         smoothBearing = null;
         smoothZoom = null;
         smoothSurfEle = null;
+        userZoom = null;
+        userPitch = null;
+        orbitDegrees = 0;
+        isDragging = false;
         hideRunner();
         if (onProgress) onProgress(0, totalLen);
         updateButtons();
-    }
-
-    function resumeAll() {
-        running = true;
-        lastTime = null;
-        updateButtons();
-        try {
-            animFrame = requestAnimationFrame(tick);
-        } catch (e) {
-            running = false;
-            updateButtons();
-        }
     }
 
     btn.addEventListener('click', function () {
@@ -272,7 +333,7 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         }
 
         if (progress > 0 && progress < totalLen) {
-            resumeAll();
+            startAll();
             return;
         }
 
@@ -281,7 +342,7 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         smoothBearing = null;
         smoothZoom = null;
         smoothSurfEle = null;
-        resumeAll();
+        startAll();
     });
 
     if (backBtn) {
@@ -292,7 +353,7 @@ export function initFlyThrough(map, pathPoints, onProgress) {
             smoothBearing = null;
             smoothZoom = null;
             smoothSurfEle = null;
-            resumeAll();
+            startAll();
         });
     }
 
@@ -327,7 +388,9 @@ export function initFlyThrough(map, pathPoints, onProgress) {
             var p = interpAt(cumDist, pathPoints, Math.min(d + t, totalLen));
             if (p.ele > maxAheadEle) maxAheadEle = p.ele;
         }
-        var targetZoom = Math.log2(EARTH_CIRC * Math.cos(toRad(dot.lat)) / (maxAheadEle * 1.5 + CAM_ABOVE));
+        var camAbove2 = maxAheadEle * 1.5 + CAM_ABOVE;
+        if (window.innerWidth <= 768) camAbove2 *= 2.5;
+        var targetZoom = Math.log2(EARTH_CIRC * Math.cos(toRad(dot.lat)) / camAbove2);
         targetZoom = Math.max(2, Math.min(18, targetZoom));
 
         var surfEle = dot.ele;
@@ -336,16 +399,12 @@ export function initFlyThrough(map, pathPoints, onProgress) {
             if (qe != null && !isNaN(qe)) surfEle = qe;
         } catch (e) { }
 
-        var headRad = toRad(targetBearing);
-        var cosLat = Math.cos(toRad(dot.lat));
-        var dLat = surfEle * Math.cos(headRad) / 111320;
-        var dLon = surfEle * Math.sin(headRad) / (111320 * cosLat);
+        var target = computeCameraTarget(dot, targetBearing, surfEle);
 
         map.stop();
         map.easeTo({
-            center: [dot.lon + dLon, dot.lat + dLat],
+            center: target,
             bearing: targetBearing,
-            pitch: 45,
             zoom: targetZoom,
             duration: 600,
             easing: function(t) { return t; }
@@ -362,5 +421,5 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         if (onProgress) onProgress(progress, totalLen);
     }
 
-    return { moveRunner, showRunner, hideRunner, setProgress, isRunning: () => running, stop: stopAll };
+    return { moveRunner, showRunner, hideRunner, setProgress, isRunning: () => running, stop: stopAll, pause: pauseAll };
 }
