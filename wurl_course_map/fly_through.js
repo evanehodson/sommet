@@ -47,7 +47,7 @@ function interpAt(cum, pts, dist) {
     };
 }
 
-export function initFlyThrough(map, pathPoints, onProgress) {
+export function initFlyThrough(map, pathPoints, onProgress, onStateChange) {
     var SPEED = 1200;
     var CAM_ABOVE = 1800;
     var EARTH_CIRC = 40075016.686;
@@ -68,6 +68,7 @@ export function initFlyThrough(map, pathPoints, onProgress) {
     var orbitDegrees = 0;
     var compassDragStart = 0, isDraggingCompass = false;
     var lastFrameZoom = null;
+    var viewMode = 'follow';
 
     var btn = document.getElementById('flythrough-btn');
     var playIcon = document.getElementById('play-icon');
@@ -184,6 +185,16 @@ export function initFlyThrough(map, pathPoints, onProgress) {
 
         moveRunner(dot.lon, dot.lat);
         showRunner();
+
+        // ── Overview mode: runner moves, camera stays user-controlled ──
+        if (viewMode === 'overview') {
+            if (progress >= totalLen) {
+                stopAll();
+                return;
+            }
+            animFrame = requestAnimationFrame(tick);
+            return;
+        }
 
         // ── Bearing: always smooth-interpolate to face forward ──
         var headingDx = 0, headingDy = 0;
@@ -302,31 +313,32 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         orbitDegrees = 0;
         isDraggingCompass = false;
         lastFrameZoom = null;
-        map.dragPan.disable();
+        viewMode = 'follow';
         running = true;
         lastTime = null;
         updateButtons();
+        if (onStateChange) onStateChange();
         try {
             animFrame = requestAnimationFrame(tick);
         } catch (e) {
             running = false;
             updateButtons();
+            if (onStateChange) onStateChange();
         }
     }
 
     function pauseAll() {
         running = false;
         if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
-        map.dragPan.enable();
         map.stop();
         if (onProgress) onProgress(progress, totalLen);
         updateButtons();
+        if (onStateChange) onStateChange();
     }
 
     function stopAll() {
         running = false;
         if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
-        map.dragPan.enable();
         map.stop();
         progress = 0;
         lastTime = null;
@@ -340,6 +352,7 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         hideRunner();
         if (onProgress) onProgress(0, totalLen);
         updateButtons();
+        if (onStateChange) onStateChange();
     }
 
     btn.addEventListener('click', function () {
@@ -434,5 +447,13 @@ export function initFlyThrough(map, pathPoints, onProgress) {
         if (onProgress) onProgress(progress, totalLen);
     }
 
-    return { moveRunner, showRunner, hideRunner, setProgress, isRunning: () => running, stop: stopAll, pause: pauseAll };
+    function setViewMode(mode) {
+        viewMode = mode;
+    }
+
+    function getViewMode() {
+        return viewMode;
+    }
+
+    return { moveRunner, showRunner, hideRunner, setProgress, setViewMode, getViewMode, isRunning: () => running, stop: stopAll, pause: pauseAll };
 }

@@ -60,7 +60,26 @@ const btnIn = document.getElementById('zoom-in');
 const btnOut = document.getElementById('zoom-out');
 const modeBtn = document.getElementById('mode-btn');
 
-// Compass rotation sync
+let flyThrough = null;
+let courseBounds = null;
+let is2D = false;
+
+function updateControls() {
+    const flying = flyThrough && flyThrough.isRunning();
+    map.dragRotate.disable();
+    if (is2D) {
+        map.dragPan.enable();
+        if (flying) flyThrough.setViewMode('overview');
+    } else if (flying) {
+        map.dragPan.disable();
+        flyThrough.setViewMode('follow');
+    } else {
+        map.dragPan.enable();
+    }
+}
+
+// Compass rotation sync — set initial + keep updated
+compassArrow.style.transform = `rotate(${-map.getBearing()}deg)`;
 map.on('rotate', () => {
     compassArrow.style.transform = `rotate(${-map.getBearing()}deg)`;
 });
@@ -138,26 +157,38 @@ btnOut.addEventListener('click', () => map.zoomOut({ duration: 200 }));
 
 // 2D/3D toggle
 modeBtn.addEventListener('click', () => {
-    if (map.getPitch() > 1) {
-        map.easeTo({ pitch: 0, duration: 500 });
-    } else {
-        map.easeTo({ pitch: 60, duration: 500 });
-    }
-});
-
-map.on('pitch', () => {
-    if (map.getPitch() < 1) {
-        modeBtn.textContent = '3D';
-        modeBtn.classList.remove('active');
-    } else {
+    is2D = !is2D;
+    if (is2D) {
         modeBtn.textContent = '2D';
         modeBtn.classList.add('active');
+        map.easeTo({ pitch: 0, duration: 500 });
+        if (flyThrough && flyThrough.isRunning()) {
+            map.fitBounds(courseBounds, { padding: { top: 60, right: 60, bottom: 280, left: 60 }, duration: 1000, pitch: 0, bearing: 0 });
+        }
+    } else {
+        modeBtn.textContent = '3D';
+        modeBtn.classList.remove('active');
+        map.easeTo({ pitch: 60, duration: 500 });
+    }
+    updateControls();
+});
+
+// Keep modeBtn label in sync if pitch changes externally
+map.on('pitch', () => {
+    const pitchIsZero = map.getPitch() < 1;
+    if (pitchIsZero && !is2D) {
+        is2D = true;
+        modeBtn.textContent = '2D';
+        modeBtn.classList.add('active');
+    } else if (!pitchIsZero && is2D) {
+        is2D = false;
+        modeBtn.textContent = '3D';
+        modeBtn.classList.remove('active');
     }
 });
 
 // ── Right-click → pitch ─────────────────────────────────────
 
-map.dragRotate.disable();
 map.getCanvas().addEventListener('contextmenu', e => e.preventDefault());
 
 let pitching = false;
@@ -165,7 +196,7 @@ let pitchStartY = 0;
 let pitchStartVal = 0;
 
 map.getCanvas().addEventListener('mousedown', (e) => {
-    if (e.button === 2) {
+    if (e.button === 2 && !is2D) {
         pitching = true;
         pitchStartY = e.clientY;
         pitchStartVal = map.getPitch();
@@ -348,7 +379,7 @@ map.on('load', async () => {
 
         const trkpts = xml.getElementsByTagName('trkpt');
         const pathPoints = [];
-        const bounds = new maplibregl.LngLatBounds();
+        courseBounds = new maplibregl.LngLatBounds();
         let cumDist = 0;
         const cumDistArr = [0];
         const profile = [];
@@ -359,7 +390,7 @@ map.on('load', async () => {
             const el = trkpts[i].getElementsByTagName('ele')[0];
             const ele = el ? parseFloat(el.textContent) : 0;
             pathPoints.push({ lon, lat, ele });
-            bounds.extend([lon, lat]);
+            courseBounds.extend([lon, lat]);
             if (i > 0) {
                 cumDist += haversine(pathPoints[i - 1].lon, pathPoints[i - 1].lat, lon, lat);
             }
@@ -482,10 +513,10 @@ map.on('load', async () => {
 
         let hoverDist = null;
 
-        const flyThrough = initFlyThrough(map, pathPoints, (progress) => {
+        flyThrough = initFlyThrough(map, pathPoints, (progress) => {
             const mile = progress > 0 ? (progress / 1609.34) * (KNOWN_LENGTH_MI / cumDist) : null;
             state.setMile(mile, 'flythrough');
-        });
+        }, updateControls);
 
         const scrollytelling = initScrollytelling({
             onMileChange: function(mile) {
@@ -817,7 +848,9 @@ map.on('load', async () => {
             state.setMile(clickDist, 'profile-click');
         });
 
-        map.fitBounds(bounds, { padding: 60, duration: 3500, pitch: 55, bearing: -15 });
+        map.fitBounds(courseBounds, { padding: { top: 60, right: 60, bottom: 280, left: 60 }, duration: 3500, pitch: 55, bearing: -15 });
+
+        updateControls();
 
     } catch (err) {
         console.error('Error:', err);
