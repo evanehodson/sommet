@@ -59,7 +59,7 @@
         }
         .hero h1 span { color: #FF3B30; }
         .hero p {
-            color: #C4A882;
+            color: rgba(255,255,255,0.55);
             font-size: 18px;
             line-height: 1.7;
             max-width: 560px;
@@ -81,9 +81,59 @@
             padding: 28px 24px;
         }
         .service-icon {
-            font-size: 28px;
             margin-bottom: 14px;
             display: block;
+            width: 32px;
+            height: 32px;
+            color: #FF3B30;
+        }
+        .service-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ── Icon Animations (ultra-subtle) ──────────────── */
+
+        /* Mountain + trail: trail draws itself */
+        .icon-mountain-trail {
+            stroke-dasharray: 40;
+            stroke-dashoffset: 40;
+            animation: trailDraw 4s ease-in-out infinite alternate;
+        }
+        @keyframes trailDraw {
+            0% { stroke-dashoffset: 40; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        /* Radar: pulse rings expand outward */
+        .icon-radar-pulse {
+            animation: radarPulse 3s ease-out infinite;
+            opacity: 0;
+        }
+        .icon-radar-pulse:nth-child(2) { animation-delay: 1s; }
+        .icon-radar-pulse:nth-child(3) { animation-delay: 2s; }
+        @keyframes radarPulse {
+            0% { r: 3; opacity: 0.7; }
+            100% { r: 12; opacity: 0; }
+        }
+
+        /* Stopwatch: second hand full revolution in 60s */
+        .icon-stopwatch-hand {
+            transform-origin: 16px 17px;
+            animation: handSweep 60s linear infinite;
+        }
+        @keyframes handSweep {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Browser window: subtle layout pulse */
+        .icon-browser-content {
+            animation: layoutPulse 4s ease-in-out infinite;
+        }
+        @keyframes layoutPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-0.5px); }
         }
         .service-card h3 {
             font-family: 'Fraunces', Georgia, serif;
@@ -94,7 +144,7 @@
             margin-bottom: 8px;
         }
         .service-card p {
-            color: #C4A882;
+            color: rgba(255,255,255,0.45);
             font-size: 13px;
             line-height: 1.6;
         }
@@ -143,26 +193,14 @@
             position: absolute;
             inset: 0;
             background: linear-gradient(180deg, transparent 50%, rgba(10,10,15,0.6) 100%);
+            pointer-events: none;
+            z-index: 1;
         }
-        .featured-preview .mock-terrain {
+        .featured-preview video {
             width: 100%;
             height: 100%;
-            background:
-                radial-gradient(ellipse 120% 60% at 30% 70%, rgba(34,80,40,0.25), transparent),
-                radial-gradient(ellipse 100% 50% at 70% 60%, rgba(50,90,50,0.2), transparent),
-                radial-gradient(ellipse 80% 40% at 50% 80%, rgba(20,60,30,0.3), transparent),
-                linear-gradient(180deg, #0e0e14 0%, #111118 100%);
-        }
-        .featured-preview .mock-line {
-            position: absolute;
-            width: 60%;
-            height: 2px;
-            background: rgba(255,59,48,0.7);
-            top: 50%;
-            left: 20%;
-            transform: rotate(-8deg);
-            border-radius: 2px;
-            box-shadow: 0 0 12px rgba(255,59,48,0.3);
+            object-fit: cover;
+            display: block;
         }
         .featured-body {
             padding: 32px 36px 36px;
@@ -174,7 +212,7 @@
             margin-bottom: 10px;
         }
         .featured-body p {
-            color: #C4A882;
+            color: rgba(255,255,255,0.5);
             font-size: 15px;
             line-height: 1.65;
             max-width: 640px;
@@ -246,24 +284,76 @@
 
     <section class="services">
         <div class="service-card">
-            <span class="service-icon">&#9968;</span>
+            <span class="service-icon">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Mountain range -->
+                    <path d="M2 27 L9 13 L13 19 L17 9 L22 18 L26 12 L30 27"/>
+                    <!-- Trail line winding through -->
+                    <path class="icon-mountain-trail" d="M8 25 Q12 19 14 22 Q16 25 19 20 Q22 15 24 18 Q26 21 28 24" stroke-width="1.2"/>
+                </svg>
+            </span>
             <h3>3D Course Maps</h3>
             <p>High-quality print and digital terrain maps with fly-through, elevation profiles, and scrollytelling.</p>
         </div>
         <div class="service-card">
-            <span class="service-icon">&#9881;</span>
+            <span class="service-icon">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <!-- Center dot -->
+                    <circle cx="16" cy="16" r="2" fill="currentColor" stroke="none"/>
+                    <!-- Pulse rings (animated) -->
+                    <circle class="icon-radar-pulse" cx="16" cy="16" r="3" stroke-width="1" fill="none"/>
+                    <circle class="icon-radar-pulse" cx="16" cy="16" r="3" stroke-width="1" fill="none"/>
+                    <circle class="icon-radar-pulse" cx="16" cy="16" r="3" stroke-width="1" fill="none"/>
+                </svg>
+            </span>
             <h3>Live Tracking</h3>
             <p>Near real-time tracking capabilities for spectators and event organizers via LoRa mesh.</p>
         </div>
         <div class="service-card">
-            <span class="service-icon">&#9201;</span>
+            <span class="service-icon">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Watch body -->
+                    <circle cx="16" cy="17" r="10"/>
+                    <!-- Crown -->
+                    <path d="M13 4h6"/>
+                    <!-- Top lug -->
+                    <path d="M14.5 4v-1.5h3V4"/>
+                    <!-- Second hand (sweeps 360° in 60s) -->
+                    <line class="icon-stopwatch-hand" x1="16" y1="17" x2="16" y2="9" stroke-width="1.2"/>
+                    <!-- Center cap -->
+                    <circle cx="16" cy="17" r="1" fill="currentColor" stroke="none"/>
+                    <!-- Tick marks -->
+                    <line x1="16" y1="8" x2="16" y2="9.5" stroke-width="1"/>
+                    <line x1="25" y1="17" x2="23.5" y2="17" stroke-width="1"/>
+                    <line x1="16" y1="26" x2="16" y2="24.5" stroke-width="1"/>
+                    <line x1="7" y1="17" x2="8.5" y2="17" stroke-width="1"/>
+                </svg>
+            </span>
             <h3>Race Timing</h3>
             <p>Chip timing, split tracking, and automated results. Live leaderboards athletes and fans can follow.</p>
         </div>
         <div class="service-card">
-            <span class="service-icon">&#9741;</span>
+            <span class="service-icon">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Browser window frame -->
+                    <rect x="3" y="5" width="26" height="22" rx="2"/>
+                    <!-- Title bar -->
+                    <line x1="3" y1="10" x2="29" y2="10"/>
+                    <!-- Window dots -->
+                    <circle cx="6.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
+                    <circle cx="9.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
+                    <circle cx="12.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
+                    <!-- Content blocks -->
+                    <g class="icon-browser-content">
+                        <rect x="5.5" y="12.5" width="9" height="3" rx="0.5" fill="currentColor" opacity="0.15" stroke="none"/>
+                        <rect x="5.5" y="17.5" width="14" height="1.5" rx="0.5" fill="currentColor" opacity="0.1" stroke="none"/>
+                        <rect x="5.5" y="20.5" width="11" height="1.5" rx="0.5" fill="currentColor" opacity="0.1" stroke="none"/>
+                        <rect x="17" y="12.5" width="9.5" height="9.5" rx="1" fill="currentColor" opacity="0.08" stroke="none"/>
+                    </g>
+                </svg>
+            </span>
             <h3>Event Websites</h3>
-            <p>Complete race websites with registration integration, schedules, and athlete lookups. Fast and mobile-first.</p>
+            <p>Complete race websites with registration integration, schedules, and athlete lookups. Fast and mobile-friendly.</p>
         </div>
     </section>
 
@@ -271,12 +361,11 @@
         <div class="section-label">Featured Work</div>
         <a href="wurl_course_map/" class="featured-card">
             <div class="featured-preview">
-                <div class="mock-terrain"></div>
-                <div class="mock-line"></div>
+                <video src="wurl_course_map/data/wurl-hero.mp4" autoplay muted loop playsinline></video>
             </div>
             <div class="featured-body">
                 <h2>WURL Course Map</h2>
-                <p>Wasatch Ultimate Ridge Linkup &mdash; a 35.6-mile course through Utah's high country. Scrollytelling narrative, animated fly-through, real-time elevation profile, and 3D terrain visualization. A prototype of what's possible for any race.</p>
+                <p>Wasatch Ultimate Ridge Linkup &mdash; a 35.6-mile course through Utah's high country. Scrollytelling narrative, animated fly-through, real-time elevation profile, and 3D terrain visualization. A blueprint for the new standard in race course visualization.</p>
                 <span class="cta">
                     Explore the Map
                     <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
@@ -287,7 +376,6 @@
 
     <footer>
         <span>&copy; 2026 Sommet Innovations</span>
-        <a href="mailto:hello@sommetinnovations.com">Get in touch</a>
     </footer>
 
 </body>

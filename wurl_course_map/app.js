@@ -177,22 +177,17 @@ btnIn.addEventListener('click', () => { if (!flyThrough || !flyThrough.isRunning
 btnOut.addEventListener('click', () => { if (!flyThrough || !flyThrough.isRunning()) { hasMovedFromFit = true; map.zoomOut({ duration: 200 }); } });
 
 // 2D/3D toggle
-const modeIcon3d = document.getElementById('mode-icon-3d');
-const modeIcon2d = document.getElementById('mode-icon-2d');
-
 modeBtn.addEventListener('click', () => {
     is2D = !is2D;
     if (is2D) {
-        modeIcon3d.style.display = 'none';
-        modeIcon2d.style.display = 'block';
+        modeBtn.textContent = '2D';
         modeBtn.classList.add('active');
         map.easeTo({ pitch: 0, duration: 500 });
         if (flyThrough && flyThrough.isRunning()) {
             fitBoundsAndRecord(courseBounds, { padding: FIT_BOUNDS_PADDING, duration: 1000, pitch: 0, bearing: 0 });
         }
     } else {
-        modeIcon3d.style.display = 'block';
-        modeIcon2d.style.display = 'none';
+        modeBtn.textContent = '3D';
         modeBtn.classList.remove('active');
         map.easeTo({ pitch: 60, duration: 500 });
     }
@@ -204,13 +199,11 @@ map.on('pitch', () => {
     const pitchIsZero = map.getPitch() < 1;
     if (pitchIsZero && !is2D) {
         is2D = true;
-        modeIcon3d.style.display = 'none';
-        modeIcon2d.style.display = 'block';
+        modeBtn.textContent = '2D';
         modeBtn.classList.add('active');
     } else if (!pitchIsZero && is2D) {
         is2D = false;
-        modeIcon3d.style.display = 'block';
-        modeIcon2d.style.display = 'none';
+        modeBtn.textContent = '3D';
         modeBtn.classList.remove('active');
     }
 });
@@ -242,48 +235,6 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', (e) => {
     if (e.button === 2) pitching = false;
 });
-
-// ── Custom cursor (desktop, rAF-driven) ─────────────────────
-
-(function initCustomCursor() {
-    var ring = document.getElementById('cursor-ring');
-    if (!ring || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-
-    var mouseX = -100, mouseY = -100;
-    var ringX = -100, ringY = -100;
-    var rafId = null;
-
-    document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        if (!rafId) rafId = requestAnimationFrame(updateCursor);
-    });
-
-    function updateCursor() {
-        rafId = null;
-        // Linear interpolation for smooth tracking without lag
-        ringX += (mouseX - ringX) * 0.25;
-        ringY += (mouseY - ringY) * 0.25;
-        ring.style.transform = 'translate(' + (ringX - 12) + 'px, ' + (ringY - 12) + 'px)';
-        // Continue animating if mouse is moving
-        if (Math.abs(mouseX - ringX) > 0.5 || Math.abs(mouseY - ringY) > 0.5) {
-            rafId = requestAnimationFrame(updateCursor);
-        }
-    }
-
-    // Hover detection for interactive elements
-    var hoverTargets = 'button, a, .ctrl, .section-card, #profile-toggle, #sidebar-toggle';
-    document.addEventListener('mouseover', function(e) {
-        if (e.target.closest(hoverTargets)) {
-            ring.classList.add('hovering');
-        }
-    });
-    document.addEventListener('mouseout', function(e) {
-        if (e.target.closest(hoverTargets)) {
-            ring.classList.remove('hovering');
-        }
-    });
-})();
 
 // ── Load ─────────────────────────────────────────────────────
 
