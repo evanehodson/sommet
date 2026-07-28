@@ -15,6 +15,7 @@ demSource.setupMaplibre(maplibregl);
 
 const map = new maplibregl.Map({
     container: 'map',
+    antialias: true,
     style: {
         version: 8,
         sources: {
@@ -49,7 +50,7 @@ const map = new maplibregl.Map({
     zoom: 11,
     pitch: 60,
     bearing: 90,
-    maxPitch: 85
+    maxPitch: 70
 });
 
 // ── Custom Controls ──────────────────────────────────────────
@@ -246,7 +247,7 @@ map.on('load', async () => {
         maxzoom: 15
     });
 
-    map.setTerrain({ source: 'terrainSource', exaggeration: 1.5 });
+    map.setTerrain({ source: 'terrainSource', exaggeration: 1.0 });
 
     // ── Vector tile source (landcover, water, labels) ─────────
 
@@ -437,57 +438,70 @@ map.on('load', async () => {
             waypoints.push({ name, lon, lat, ele: nearestEle, eleFt: nearestEle * 3.28084 });
         }
 
-        // Smooth path: interpolate intermediate points for crisp curves
-        function smoothPath(pts, factor) {
+        var smoothPoints = (function smoothPath(pts, factor) {
             var out = [];
             for (var i = 0; i < pts.length - 1; i++) {
                 for (var s = 0; s < factor; s++) {
                     var t = s / factor;
-                    out.push({
-                        lon: pts[i].lon + (pts[i + 1].lon - pts[i].lon) * t,
-                        lat: pts[i].lat + (pts[i + 1].lat - pts[i].lat) * t
-                    });
+                    out.push([
+                        pts[i].lon + (pts[i + 1].lon - pts[i].lon) * t,
+                        pts[i].lat + (pts[i + 1].lat - pts[i].lat) * t
+                    ]);
                 }
             }
-            out.push(pts[pts.length - 1]);
+            out.push([pts[pts.length - 1].lon, pts[pts.length - 1].lat]);
             return out;
-        }
-        var smoothPoints = smoothPath(pathPoints, 4);
+        })(pathPoints, 4);
 
-        map.addSource('trail-line', {
+        map.addSource('trail-source', {
             type: 'geojson',
             data: {
                 type: 'Feature',
                 geometry: {
                     type: 'LineString',
-                    coordinates: smoothPoints.map(p => [p.lon, p.lat])
+                    coordinates: smoothPoints
                 }
             }
         });
+
         map.addLayer({
-            id: 'trail-line',
+            id: 'trail-casing',
             type: 'line',
-            source: 'trail-line',
+            source: 'trail-source',
             layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
+                'line-cap': 'round',
+                'line-join': 'round'
+            },
+            paint: {
+                'line-color': '#000000',
+                'line-opacity': 0.35,
+                'line-width': [
+                    'interpolate', ['exponential', 1.5], ['zoom'],
+                    9, 1.5,
+                    14, 4,
+                    18, 9
+                ],
+                'line-blur': 0
+            }
+        }, 'park-labels');
+
+        map.addLayer({
+            id: 'trail-line-main',
+            type: 'line',
+            source: 'trail-source',
+            layout: {
+                'line-cap': 'round',
+                'line-join': 'round'
             },
             paint: {
                 'line-color': '#FF3B30',
+                'line-opacity': 1,
                 'line-width': [
-                    'interpolate', ['exponential', 2], ['zoom'],
-                    9, 0.215,
-                    10, 0.43,
-                    11, 0.86,
-                    12, 1.72,
-                    13, 3.44,
-                    14, 6.89,
-                    15, 13.78,
-                    16, 27.55,
-                    17, 55.1,
-                    18, 110.2
+                    'interpolate', ['exponential', 1.5], ['zoom'],
+                    9, 1,
+                    14, 2.5,
+                    18, 6
                 ],
-                'line-opacity': 1.0,
                 'line-blur': 0
             }
         }, 'park-labels');
