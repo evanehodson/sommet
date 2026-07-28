@@ -6,13 +6,25 @@
     <title>WURL Course Map</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
     <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Custom cursor (desktop only) -->
+    <div id="cursor-ring"></div>
+
+    <!-- Intro overlay -->
+    <div id="intro-overlay">
+        <div id="intro-content">
+            <div id="intro-title">THE WURL</div>
+            <div id="intro-line"></div>
+            <div id="intro-subtitle">35.6 MI · WASATCH RIDGE</div>
+        </div>
+    </div>
+
     <div id="app-layout">
         <div id="scrollytelling-sidebar">
             <div id="sidebar-header">
@@ -41,17 +53,45 @@
             <!-- View toolbar — vertical, top right -->
             <div id="view-toolbar" class="toolbar">
                 <button id="compass" class="ctrl" title="Drag to rotate view">
-                    <div id="compass-arrow">
-                        <span id="compass-n">N</span>
-                        <span id="compass-arrow-icon">▲</span>
-                        <span id="compass-s">S</span>
-                    </div>
+                    <svg id="compass-svg" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Outer ring -->
+                        <circle cx="14" cy="14" r="13" stroke="rgba(0,0,0,0.08)" stroke-width="0.75"/>
+                        <!-- North pointer -->
+                        <path d="M14 3 L16.5 12.5 L14 11 L11.5 12.5 Z" fill="#FF3B30"/>
+                        <!-- South pointer -->
+                        <path d="M14 25 L11.5 15.5 L14 17 L16.5 15.5 Z" fill="#C4A882"/>
+                        <!-- Center dot -->
+                        <circle cx="14" cy="14" r="1.5" fill="#2d2d2d"/>
+                        <!-- Cardinal ticks -->
+                        <line x1="14" y1="0.5" x2="14" y2="2.5" stroke="#2d2d2d" stroke-width="0.75"/>
+                        <line x1="14" y1="25.5" x2="14" y2="27.5" stroke="#C4A882" stroke-width="0.5"/>
+                        <line x1="0.5" y1="14" x2="2.5" y2="14" stroke="#C4A882" stroke-width="0.5"/>
+                        <line x1="25.5" y1="14" x2="27.5" y2="14" stroke="#C4A882" stroke-width="0.5"/>
+                    </svg>
                 </button>
                 <div class="toolbar-divider"></div>
-                <button id="mode-btn" class="ctrl" title="Toggle 2D/3D">3D</button>
+                <button id="mode-btn" class="ctrl" title="Toggle 2D/3D">
+                    <svg id="mode-icon-3d" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 2 L14 5.5 L14 10.5 L8 14 L2 10.5 L2 5.5 Z"/>
+                        <path d="M8 14 L8 10.5"/>
+                        <path d="M14 5.5 L8 10.5 L2 5.5"/>
+                    </svg>
+                    <svg id="mode-icon-2d" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                        <rect x="2.5" y="2.5" width="11" height="11" rx="1"/>
+                    </svg>
+                </button>
                 <div class="toolbar-divider"></div>
-                <button id="zoom-in" class="ctrl" title="Zoom in">+</button>
-                <button id="zoom-out" class="ctrl" title="Zoom out">−</button>
+                <button id="zoom-in" class="ctrl" title="Zoom in">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                        <line x1="8" y1="3" x2="8" y2="13"/>
+                        <line x1="3" y1="8" x2="13" y2="8"/>
+                    </svg>
+                </button>
+                <button id="zoom-out" class="ctrl" title="Zoom out">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                        <line x1="3" y1="8" x2="13" y2="8"/>
+                    </svg>
+                </button>
             </div>
 
             <!-- Playback toolbar — bottom right, above profile -->

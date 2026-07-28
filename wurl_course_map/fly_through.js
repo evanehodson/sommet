@@ -414,7 +414,7 @@ export function initFlyThrough(map, pathPoints, onProgress, onStateChange) {
             bearing: targetBearing,
             zoom: targetZoom,
             duration: 600,
-            easing: function(t) { return t; }
+            easing: function(t) { return 1 - Math.pow(1 - t, 3); }
         });
     }
 

@@ -18,14 +18,132 @@
     --accent:       #FF3B30;       /* red — active marker only */
     --accent-muted: rgba(255,59,48,0.12);
 
+    --stone:        #C4A882;
+    --stone-muted:  rgba(196,168,130,0.15);
+    --stone-faint:  rgba(196,168,130,0.08);
+
     /* ── Typography ──────────────────────────────────────── */
-    --font:    'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font:         'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
 
     /* ── Controls ─────────────────────────────────────────── */
     --ctrl:    34px;
-    --ctrl-r:  4px;
+    --ctrl-r:  6px;
     --ctrl-fs: 15px;
     --toolbar-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+/* ════════════════════════════════════════════════════════════
+   CUSTOM CURSOR (desktop only)
+   ════════════════════════════════════════════════════════════ */
+
+@media (hover: hover) and (pointer: fine) {
+    body {
+        cursor: none;
+    }
+
+    #map {
+        cursor: none;
+    }
+
+    .ctrl, #sidebar-toggle, #profile-toggle, a, button {
+        cursor: none;
+    }
+
+    #cursor-ring {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 24px;
+        height: 24px;
+        border: 1.5px solid rgba(45,45,45,0.4);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        will-change: transform;
+    }
+
+    #cursor-ring.hovering {
+        width: 36px;
+        height: 36px;
+        border-color: var(--accent);
+        background: rgba(255,59,48,0.06);
+    }
+}
+
+@media (hover: none) {
+    #cursor-ring {
+        display: none;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   INTRO OVERLAY
+   ════════════════════════════════════════════════════════════ */
+
+#intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #1a1512;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+
+#intro-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#intro-content {
+    text-align: center;
+}
+
+#intro-title {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 800;
+    color: #fffcf8;
+    letter-spacing: 0.08em;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: introFadeIn 0.6s ease 0.2s forwards;
+}
+
+#intro-line {
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    margin: 16px auto;
+    animation: introLineDraw 0.8s ease 0.5s forwards;
+}
+
+#intro-subtitle {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--stone);
+    letter-spacing: 0.06em;
+    opacity: 0;
+    animation: introFadeIn 0.5s ease 0.9s forwards;
+}
+
+@keyframes introFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes introLineDraw {
+    to {
+        width: 120px;
+    }
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -93,7 +211,7 @@ body, html {
 .toolbar-divider {
     height: 1px;
     margin: 2px 3px;
-    background: var(--border-light);
+    background: var(--stone-faint);
 }
 
 .toolbar-h .toolbar-divider {
@@ -120,17 +238,17 @@ body, html {
     font-weight: 500;
     font-family: var(--font);
     line-height: 1;
-    transition: background 0.1s;
+    transition: background 0.15s, color 0.15s;
     -webkit-tap-highlight-color: transparent;
     flex-shrink: 0;
 }
 
 .ctrl:hover {
-    background: var(--bg-hover);
+    background: var(--stone-muted);
 }
 
 .ctrl:active {
-    background: var(--bg-active);
+    background: rgba(196,168,130,0.22);
 }
 
 /* ── View Toolbar ────────────────────────────────────────── */
@@ -164,35 +282,9 @@ body, html {
     cursor: grabbing;
 }
 
-#compass-arrow {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    line-height: 1;
-}
-
-#compass-n {
-    color: var(--accent);
-    font-size: 9px;
-    font-weight: 700;
-    font-family: var(--font);
-}
-
-#compass-arrow-icon {
-    color: var(--accent);
-    font-size: 10px;
-    line-height: 1;
-}
-
-#compass-s {
-    color: var(--text-3);
-    font-size: 7px;
-    font-weight: 600;
-    font-family: var(--font);
+#compass-svg {
+    display: block;
+    transition: transform 0.05s linear;
 }
 
 /* ── Mode Button ─────────────────────────────────────────── */
@@ -311,21 +403,21 @@ body, html {
 }
 
 #scrollytelling-sidebar.open {
-    width: 360px;
+    width: 400px;
 }
 
 #sidebar-header {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    padding: 18px 18px 16px;
+    padding: 20px 18px 16px;
     border-bottom: 1px solid var(--border-light);
     flex-shrink: 0;
 }
 
 #sidebar-brand {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: 10px;
 }
 
@@ -341,19 +433,21 @@ body, html {
 
 #sidebar-title {
     color: var(--text);
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 42px;
+    font-weight: 800;
     margin: 0;
-    font-family: var(--font);
+    font-family: var(--font-display);
     letter-spacing: 0.01em;
-    line-height: 1.1;
+    line-height: 1.05;
+    font-optical-sizing: auto;
 }
 
 #sidebar-subtitle {
-    color: var(--text-3);
-    font-size: 11px;
+    color: var(--stone);
+    font-size: 12px;
     font-family: var(--font);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
+    font-weight: 500;
 }
 
 #sidebar-close {
@@ -412,16 +506,20 @@ body, html {
     padding: 0;
     margin-bottom: 8px;
     border-left: 3px solid var(--border-light);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, opacity 0.35s ease, transform 0.35s ease;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    opacity: 0.4;
+    transform: translateY(8px);
 }
 
 .section-card.active {
     border-left-color: var(--accent);
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .section-photo {
@@ -429,6 +527,12 @@ body, html {
     height: 150px;
     object-fit: cover;
     display: block;
+    transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transform: scale(1);
+}
+
+.section-card.active .section-photo {
+    transform: scale(1.06);
 }
 
 .section-card-body {
@@ -443,7 +547,7 @@ body, html {
 }
 
 .section-number {
-    color: var(--accent);
+    color: var(--stone);
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
@@ -452,13 +556,13 @@ body, html {
 }
 
 .section-miles {
-    color: var(--text-3);
+    color: var(--stone);
     font-size: 10px;
     font-family: var(--font);
 }
 
 .section-attribution {
-    color: var(--text-3);
+    color: rgba(196,168,130,0.6);
     font-size: 9px;
     font-family: var(--font);
     margin-top: 6px;
@@ -466,17 +570,18 @@ body, html {
 
 .section-title {
     color: var(--text);
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 22px;
+    font-weight: 700;
     margin: 0 0 4px 0;
-    font-family: var(--font);
+    font-family: var(--font-display);
     letter-spacing: 0;
-    line-height: 1.3;
+    line-height: 1.25;
+    font-optical-sizing: auto;
 }
 
 .section-description {
     color: var(--text-2);
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.55;
     margin: 0;
     font-family: var(--font);
@@ -534,7 +639,7 @@ body, html {
     }
 
     #sidebar-title {
-        font-size: 17px;
+        font-size: 32px;
     }
 
     #elevation-profile {
@@ -574,7 +679,7 @@ body, html {
     }
 
     .section-title {
-        font-size: 13px;
+        font-size: 18px;
         margin-bottom: 3px;
     }
 
@@ -595,5 +700,47 @@ body, html {
 
     .section-card-body {
         padding: 8px 10px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+    /* Kill Ken Burns */
+    .section-photo {
+        transition: none !important;
+        transform: none !important;
+    }
+    .section-card.active .section-photo {
+        transform: none !important;
+    }
+
+    /* Kill card entrance animations */
+    .section-card {
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    /* Kill intro animations — just show and dismiss immediately */
+    #intro-title,
+    #intro-subtitle {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    #intro-line {
+        animation: none !important;
+        width: 120px !important;
+    }
+
+    /* Kill custom cursor */
+    #cursor-ring {
+        display: none !important;
+    }
+    body, #map, .ctrl, #sidebar-toggle, #profile-toggle, a, button {
+        cursor: auto !important;
     }
 }

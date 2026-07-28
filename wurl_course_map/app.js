@@ -56,7 +56,7 @@ const map = new maplibregl.Map({
 // ── Custom Controls ──────────────────────────────────────────
 
 const compass = document.getElementById('compass');
-const compassArrow = document.getElementById('compass-arrow');
+const compassSvg = document.getElementById('compass-svg');
 const btnIn = document.getElementById('zoom-in');
 const btnOut = document.getElementById('zoom-out');
 const modeBtn = document.getElementById('mode-btn');
@@ -110,9 +110,9 @@ function updateControls() {
 }
 
 // Compass rotation sync — set initial + keep updated
-compassArrow.style.transform = `rotate(${-map.getBearing()}deg)`;
+compassSvg.style.transform = `rotate(${-map.getBearing()}deg)`;
 map.on('rotate', () => {
-    compassArrow.style.transform = `rotate(${-map.getBearing()}deg)`;
+    compassSvg.style.transform = `rotate(${-map.getBearing()}deg)`;
 });
 
 // Interactive compass drag → bearing
@@ -177,17 +177,22 @@ btnIn.addEventListener('click', () => { if (!flyThrough || !flyThrough.isRunning
 btnOut.addEventListener('click', () => { if (!flyThrough || !flyThrough.isRunning()) { hasMovedFromFit = true; map.zoomOut({ duration: 200 }); } });
 
 // 2D/3D toggle
+const modeIcon3d = document.getElementById('mode-icon-3d');
+const modeIcon2d = document.getElementById('mode-icon-2d');
+
 modeBtn.addEventListener('click', () => {
     is2D = !is2D;
     if (is2D) {
-        modeBtn.textContent = '2D';
+        modeIcon3d.style.display = 'none';
+        modeIcon2d.style.display = 'block';
         modeBtn.classList.add('active');
         map.easeTo({ pitch: 0, duration: 500 });
         if (flyThrough && flyThrough.isRunning()) {
             fitBoundsAndRecord(courseBounds, { padding: FIT_BOUNDS_PADDING, duration: 1000, pitch: 0, bearing: 0 });
         }
     } else {
-        modeBtn.textContent = '3D';
+        modeIcon3d.style.display = 'block';
+        modeIcon2d.style.display = 'none';
         modeBtn.classList.remove('active');
         map.easeTo({ pitch: 60, duration: 500 });
     }
@@ -199,11 +204,13 @@ map.on('pitch', () => {
     const pitchIsZero = map.getPitch() < 1;
     if (pitchIsZero && !is2D) {
         is2D = true;
-        modeBtn.textContent = '2D';
+        modeIcon3d.style.display = 'none';
+        modeIcon2d.style.display = 'block';
         modeBtn.classList.add('active');
     } else if (!pitchIsZero && is2D) {
         is2D = false;
-        modeBtn.textContent = '3D';
+        modeIcon3d.style.display = 'block';
+        modeIcon2d.style.display = 'none';
         modeBtn.classList.remove('active');
     }
 });
@@ -235,6 +242,48 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', (e) => {
     if (e.button === 2) pitching = false;
 });
+
+// ── Custom cursor (desktop, rAF-driven) ─────────────────────
+
+(function initCustomCursor() {
+    var ring = document.getElementById('cursor-ring');
+    if (!ring || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    var mouseX = -100, mouseY = -100;
+    var ringX = -100, ringY = -100;
+    var rafId = null;
+
+    document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (!rafId) rafId = requestAnimationFrame(updateCursor);
+    });
+
+    function updateCursor() {
+        rafId = null;
+        // Linear interpolation for smooth tracking without lag
+        ringX += (mouseX - ringX) * 0.25;
+        ringY += (mouseY - ringY) * 0.25;
+        ring.style.transform = 'translate(' + (ringX - 12) + 'px, ' + (ringY - 12) + 'px)';
+        // Continue animating if mouse is moving
+        if (Math.abs(mouseX - ringX) > 0.5 || Math.abs(mouseY - ringY) > 0.5) {
+            rafId = requestAnimationFrame(updateCursor);
+        }
+    }
+
+    // Hover detection for interactive elements
+    var hoverTargets = 'button, a, .ctrl, .section-card, #profile-toggle, #sidebar-toggle';
+    document.addEventListener('mouseover', function(e) {
+        if (e.target.closest(hoverTargets)) {
+            ring.classList.add('hovering');
+        }
+    });
+    document.addEventListener('mouseout', function(e) {
+        if (e.target.closest(hoverTargets)) {
+            ring.classList.remove('hovering');
+        }
+    });
+})();
 
 // ── Load ─────────────────────────────────────────────────────
 
@@ -648,7 +697,7 @@ map.on('load', async () => {
             const maxD = dists[dists.length - 1];
             const rangeE = maxE - minE || 1;
 
-            ctx.strokeStyle = 'rgba(0,0,0,0.07)';
+            ctx.strokeStyle = 'rgba(196,168,130,0.2)';
             ctx.lineWidth = 0.5;
             for (let g = 0; g <= 4; g++) {
                 const y = pad.top + (g / 4) * ph;
@@ -657,8 +706,8 @@ map.on('load', async () => {
                 ctx.lineTo(pad.left + pw, y);
                 ctx.stroke();
                 const val = maxE - (g / 4) * rangeE;
-                ctx.fillStyle = '#999';
-                ctx.font = '9px Inter, sans-serif';
+                ctx.fillStyle = '#C4A882';
+                ctx.font = '9px "Fraunces", Georgia, serif';
                 ctx.textAlign = 'right';
                 ctx.fillText(`${Math.round(val)}'`, pad.left - 5, y + 3);
             }
@@ -668,7 +717,7 @@ map.on('load', async () => {
             const labelStep = isMobile
                 ? Math.max(5, Math.ceil(totalMi / Math.floor(pw / 60)))
                 : Math.max(1, Math.ceil(totalMi / Math.floor(pw / 50)));
-            const xFont = isMobile ? '7px Inter, sans-serif' : '9px Inter, sans-serif';
+            const xFont = isMobile ? '7px "Fraunces", Georgia, serif' : '9px "Fraunces", Georgia, serif';
             const xBottom = isMobile ? 10 : 13;
             ctx.font = xFont;
             ctx.textAlign = 'center';
@@ -680,13 +729,14 @@ map.on('load', async () => {
                 ctx.moveTo(mx, pad.top);
                 ctx.lineTo(mx, pad.top + ph);
                 ctx.stroke();
-                ctx.fillStyle = '#999';
+                ctx.fillStyle = '#C4A882';
                 ctx.fillText(`${m}`, mx, pad.top + ph + xBottom);
             }
 
             const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ph);
-            grad.addColorStop(0, 'rgba(255, 59, 48, 0.12)');
-            grad.addColorStop(1, 'rgba(255, 59, 48, 0.01)');
+            grad.addColorStop(0, 'rgba(255, 59, 48, 0.15)');
+            grad.addColorStop(0.5, 'rgba(196, 168, 130, 0.06)');
+            grad.addColorStop(1, 'rgba(196, 168, 130, 0.01)');
             ctx.beginPath();
             ctx.moveTo(pad.left, pad.top + ph);
             for (let i = 0; i < profile.length; i++) {
@@ -706,8 +756,12 @@ map.on('load', async () => {
                 i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
             }
             ctx.strokeStyle = '#FF3B30';
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = 'rgba(255,59,48,0.2)';
+            ctx.shadowBlur = 4;
             ctx.stroke();
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
 
             ctx.save();
             for (let si = 0; si < SECTION_BOUNDARY_MILES.length; si++) {
@@ -717,15 +771,15 @@ map.on('load', async () => {
                 ctx.setLineDash([2, 3]);
                 ctx.moveTo(sx, pad.top);
                 ctx.lineTo(sx, pad.top + ph);
-                ctx.strokeStyle = 'rgba(0,0,0,0.12)';
-                ctx.lineWidth = 0.75;
+                    ctx.strokeStyle = 'rgba(196,168,130,0.3)';
+                    ctx.lineWidth = 0.75;
                 ctx.stroke();
                 ctx.setLineDash([]);
                 if (si > 0 && si < SECTION_BOUNDARY_MILES.length - 1) {
                     ctx.beginPath();
                     ctx.moveTo(sx, pad.top);
                     ctx.lineTo(sx, pad.top - 8);
-                    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+                    ctx.strokeStyle = 'rgba(196,168,130,0.4)';
                     ctx.lineWidth = 1;
                     ctx.stroke();
                     ctx.beginPath();
@@ -733,7 +787,7 @@ map.on('load', async () => {
                     ctx.lineTo(sx + 5, pad.top - 5);
                     ctx.lineTo(sx, pad.top - 2);
                     ctx.closePath();
-                    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+                    ctx.fillStyle = 'rgba(196,168,130,0.4)';
                     ctx.fill();
                 }
             }
@@ -765,7 +819,7 @@ map.on('load', async () => {
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
                 ctx.fillStyle = '#2d2d2d';
-                ctx.font = '600 9px Inter, sans-serif';
+                ctx.font = '600 9px "Fraunces", Georgia, serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(`${scrubDist.toFixed(1)} mi  ·  ${Math.round(eleAtScrub)} ft`, sx, pad.top - 4);
             }
@@ -889,6 +943,31 @@ map.on('load', async () => {
         fitBoundsAndRecord(courseBounds, { padding: FIT_BOUNDS_PADDING, duration: 3500, pitch: 55, bearing: 90 });
 
         updateControls();
+
+        // ── Intro overlay dismissal ────────────────────────────
+        // Wait for map idle + minimum 2s floor, then fade out overlay
+        var introOverlay = document.getElementById('intro-overlay');
+        var introDismissed = false;
+        var introStartTime = Date.now();
+        var INTRO_MIN_MS = 2000;
+
+        function dismissIntro() {
+            if (introDismissed) return;
+            introDismissed = true;
+            introOverlay.classList.add('fade-out');
+            setTimeout(function() { introOverlay.style.display = 'none'; }, 700);
+        }
+
+        map.on('idle', function checkIntroIdle() {
+            var elapsed = Date.now() - introStartTime;
+            if (elapsed >= INTRO_MIN_MS) {
+                dismissIntro();
+                map.off('idle', checkIntroIdle);
+            }
+        });
+
+        // Fallback: if idle never fires (e.g. WebGL issues), dismiss after 4s
+        setTimeout(dismissIntro, 4000);
 
     } catch (err) {
         console.error('Error:', err);
