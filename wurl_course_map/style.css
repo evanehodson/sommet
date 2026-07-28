@@ -433,9 +433,6 @@ body, html {
 
 .section-card-body {
     padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
 }
 
 .section-header-row {
@@ -569,19 +566,21 @@ body, html {
     }
 
     .section-photo {
-        height: 130px;
+        height: 120px;
     }
 
     .section-card-body {
-        padding: 12px 14px;
+        padding: 10px 12px;
     }
 
     .section-title {
-        font-size: 14px;
+        font-size: 13px;
+        margin-bottom: 3px;
     }
 
     .section-description {
-        font-size: 12px;
+        font-size: 11.5px;
+        line-height: 1.45;
     }
 }
 
@@ -591,6 +590,10 @@ body, html {
     }
 
     .section-photo {
-        height: 100px;
+        height: 90px;
+    }
+
+    .section-card-body {
+        padding: 8px 10px;
     }
 }
