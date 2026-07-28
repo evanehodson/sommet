@@ -45,7 +45,7 @@ const map = new maplibregl.Map({
         ],
         glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf'
     },
-    center: [-111.818258, 40.576073],
+    center: [-111.82, 40.57],
     zoom: 11,
     pitch: 60,
     bearing: 90,
@@ -63,6 +63,36 @@ const modeBtn = document.getElementById('mode-btn');
 let flyThrough = null;
 let courseBounds = null;
 let is2D = false;
+const FIT_BOUNDS_PADDING = { top: 60, right: 60, bottom: 280, left: 60 };
+const PROFILE_PAD = { top: 16, bottom: 22, left: 40, right: 12 };
+
+let fitState = null; // snapshot of map after last course fitBounds
+let hasMovedFromFit = false;
+
+map.on('dragstart', function() { hasMovedFromFit = true; });
+map.getContainer().addEventListener('wheel', function() { hasMovedFromFit = true; });
+
+function recordFitState() {
+    var c = map.getCenter();
+    fitState = { clat: c.lat, clng: c.lng, zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() };
+}
+
+function userMovedFromFit() {
+    if (!fitState) return true;
+    var c = map.getCenter();
+    return Math.abs(c.lat - fitState.clat) > 0.0001 ||
+           Math.abs(c.lng - fitState.clng) > 0.0001 ||
+           Math.abs(map.getZoom() - fitState.zoom) > 0.01 ||
+           Math.abs(map.getBearing() - fitState.bearing) > 0.5 ||
+           Math.abs(map.getPitch() - fitState.pitch) > 0.5;
+}
+
+function fitBoundsAndRecord(bounds, opts) {
+    hasMovedFromFit = false;
+    fitState = null;
+    map.fitBounds(bounds, opts);
+    map.once('moveend', function() { recordFitState(); });
+}
 
 function updateControls() {
     const flying = flyThrough && flyThrough.isRunning();
@@ -89,71 +119,61 @@ let dragging = false;
 let dragStartAngle = 0;
 let dragStartBearing = 0;
 
+// Compass angle from cursor/touch relative to center
+function compassAngle(x, y) {
+    const rect = compass.getBoundingClientRect();
+    return Math.atan2(x - (rect.left + rect.width / 2), (rect.top + rect.height / 2) - y) * 180 / Math.PI;
+}
+
+function applyCompassDelta(angle) {
+    let delta = angle - dragStartAngle;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    map.setBearing(((dragStartBearing - delta) % 360 + 360) % 360);
+}
+
 compass.addEventListener('mousedown', (e) => {
     if (e.button !== 0) return;
     e.preventDefault();
+    hasMovedFromFit = true;
     dragging = true;
-    const rect = compass.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    dragStartAngle = Math.atan2(e.clientX - cx, cy - e.clientY) * 180 / Math.PI;
+    dragStartAngle = compassAngle(e.clientX, e.clientY);
     dragStartBearing = map.getBearing();
     compass.style.cursor = 'grabbing';
 });
 
 document.addEventListener('mousemove', (e) => {
     if (!dragging) return;
-    const rect = compass.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const angle = Math.atan2(e.clientX - cx, cy - e.clientY) * 180 / Math.PI;
-    let delta = angle - dragStartAngle;
-    if (delta > 180) delta -= 360;
-    if (delta < -180) delta += 360;
-    map.setBearing(((dragStartBearing - delta) % 360 + 360) % 360);
+    applyCompassDelta(compassAngle(e.clientX, e.clientY));
 });
 
 document.addEventListener('mouseup', () => {
-    if (dragging) {
-        dragging = false;
-        compass.style.cursor = 'grab';
-    }
+    if (dragging) { dragging = false; compass.style.cursor = 'grab'; }
 });
 
 compass.addEventListener('touchstart', (e) => {
     if (e.touches.length !== 1) return;
     e.preventDefault();
+    hasMovedFromFit = true;
     dragging = true;
-    const touch = e.touches[0];
-    const rect = compass.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    dragStartAngle = Math.atan2(touch.clientX - cx, cy - touch.clientY) * 180 / Math.PI;
+    const t = e.touches[0];
+    dragStartAngle = compassAngle(t.clientX, t.clientY);
     dragStartBearing = map.getBearing();
 }, { passive: false });
 
 document.addEventListener('touchmove', (e) => {
     if (!dragging) return;
-    const touch = e.touches[0];
-    const rect = compass.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const angle = Math.atan2(touch.clientX - cx, cy - touch.clientY) * 180 / Math.PI;
-    let delta = angle - dragStartAngle;
-    if (delta > 180) delta -= 360;
-    if (delta < -180) delta += 360;
-    map.setBearing(((dragStartBearing - delta) % 360 + 360) % 360);
+    const t = e.touches[0];
+    applyCompassDelta(compassAngle(t.clientX, t.clientY));
 }, { passive: true });
 
 document.addEventListener('touchend', () => {
-    if (dragging) {
-        dragging = false;
-    }
+    if (dragging) dragging = false;
 });
 
-// Zoom buttons
-btnIn.addEventListener('click', () => map.zoomIn({ duration: 200 }));
-btnOut.addEventListener('click', () => map.zoomOut({ duration: 200 }));
+// Zoom buttons — skip when flying (fly_through.js handles userZoom directly)
+btnIn.addEventListener('click', () => { if (!flyThrough || !flyThrough.isRunning()) { hasMovedFromFit = true; map.zoomIn({ duration: 200 }); } });
+btnOut.addEventListener('click', () => { if (!flyThrough || !flyThrough.isRunning()) { hasMovedFromFit = true; map.zoomOut({ duration: 200 }); } });
 
 // 2D/3D toggle
 modeBtn.addEventListener('click', () => {
@@ -163,7 +183,7 @@ modeBtn.addEventListener('click', () => {
         modeBtn.classList.add('active');
         map.easeTo({ pitch: 0, duration: 500 });
         if (flyThrough && flyThrough.isRunning()) {
-            map.fitBounds(courseBounds, { padding: { top: 60, right: 60, bottom: 280, left: 60 }, duration: 1000, pitch: 0, bearing: 0 });
+            fitBoundsAndRecord(courseBounds, { padding: FIT_BOUNDS_PADDING, duration: 1000, pitch: 0, bearing: 0 });
         }
     } else {
         modeBtn.textContent = '3D';
@@ -520,7 +540,7 @@ map.on('load', async () => {
 
         document.getElementById('flythrough-btn').addEventListener('click', () => {
             if (flyThrough.isRunning() && is2D) {
-                map.fitBounds(courseBounds, { padding: { top: 60, right: 60, bottom: 280, left: 60 }, duration: 1000, pitch: 0, bearing: 0 });
+                fitBoundsAndRecord(courseBounds, { padding: FIT_BOUNDS_PADDING, duration: 1000, pitch: 0, bearing: 0 });
             }
         });
 
@@ -569,6 +589,16 @@ map.on('load', async () => {
             return { lon: pathPoints[pathPoints.length - 1].lon, lat: pathPoints[pathPoints.length - 1].lat };
         }
 
+        function restoreRunner() {
+            const mile = state.getMile();
+            if (mile !== null) {
+                const c = interpProfileCoords(mile);
+                flyThrough.moveRunner(c.lon, c.lat);
+            } else {
+                flyThrough.hideRunner();
+            }
+        }
+
         function distToMeters(d) {
             return d / (KNOWN_LENGTH_MI / cumDist);
         }
@@ -584,7 +614,7 @@ map.on('load', async () => {
             canvas.width = w * devicePixelRatio;
             canvas.height = h * devicePixelRatio;
             ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-            const pad = { top: 16, bottom: 22, left: 40, right: 12 };
+            const pad = PROFILE_PAD;
             const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
 
             ctx.clearRect(0, 0, w, h);
@@ -743,24 +773,14 @@ map.on('load', async () => {
                 flyThrough.showRunner();
             } else {
                 hoverDist = null;
-                if (state.getMile() !== null) {
-                    const c = interpProfileCoords(state.getMile());
-                    flyThrough.moveRunner(c.lon, c.lat);
-                } else {
-                    flyThrough.hideRunner();
-                }
+                restoreRunner();
             }
             drawProfile();
         });
 
         map.on('mouseleave', () => {
             hoverDist = null;
-            if (state.getMile() !== null) {
-                const c = interpProfileCoords(state.getMile());
-                flyThrough.moveRunner(c.lon, c.lat);
-            } else {
-                flyThrough.hideRunner();
-            }
+            restoreRunner();
             drawProfile();
         });
 
@@ -778,13 +798,11 @@ map.on('load', async () => {
             }
             if (minSq < 900 && nearestPt) {
                 const meterDist = milesToFlyMeters(cumDistArr[nearestIdx]);
-                flyThrough.setProgress(meterDist);
                 const mile = (meterDist / 1609.34) * (KNOWN_LENGTH_MI / cumDist);
-                flyThrough.moveRunner(nearestPt.lon, nearestPt.lat);
-                flyThrough.showRunner();
-                map.jumpTo({
-                    center: [nearestPt.lon, nearestPt.lat]
-                });
+                flyThrough.setProgress(meterDist, false);
+                if (!(is2D && flyThrough.isRunning()) || hasMovedFromFit || userMovedFromFit()) {
+                    map.jumpTo({ center: [nearestPt.lon, nearestPt.lat] });
+                }
                 scrollytelling.jumpToMile(mile);
                 state.setMile(mile, 'map-click');
             }
@@ -796,17 +814,11 @@ map.on('load', async () => {
             if (flyThrough.isRunning()) return;
             const rect = canvas.getBoundingClientRect();
             const mx = e.clientX - rect.left;
-            const pad = { top: 20, bottom: 24, left: 42, right: 14 };
-            const pw = rect.width - pad.left - pad.right;
-            const relX = mx - pad.left;
+            const pw = rect.width - PROFILE_PAD.left - PROFILE_PAD.right;
+            const relX = mx - PROFILE_PAD.left;
             if (relX < 0 || relX > pw) {
                 hoverDist = null;
-                if (state.getMile() !== null) {
-                    const c = interpProfileCoords(state.getMile());
-                    flyThrough.moveRunner(c.lon, c.lat);
-                } else {
-                    flyThrough.hideRunner();
-                }
+                restoreRunner();
                 drawProfile();
                 return;
             }
@@ -821,12 +833,7 @@ map.on('load', async () => {
 
         canvas.addEventListener('mouseleave', () => {
             hoverDist = null;
-            if (state.getMile() !== null) {
-                const c = interpProfileCoords(state.getMile());
-                flyThrough.moveRunner(c.lon, c.lat);
-            } else {
-                flyThrough.hideRunner();
-            }
+            restoreRunner();
             drawProfile();
         });
 
@@ -835,26 +842,25 @@ map.on('load', async () => {
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
             const mx = e.clientX - rect.left;
-            const pad = { top: 20, bottom: 24, left: 42, right: 14 };
-            const pw = rect.width - pad.left - pad.right;
-            const relX = mx - pad.left;
+            const pw = rect.width - PROFILE_PAD.left - PROFILE_PAD.right;
+            const relX = mx - PROFILE_PAD.left;
             if (relX < 0 || relX > pw) return;
             const dists = profile.map(p => p.dist);
             const maxD = dists[dists.length - 1];
             const clickDist = (relX / pw) * maxD;
             const meterDist = milesToFlyMeters(distToMeters(clickDist));
             const coords = interpProfileCoords(clickDist);
-            flyThrough.setProgress(meterDist);
+            flyThrough.setProgress(meterDist, false);
             flyThrough.moveRunner(coords.lon, coords.lat);
             flyThrough.showRunner();
-            map.jumpTo({
-                center: [coords.lon, coords.lat]
-            });
+            if (!(is2D && flyThrough.isRunning()) || hasMovedFromFit || userMovedFromFit()) {
+                map.jumpTo({ center: [coords.lon, coords.lat] });
+            }
             scrollytelling.jumpToMile(clickDist);
             state.setMile(clickDist, 'profile-click');
         });
 
-        map.fitBounds(courseBounds, { padding: { top: 60, right: 60, bottom: 280, left: 60 }, duration: 3500, pitch: 55, bearing: 90 });
+        fitBoundsAndRecord(courseBounds, { padding: FIT_BOUNDS_PADDING, duration: 3500, pitch: 55, bearing: 90 });
 
         updateControls();
 
