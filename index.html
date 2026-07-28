@@ -3,104 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Race Web — 3D Course Visualizations</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <title>Sommet Innovations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             min-height: 100vh;
             background: #0a0a0f;
             color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 60px 24px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        h1 {
+
+        /* ── Nav ─────────────────────────────────────────── */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo {
             font-family: 'Oswald', sans-serif;
-            font-size: 48px;
+            font-size: 22px;
             font-weight: 700;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #fff;
+            text-decoration: none;
+        }
+        .logo span { color: #ff3366; }
+        nav a.nav-link {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav a.nav-link:hover { color: #fff; }
+
+        /* ── Hero ────────────────────────────────────────── */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 40px 60px;
+        }
+        .hero h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(42px, 6vw, 72px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.01em;
+            margin-bottom: 20px;
+        }
+        .hero h1 span { color: #ff3366; }
+        .hero p {
+            color: rgba(255,255,255,0.55);
+            font-size: 18px;
+            line-height: 1.7;
+            max-width: 560px;
+        }
+
+        /* ── Services ────────────────────────────────────── */
+        .services {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 40px 80px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .service-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 28px 24px;
+        }
+        .service-icon {
+            font-size: 28px;
+            margin-bottom: 14px;
+            display: block;
+        }
+        .service-card h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
             margin-bottom: 8px;
         }
-        .subtitle {
-            color: rgba(255,255,255,0.5);
-            font-size: 16px;
-            margin-bottom: 48px;
+        .service-card p {
+            color: rgba(255,255,255,0.45);
+            font-size: 13px;
+            line-height: 1.6;
         }
-        .projects {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            max-width: 900px;
-            width: 100%;
+
+        /* ── Featured Work ───────────────────────────────── */
+        .featured {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 80px;
         }
-        .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 32px;
+        .section-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #ff3366;
+            margin-bottom: 12px;
+        }
+        .featured-card {
+            display: block;
             text-decoration: none;
             color: #fff;
-            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: border-color 0.25s, transform 0.25s;
         }
-        .card:hover {
-            background: rgba(255,255,255,0.08);
+        .featured-card:hover {
             border-color: rgba(255,51,102,0.4);
             transform: translateY(-4px);
         }
-        .card-tag {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 16px;
+        .featured-preview {
+            width: 100%;
+            aspect-ratio: 16 / 7;
+            background: #111118;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
-        .card-tag.primary { background: #ff3366; color: #fff; }
-        .card-tag.live { background: #22c55e; color: #fff; }
-        .card-tag.template { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
-        .card h2 {
+        .featured-preview::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, rgba(10,10,15,0.6) 100%);
+        }
+        .featured-preview .mock-terrain {
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse 120% 60% at 30% 70%, rgba(34,80,40,0.25), transparent),
+                radial-gradient(ellipse 100% 50% at 70% 60%, rgba(50,90,50,0.2), transparent),
+                radial-gradient(ellipse 80% 40% at 50% 80%, rgba(20,60,30,0.3), transparent),
+                linear-gradient(180deg, #0e0e14 0%, #111118 100%);
+        }
+        .featured-preview .mock-line {
+            position: absolute;
+            width: 60%;
+            height: 2px;
+            background: rgba(255,51,51,0.7);
+            top: 50%;
+            left: 20%;
+            transform: rotate(-8deg);
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(255,51,51,0.3);
+        }
+        .featured-body {
+            padding: 32px 36px 36px;
+        }
+        .featured-body h2 {
             font-family: 'Oswald', sans-serif;
-            font-size: 24px;
+            font-size: 30px;
             font-weight: 700;
             margin-bottom: 10px;
         }
-        .card p {
-            color: rgba(255,255,255,0.6);
-            font-size: 14px;
-            line-height: 1.6;
+        .featured-body p {
+            color: rgba(255,255,255,0.5);
+            font-size: 15px;
+            line-height: 1.65;
+            max-width: 640px;
+            margin-bottom: 24px;
         }
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ff3366;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .cta:hover { background: #e62d5c; }
+        .cta svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ── Footer ──────────────────────────────────────── */
         footer {
-            margin-top: 64px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             color: rgba(255,255,255,0.3);
-            font-size: 12px;
+            font-size: 13px;
+        }
+        footer a {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        footer a:hover { color: #fff; }
+
+        @media (max-width: 640px) {
+            nav { padding: 20px 24px; }
+            .hero { padding: 48px 24px 40px; }
+            .services { padding: 0 24px 56px; }
+            .featured { padding: 0 24px 56px; }
+            .featured-body { padding: 24px; }
+            footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 24px; }
         }
     </style>
 </head>
 <body>
-    <h1>Race Web</h1>
-    <p class="subtitle">Interactive 3D race course visualizations</p>
-    <div class="projects">
-        <a href="wurl_course_map/" class="card">
-            <span class="card-tag primary">Featured</span>
-            <h2>WURL 3D Theater</h2>
-            <p>Wasatch Ultimate Ridge Linkup — 35.6 miles of exposed ridge traversal with scrollytelling, fly-through, and elevation profile.</p>
+
+    <nav>
+        <a href="/" class="logo">Sommet<span>.</span></a>
+    </nav>
+
+    <section class="hero">
+        <h1>Race experiences,<br><span>elevated.</span></h1>
+        <p>We build interactive 3D course maps, live tracking, and timing solutions for trail and ultra races.</p>
+    <section class="services">
+        <div class="service-card">
+            <span class="service-icon">&#9968;</span>
+            <h3>3D Course Maps</h3>
+            <p>High-quality print and digital terrain maps with fly-through, elevation profiles, and scrollytelling.</p>
+        </div>
+        <div class="service-card">
+            <span class="service-icon">&#9881;</span>
+            <h3>Live Tracking</h3>
+            <p>Near real-time tracking capabilities for spectators and event organizers via LoRa mesh.</p>
+        </div>
+        <div class="service-card">
+            <span class="service-icon">&#9201;</span>
+            <h3>Race Timing</h3>
+            <p>Chip timing, split tracking, and automated results. Live leaderboards athletes and fans can follow.</p>
+        </div>
+        <div class="service-card">
+            <span class="service-icon">&#9741;</span>
+            <h3>Event Websites</h3>
+            <p>Complete race websites with registration integration, schedules, and athlete lookups. Fast and mobile-first.</p>
+        </div>
+    </section>
+
+    <section class="featured">
+        <div class="section-label">Featured Work</div>
+        <a href="wurl_course_map/" class="featured-card">
+            <div class="featured-preview">
+                <div class="mock-terrain"></div>
+                <div class="mock-line"></div>
+            </div>
+            <div class="featured-body">
+                <h2>WURL 3D Theater</h2>
+                <p>Wasatch Ultimate Ridge Linkup &mdash; a 35.6-mile course through Utah's high country. Scrollytelling narrative, animated fly-through, real-time elevation profile, and 3D terrain visualization. A prototype of what's possible for any race.</p>
+                <span class="cta">
+                    Explore the Map
+                    <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+                </span>
+            </div>
         </a>
-        <a href="ins_live_map/" class="card">
-            <span class="card-tag live">Live</span>
-            <h2>Inner North Summits</h2>
-            <p>Live GPS race tracking with WebSocket relay, real-time position on a 3D terrain map.</p>
-        </a>
-        <a href="course_map_template/" class="card">
-            <span class="card-tag template">Template</span>
-            <h2>Course Map Template</h2>
-            <p>Reusable template for any race — configurable colors, speeds, and thresholds via config.js.</p>
-        </a>
-    </div>
-    <footer>v0.29.0</footer>
+    </section>
+
+    <footer>
+        <span>&copy; 2026 Sommet Innovations</span>
+        <a href="mailto:hello@sommetinnovations.com">Get in touch</a>
+    </footer>
+
 </body>
 </html>

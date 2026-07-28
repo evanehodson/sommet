@@ -78,27 +78,11 @@ export function createFlagsLayer(map, pathPoints, sectionMiles, KNOWN_LENGTH_MI,
             'icon-anchor': 'bottom',
             'icon-size': [
                 'interpolate', ['exponential', 2], ['zoom'],
-                12, 0.045,
-                18, 2.75
+                12, 0.055,
+                18, 3.5
             ],
             'icon-allow-overlap': true,
-            'icon-ignore-placement': true,
-            'text-field': '{label}',
-            'text-font': ['Noto Sans Italic'],
-            'text-size': [
-                'interpolate', ['exponential', 2], ['zoom'],
-                12, 0.7,
-                18, 44
-            ],
-            'text-anchor': 'bottom',
-            'text-offset': [0, -14],
-            'text-allow-overlap': true,
-            'text-ignore-placement': true
-        },
-        paint: {
-            'text-color': '#ffffff',
-            'text-halo-color': 'rgba(0,0,0,0.75)',
-            'text-halo-width': 1.5
+            'icon-ignore-placement': true
         }
     });
 }

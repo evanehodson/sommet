@@ -268,10 +268,10 @@ map.on('load', async () => {
                     10: [100, 200],
                     12: [100, 200],
                     14: [50, 100],
-                    15: [20, 100],
-                    16: [10, 100],
-                    17: [10, 100],
-                    18: [10, 100]
+                    15: [50, 100],
+                    16: [50, 100],
+                    17: [50, 100],
+                    18: [50, 100]
                 },
                 contourLayer: 'contours',
                 elevationKey: 'ele',
@@ -305,7 +305,7 @@ map.on('load', async () => {
             'symbol-placement': 'line',
             'symbol-spacing': [
                 'interpolate', ['linear'], ['zoom'],
-                9, 200, 12, 120, 15, 80, 18, 40
+                9, 200, 12, 160, 15, 200, 18, 300
             ],
             'text-size': [
                 'interpolate', ['linear'], ['zoom'],
@@ -628,7 +628,12 @@ map.on('load', async () => {
             canvas.width = w * devicePixelRatio;
             canvas.height = h * devicePixelRatio;
             ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-            const pad = PROFILE_PAD;
+            const pad = {
+                top: PROFILE_PAD.top,
+                bottom: w < 500 ? 14 : PROFILE_PAD.bottom,
+                left: w < 500 ? 32 : PROFILE_PAD.left,
+                right: PROFILE_PAD.right
+            };
             const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
 
             ctx.clearRect(0, 0, w, h);
@@ -659,9 +664,15 @@ map.on('load', async () => {
             }
 
             const totalMi = maxD;
-            ctx.font = '9px Inter, sans-serif';
+            const isMobile = w < 500;
+            const labelStep = isMobile
+                ? Math.max(5, Math.ceil(totalMi / Math.floor(pw / 60)))
+                : Math.max(1, Math.ceil(totalMi / Math.floor(pw / 50)));
+            const xFont = isMobile ? '7px Inter, sans-serif' : '9px Inter, sans-serif';
+            const xBottom = isMobile ? 10 : 13;
+            ctx.font = xFont;
             ctx.textAlign = 'center';
-            for (let m = 1; m <= totalMi; m++) {
+            for (let m = labelStep; m <= totalMi; m += labelStep) {
                 const mx = pad.left + (m / totalMi) * pw;
                 ctx.strokeStyle = 'rgba(0,0,0,0.05)';
                 ctx.lineWidth = 0.5;
@@ -670,7 +681,7 @@ map.on('load', async () => {
                 ctx.lineTo(mx, pad.top + ph);
                 ctx.stroke();
                 ctx.fillStyle = '#999';
-                ctx.fillText(`${m}`, mx, pad.top + ph + 13);
+                ctx.fillText(`${m}`, mx, pad.top + ph + xBottom);
             }
 
             const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ph);
@@ -767,6 +778,7 @@ map.on('load', async () => {
         toggleBtn.addEventListener('click', () => {
             profilePanel.classList.toggle('collapsed');
             document.getElementById('flythrough-controls').classList.toggle('profile-collapsed');
+            document.getElementById('sidebar-toggle').classList.toggle('profile-collapsed');
         });
 
         // ── Hover tracking: map → runner + profile ────

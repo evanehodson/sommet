@@ -559,8 +559,13 @@ body, html {
     }
 
     #sidebar-toggle {
-        top: 8px;
+        bottom: 136px;
         left: 8px;
+        top: auto;
+    }
+
+    #sidebar-toggle.profile-collapsed {
+        bottom: 20px;
     }
 
     .section-photo {
