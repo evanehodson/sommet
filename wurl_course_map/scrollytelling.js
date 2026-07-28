@@ -95,9 +95,7 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
     let currentMile = 0;
     let cardHeight = 500;
 
-    function isMobile() {
-        return window.innerWidth <= 768;
-    }
+    const isMobile = () => window.innerWidth <= 768;
 
     function measureCardHeight() {
         const firstCard = scrollContainer.querySelector('.section-card');
@@ -114,59 +112,58 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
             const card = document.createElement('div');
             card.className = 'section-card';
             card.dataset.index = i;
-            card.innerHTML =
-                '<img class="section-photo" src="' + sec.photoUrl + '" alt="' + sec.title + '" loading="lazy">' +
-                '<div class="section-card-body">' +
-                    '<div class="section-header-row">' +
-                        '<div class="section-number">Section ' + sec.id + '</div>' +
-                        '<div class="section-miles">' + sec.miles + ' mi</div>' +
-                    '</div>' +
-                    '<h3 class="section-title">' + sec.title + '</h3>' +
-                    '<p class="section-description">' + sec.description + '</p>' +
-                    (sec.attribution ? '<div class="section-attribution">' + sec.attribution + '</div>' : '') +
-                '</div>';
+            card.innerHTML = `
+                <img class="section-photo" src="${sec.photoUrl}" alt="${sec.title}" loading="lazy">
+                <div class="section-card-body">
+                    <div class="section-header-row">
+                        <div class="section-number">Section ${sec.id}</div>
+                        <div class="section-miles">${sec.miles} mi</div>
+                    </div>
+                    <h3 class="section-title">${sec.title}</h3>
+                    <p class="section-description">${sec.description}</p>
+                    ${sec.attribution ? `<div class="section-attribution">${sec.attribution}</div>` : ''}
+                </div>`;
             scrollContainer.appendChild(card);
         });
 
         if (!isMobile()) {
             const cards = scrollContainer.querySelectorAll('.section-card');
-            cards.forEach(function(c) {
+            cards.forEach(c => {
                 c.style.height = cardHeight + 'px';
                 c.style.overflow = 'hidden';
             });
         }
 
-        var spacer = document.createElement('div');
+        const spacer = document.createElement('div');
         spacer.style.height = cardHeight + 'px';
         spacer.className = 'scroll-spacer';
         scrollContainer.appendChild(spacer);
     }
 
     buildCards();
-
     setTimeout(measureCardHeight, 100);
 
     function scrollPosToMile(scrollTop) {
-        var cardIdx = Math.floor(scrollTop / cardHeight);
+        let cardIdx = Math.floor(scrollTop / cardHeight);
         if (cardIdx >= SECTIONS.length) cardIdx = SECTIONS.length - 1;
         if (cardIdx < 0) cardIdx = 0;
 
-        var withinCard = scrollTop - cardIdx * cardHeight;
-        var fraction = Math.max(0, Math.min(1, withinCard / cardHeight));
-        var sec = SECTIONS[cardIdx];
+        const withinCard = scrollTop - cardIdx * cardHeight;
+        const fraction = Math.max(0, Math.min(1, withinCard / cardHeight));
+        const sec = SECTIONS[cardIdx];
         return sec.mileStart + fraction * (sec.mileEnd - sec.mileStart);
     }
 
     function mileToScrollTop(mile) {
-        var cardIdx = 0;
-        for (var i = 0; i < SECTIONS.length; i++) {
+        let cardIdx = 0;
+        for (let i = 0; i < SECTIONS.length; i++) {
             if (mile < SECTIONS[i].mileEnd || i === SECTIONS.length - 1) {
                 cardIdx = i;
                 break;
             }
         }
-        var sec = SECTIONS[cardIdx];
-        var fraction = (mile - sec.mileStart) / (sec.mileEnd - sec.mileStart);
+        const sec = SECTIONS[cardIdx];
+        let fraction = (mile - sec.mileStart) / (sec.mileEnd - sec.mileStart);
         fraction = Math.max(0, Math.min(1, fraction));
         return cardIdx * cardHeight + fraction * cardHeight;
     }
@@ -175,19 +172,19 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
         if (idx !== activeSectionIdx) {
             activeSectionIdx = idx;
             const cards = scrollContainer.querySelectorAll('.section-card');
-            cards.forEach(function(c, i) { c.classList.toggle('active', i === activeSectionIdx); });
+            cards.forEach((c, i) => c.classList.toggle('active', i === activeSectionIdx));
         }
     }
 
-    scrollContainer.addEventListener('scroll', function() {
+    scrollContainer.addEventListener('scroll', () => {
         if (isProgrammaticScroll) return;
 
-        var scrollTop = scrollContainer.scrollTop;
-        var scrollMax = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+        const scrollTop = scrollContainer.scrollTop;
+        const scrollMax = scrollContainer.scrollHeight - scrollContainer.clientHeight;
         if (scrollMax <= 0) return;
 
         currentMile = scrollPosToMile(scrollTop);
-        var cardIdx = Math.min(Math.floor(scrollTop / cardHeight), SECTIONS.length - 1);
+        const cardIdx = Math.min(Math.floor(scrollTop / cardHeight), SECTIONS.length - 1);
 
         updateActiveSection(cardIdx);
         if (onMileChange) onMileChange(currentMile);
@@ -212,13 +209,13 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
     toggleBtn.addEventListener('click', open);
     closeBtn.addEventListener('click', close);
 
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', () => {
         measureCardHeight();
         if (isOpen) {
-            var targetTop = mileToScrollTop(currentMile);
+            const targetTop = mileToScrollTop(currentMile);
             isProgrammaticScroll = true;
             scrollContainer.scrollTop = targetTop;
-            setTimeout(function() { isProgrammaticScroll = false; }, 50);
+            setTimeout(() => { isProgrammaticScroll = false; }, 50);
         }
     });
 
@@ -226,20 +223,20 @@ export function initScrollytelling({ onMileChange, onSidebarToggle }) {
         currentMile = mile;
         if (!isOpen) return;
 
-        var targetTop = mileToScrollTop(mile);
-        var cardIdx = Math.min(Math.floor(targetTop / cardHeight), SECTIONS.length - 1);
+        const targetTop = mileToScrollTop(mile);
+        const cardIdx = Math.min(Math.floor(targetTop / cardHeight), SECTIONS.length - 1);
 
         isProgrammaticScroll = true;
         scrollContainer.scrollTop = targetTop;
-        setTimeout(function() { isProgrammaticScroll = false; }, 100);
+        setTimeout(() => { isProgrammaticScroll = false; }, 100);
 
         updateActiveSection(cardIdx);
     }
 
     return {
-        jumpToMile: jumpToMile,
-        isSidebarOpen: function() { return isOpen; },
-        open: open,
-        close: close
+        jumpToMile,
+        isSidebarOpen: () => isOpen,
+        open,
+        close
     };
 }

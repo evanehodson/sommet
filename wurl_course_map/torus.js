@@ -90,7 +90,6 @@ function buildTorus(wp, bearingDeg, angle, map) {
     return { vertices: new Float32Array(out), origin: [origin.x, origin.y, origin.z] };
 }
 
-// Double-precision matrix translation helper
 function translateMatrix(matrix, x, y, z) {
     const translated = new Float32Array(matrix);
     translated[12] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
@@ -112,7 +111,6 @@ export function createTorusLayer(map, pathPoints, waypoints) {
 
     let ringAngle = 0;
 
-    // Removed direct coordinate addition (uOrigin + aPos) to prevent 32-bit float precision loss
     const vsSrc = 'attribute vec3 aPos;attribute vec2 aUV;uniform mat4 uMat;varying vec2 vUV;void main(){gl_Position=uMat*vec4(aPos,1.0);vUV=aUV;}';
     const fsSrc = 'precision mediump float;uniform sampler2D uTex;varying vec2 vUV;void main(){gl_FragColor=texture2D(uTex,vUV);}';
 
@@ -122,7 +120,7 @@ export function createTorusLayer(map, pathPoints, waypoints) {
             this.map = m;
             this.buf = gl.createBuffer();
 
-            function mkShader(type, src) {
+            const mkShader = (type, src) => {
                 const s = gl.createShader(type);
                 gl.shaderSource(s, src);
                 gl.compileShader(s);
@@ -130,7 +128,7 @@ export function createTorusLayer(map, pathPoints, waypoints) {
                     console.error('[ring-3d] shader:', gl.getShaderInfoLog(s));
                 }
                 return s;
-            }
+            };
 
             const vs = mkShader(gl.VERTEX_SHADER, vsSrc);
             const fs = mkShader(gl.FRAGMENT_SHADER, fsSrc);
@@ -161,10 +159,9 @@ export function createTorusLayer(map, pathPoints, waypoints) {
         render: function(gl, matrix) {
             gl.useProgram(this.prg);
 
-            // Configure proper depth testing and terrain occlusion
             gl.enable(gl.DEPTH_TEST);
             gl.depthFunc(gl.LEQUAL);
-            gl.depthMask(true); // Ensures geometry can render with clean self-occlusion
+            gl.depthMask(true);
 
             gl.enable(gl.CULL_FACE);
             gl.cullFace(gl.BACK);
@@ -175,8 +172,7 @@ export function createTorusLayer(map, pathPoints, waypoints) {
             for (let i = 0; i < ringDefs.length; i++) {
                 const r = ringDefs[i];
                 const { vertices, origin } = buildTorus(r.wp, r.bearing, ringAngle * r.speed, this.map);
-                
-                // CPU Matrix translation to preserve 64-bit precision
+
                 const translatedMatrix = translateMatrix(matrix, origin[0], origin[1], origin[2]);
                 gl.uniformMatrix4fv(this.uMat, false, translatedMatrix);
 
@@ -192,9 +188,8 @@ export function createTorusLayer(map, pathPoints, waypoints) {
                 gl.drawArrays(gl.TRIANGLES, 0, vertices.length / FLOATS);
             }
 
-            // Cleanup WebGL state cleanly for MapLibre
             gl.disable(gl.CULL_FACE);
-            
+
             ringAngle += 0.018;
             this.map.triggerRepaint();
         }

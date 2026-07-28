@@ -1,8 +1,26 @@
 import { createTorusLayer } from './torus.js';
 import { initFlyThrough } from './fly_through.js';
 import { initScrollytelling, SECTION_BOUNDARY_MILES } from './scrollytelling.js';
-import { createFlagsLayer } from './flags.js';
-import * as state from './state.js';
+
+// ── State ─────────────────────────────────────────────────
+
+let _mile = null;
+const _listeners = new Set();
+
+function getMile() { return _mile; }
+
+function setMile(mile, source) {
+    if (_mile === mile && mile !== null) return;
+    _mile = mile;
+    for (const fn of _listeners) fn(mile, source);
+}
+
+function onMileChange(fn) {
+    _listeners.add(fn);
+    return () => _listeners.delete(fn);
+}
+
+// ── DEM Source ────────────────────────────────────────────
 
 const demSource = new mlcontour.DemSource({
     url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
@@ -12,6 +30,8 @@ const demSource = new mlcontour.DemSource({
     cacheSize: 100
 });
 demSource.setupMaplibre(maplibregl);
+
+// ── Map ───────────────────────────────────────────────────
 
 const map = new maplibregl.Map({
     container: 'map',
@@ -30,19 +50,8 @@ const map = new maplibregl.Map({
             { id: 'satellite-layer', type: 'raster', source: 'satellite' }
         ],
         lights: [
-            {
-                id: 'sun',
-                type: 'directional',
-                direction: [210, 55],
-                color: '#ffffff',
-                intensity: 1.0
-            },
-            {
-                id: 'ambient',
-                type: 'ambient',
-                color: '#fff5e6',
-                intensity: 0.35
-            }
+            { id: 'sun', type: 'directional', direction: [210, 55], color: '#ffffff', intensity: 1.0 },
+            { id: 'ambient', type: 'ambient', color: '#fff5e6', intensity: 0.35 }
         ],
         glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf'
     },
@@ -53,12 +62,10 @@ const map = new maplibregl.Map({
     maxPitch: 70
 });
 
-// ── Custom Controls ──────────────────────────────────────────
+// ── Controls state ────────────────────────────────────────
 
 const compass = document.getElementById('compass');
 const compassSvg = document.getElementById('compass-svg');
-const btnIn = document.getElementById('zoom-in');
-const btnOut = document.getElementById('zoom-out');
 const modeBtn = document.getElementById('mode-btn');
 
 let flyThrough = null;
@@ -67,20 +74,22 @@ let is2D = false;
 const FIT_BOUNDS_PADDING = { top: 60, right: 60, bottom: 280, left: 60 };
 const PROFILE_PAD = { top: 16, bottom: 22, left: 40, right: 12 };
 
-let fitState = null; // snapshot of map after last course fitBounds
+let fitState = null;
 let hasMovedFromFit = false;
 
-map.on('dragstart', function() { hasMovedFromFit = true; });
-map.getContainer().addEventListener('wheel', function() { hasMovedFromFit = true; });
+// ── Fit-bounds tracking ──────────────────────────────────
+
+map.on('dragstart', () => { hasMovedFromFit = true; });
+map.getContainer().addEventListener('wheel', () => { hasMovedFromFit = true; });
 
 function recordFitState() {
-    var c = map.getCenter();
+    const c = map.getCenter();
     fitState = { clat: c.lat, clng: c.lng, zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() };
 }
 
 function userMovedFromFit() {
     if (!fitState) return true;
-    var c = map.getCenter();
+    const c = map.getCenter();
     return Math.abs(c.lat - fitState.clat) > 0.0001 ||
            Math.abs(c.lng - fitState.clng) > 0.0001 ||
            Math.abs(map.getZoom() - fitState.zoom) > 0.01 ||
@@ -92,7 +101,7 @@ function fitBoundsAndRecord(bounds, opts) {
     hasMovedFromFit = false;
     fitState = null;
     map.fitBounds(bounds, opts);
-    map.once('moveend', function() { recordFitState(); });
+    map.once('moveend', () => { recordFitState(); });
 }
 
 function updateControls() {
@@ -109,18 +118,17 @@ function updateControls() {
     }
 }
 
-// Compass rotation sync — set initial + keep updated
+// ── Compass ────────────────────────────────────────────────
+
 compassSvg.style.transform = `rotate(${-map.getBearing()}deg)`;
 map.on('rotate', () => {
     compassSvg.style.transform = `rotate(${-map.getBearing()}deg)`;
 });
 
-// Interactive compass drag → bearing
 let dragging = false;
 let dragStartAngle = 0;
 let dragStartBearing = 0;
 
-// Compass angle from cursor/touch relative to center
 function compassAngle(x, y) {
     const rect = compass.getBoundingClientRect();
     return Math.atan2(x - (rect.left + rect.width / 2), (rect.top + rect.height / 2) - y) * 180 / Math.PI;
@@ -172,11 +180,20 @@ document.addEventListener('touchend', () => {
     if (dragging) dragging = false;
 });
 
-// Zoom buttons — skip when flying (fly_through.js handles userZoom directly)
-btnIn.addEventListener('click', () => { if (!flyThrough || !flyThrough.isRunning()) { hasMovedFromFit = true; map.zoomIn({ duration: 200 }); } });
-btnOut.addEventListener('click', () => { if (!flyThrough || !flyThrough.isRunning()) { hasMovedFromFit = true; map.zoomOut({ duration: 200 }); } });
+// ── Zoom buttons ───────────────────────────────────────────
 
-// 2D/3D toggle
+const btnIn = document.getElementById('zoom-in');
+const btnOut = document.getElementById('zoom-out');
+
+btnIn.addEventListener('click', () => {
+    if (!flyThrough || !flyThrough.isRunning()) { hasMovedFromFit = true; map.zoomIn({ duration: 200 }); }
+});
+btnOut.addEventListener('click', () => {
+    if (!flyThrough || !flyThrough.isRunning()) { hasMovedFromFit = true; map.zoomOut({ duration: 200 }); }
+});
+
+// ── 2D/3D toggle ──────────────────────────────────────────
+
 modeBtn.addEventListener('click', () => {
     is2D = !is2D;
     if (is2D) {
@@ -194,7 +211,6 @@ modeBtn.addEventListener('click', () => {
     updateControls();
 });
 
-// Keep modeBtn label in sync if pitch changes externally
 map.on('pitch', () => {
     const pitchIsZero = map.getPitch() < 1;
     if (pitchIsZero && !is2D) {
@@ -208,7 +224,7 @@ map.on('pitch', () => {
     }
 });
 
-// ── Right-click → pitch ─────────────────────────────────────
+// ── Right-click pitch ─────────────────────────────────────
 
 map.getCanvas().addEventListener('contextmenu', e => e.preventDefault());
 
@@ -236,7 +252,97 @@ document.addEventListener('mouseup', (e) => {
     if (e.button === 2) pitching = false;
 });
 
-// ── Load ─────────────────────────────────────────────────────
+// ── Flag helpers ───────────────────────────────────────────
+
+function makePoleIconCanvas() {
+    const c = document.createElement('canvas');
+    c.width = 320;
+    c.height = 256;
+    const cx = c.getContext('2d');
+    cx.clearRect(0, 0, 320, 256);
+
+    const poleX = 160;
+    const poleTop = 20;
+    const poleBottom = 256;
+
+    cx.strokeStyle = '#999999';
+    cx.lineWidth = 10;
+    cx.lineCap = 'butt';
+    cx.beginPath();
+    cx.moveTo(poleX, poleBottom);
+    cx.lineTo(poleX, poleTop);
+    cx.stroke();
+
+    cx.fillStyle = '#FF3B30';
+    cx.beginPath();
+    cx.moveTo(poleX, poleTop);
+    cx.lineTo(poleX + 130, poleTop + 34);
+    cx.lineTo(poleX, poleTop + 68);
+    cx.closePath();
+    cx.fill();
+
+    return c;
+}
+
+function createFlagsLayer(map, pathPoints, sectionMiles, KNOWN_LENGTH_MI, cumDist, cumDistArr) {
+    const flagFeatures = [];
+    for (let si = 0; si < sectionMiles.length; si++) {
+        const mile = sectionMiles[si];
+        if (mile <= 0 || mile >= KNOWN_LENGTH_MI) continue;
+
+        const meterDist = mile / (KNOWN_LENGTH_MI / cumDist);
+        let idx = 0;
+        for (let j = 0; j < cumDistArr.length; j++) {
+            if (cumDistArr[j] >= meterDist) { idx = j; break; }
+        }
+
+        const wp = pathPoints[Math.max(0, idx - 1)];
+        if (!wp || isNaN(wp.lon) || isNaN(wp.lat)) continue;
+
+        flagFeatures.push({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [wp.lon, wp.lat, wp.ele || 0] },
+            properties: { label: String(si) }
+        });
+    }
+
+    if (flagFeatures.length === 0) return;
+
+    const iconCanvas = makePoleIconCanvas();
+    if (iconCanvas.transferToImageBitmap) {
+        map.addImage('flag-pole-icon', iconCanvas.transferToImageBitmap());
+    } else {
+        const data = iconCanvas.getContext('2d').getImageData(0, 0, 320, 256);
+        map.addImage('flag-pole-icon', { width: 320, height: 256, data: data.data });
+    }
+
+    map.addSource('flags-source', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: flagFeatures }
+    });
+
+    map.addLayer({
+        id: 'flags-symbol',
+        type: 'symbol',
+        source: 'flags-source',
+        layout: {
+            'symbol-sort-key': 100,
+            'icon-image': 'flag-pole-icon',
+            'icon-anchor': 'bottom',
+            'icon-size': [
+                'interpolate', ['exponential', 2], ['zoom'],
+                12, 0.055,
+                18, 3.5
+            ],
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true
+        }
+    });
+}
+
+// ════════════════════════════════════════════════════════════
+// LOAD
+// ════════════════════════════════════════════════════════════
 
 map.on('load', async () => {
     map.addSource('terrainSource', {
@@ -249,14 +355,12 @@ map.on('load', async () => {
 
     map.setTerrain({ source: 'terrainSource', exaggeration: 1.0 });
 
-    // ── Vector tile source (landcover, water, labels) ─────────
-
     map.addSource('openfreemap', {
         type: 'vector',
         url: 'https://tiles.openfreemap.org/planet'
     });
 
-    // ── Contour lines from DEM ──────────────────────────────
+    // ── Contours ─────────────────────────────────────────────
 
     map.addSource('contour-source', {
         type: 'vector',
@@ -334,9 +438,11 @@ map.on('load', async () => {
         'atmosphere-blend': 0.8
     });
 
-    // ── Mountain peak icon ────────────────────────────────────
+    // ── Mountain peak icon (SDF triangle) ────────────────────
+
     const S = 32;
     const triData = new Uint8Array(S * S * 4);
+
     function segDist(px, py, ax, ay, bx, by) {
         const dx = bx - ax, dy = by - ay;
         const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));
@@ -353,7 +459,11 @@ map.on('load', async () => {
             const d2 = cross2(px - tB[0], py - tB[1], tC[0] - tB[0], tC[1] - tB[1]);
             const d3 = cross2(px - tC[0], py - tC[1], tA[0] - tC[0], tA[1] - tC[1]);
             const inside = (d1 >= 0 && d2 >= 0 && d3 >= 0) || (d1 <= 0 && d2 <= 0 && d3 <= 0);
-            const eDist = Math.min(segDist(px, py, tA[0], tA[1], tB[0], tB[1]), segDist(px, py, tB[0], tB[1], tC[0], tC[1]), segDist(px, py, tC[0], tC[1], tA[0], tA[1]));
+            const eDist = Math.min(
+                segDist(px, py, tA[0], tA[1], tB[0], tB[1]),
+                segDist(px, py, tB[0], tB[1], tC[0], tC[1]),
+                segDist(px, py, tC[0], tC[1], tA[0], tA[1])
+            );
             const sd = inside ? -eDist : eDist;
             const i = (y * S + x) * 4;
             if (sd < 0) {
@@ -366,7 +476,8 @@ map.on('load', async () => {
     }
     map.addImage('peak-icon', { width: S, height: S, data: triData });
 
-    // Park/forest name labels (billboarded in screen space)
+    // ── Park labels ─────────────────────────────────────────
+
     map.addLayer({
         id: 'park-labels',
         type: 'symbol',
@@ -393,6 +504,8 @@ map.on('load', async () => {
         }
     });
 
+    // ── Parse GPX ───────────────────────────────────────────
+
     try {
         const resp = await fetch('data/WURL_Wasatch_Ultimate_Ridge_Linkup.gpx');
         const text = await resp.text();
@@ -413,7 +526,7 @@ map.on('load', async () => {
             pathPoints.push({ lon, lat, ele });
             courseBounds.extend([lon, lat]);
             if (i > 0) {
-                cumDist += haversine(pathPoints[i - 1].lon, pathPoints[i - 1].lat, lon, lat);
+                cumDist += haversineMi(pathPoints[i - 1].lon, pathPoints[i - 1].lat, lon, lat);
             }
             cumDistArr.push(cumDist);
             profile.push({ dist: cumDist, ele });
@@ -432,17 +545,17 @@ map.on('load', async () => {
             const name = nameEl ? nameEl.textContent : `WP ${j + 1}`;
             let nearestEle = 0, minD = Infinity;
             for (const tp of pathPoints) {
-                const d = haversine(lon, lat, tp.lon, tp.lat);
+                const d = haversineMi(lon, lat, tp.lon, tp.lat);
                 if (d < minD) { minD = d; nearestEle = tp.ele; }
             }
             waypoints.push({ name, lon, lat, ele: nearestEle, eleFt: nearestEle * 3.28084 });
         }
 
-        var smoothPoints = (function smoothPath(pts, factor) {
-            var out = [];
-            for (var i = 0; i < pts.length - 1; i++) {
-                for (var s = 0; s < factor; s++) {
-                    var t = s / factor;
+        function smoothPath(pts, factor) {
+            const out = [];
+            for (let i = 0; i < pts.length - 1; i++) {
+                for (let s = 0; s < factor; s++) {
+                    const t = s / factor;
                     out.push([
                         pts[i].lon + (pts[i + 1].lon - pts[i].lon) * t,
                         pts[i].lat + (pts[i + 1].lat - pts[i].lat) * t
@@ -451,16 +564,15 @@ map.on('load', async () => {
             }
             out.push([pts[pts.length - 1].lon, pts[pts.length - 1].lat]);
             return out;
-        })(pathPoints, 4);
+        }
+
+        const smoothPoints = smoothPath(pathPoints, 4);
 
         map.addSource('trail-source', {
             type: 'geojson',
             data: {
                 type: 'Feature',
-                geometry: {
-                    type: 'LineString',
-                    coordinates: smoothPoints
-                }
+                geometry: { type: 'LineString', coordinates: smoothPoints }
             }
         });
 
@@ -468,18 +580,13 @@ map.on('load', async () => {
             id: 'trail-casing',
             type: 'line',
             source: 'trail-source',
-            layout: {
-                'line-cap': 'round',
-                'line-join': 'round'
-            },
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
             paint: {
                 'line-color': '#000000',
                 'line-opacity': 0.35,
                 'line-width': [
                     'interpolate', ['exponential', 1.5], ['zoom'],
-                    9, 1.5,
-                    14, 4,
-                    18, 9
+                    9, 1.5, 14, 4, 18, 9
                 ],
                 'line-blur': 0
             }
@@ -489,18 +596,13 @@ map.on('load', async () => {
             id: 'trail-line-main',
             type: 'line',
             source: 'trail-source',
-            layout: {
-                'line-cap': 'round',
-                'line-join': 'round'
-            },
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
             paint: {
                 'line-color': '#FF3B30',
                 'line-opacity': 1,
                 'line-width': [
                     'interpolate', ['exponential', 1.5], ['zoom'],
-                    9, 1,
-                    14, 2.5,
-                    18, 6
+                    9, 1, 14, 2.5, 18, 6
                 ],
                 'line-blur': 0
             }
@@ -508,7 +610,6 @@ map.on('load', async () => {
 
         map.addLayer(createTorusLayer(map, pathPoints, waypoints));
 
-        // Peak labels on top of everything
         map.addLayer({
             id: 'mountain-peaks',
             type: 'symbol',
@@ -522,7 +623,7 @@ map.on('load', async () => {
                 'icon-size': 0.35,
                 'icon-anchor': 'bottom',
                 'text-field': ['concat', ['get', 'name'], '\n', ['get', 'ele_ft'], ' ft'],
-            'text-font': ['Noto Sans Italic'],
+                'text-font': ['Noto Sans Italic'],
                 'text-size': 9,
                 'text-anchor': 'bottom',
                 'text-offset': [0, -1.2],
@@ -538,7 +639,7 @@ map.on('load', async () => {
 
         createFlagsLayer(map, pathPoints, SECTION_BOUNDARY_MILES, KNOWN_LENGTH_MI, cumDist, cumDistArr);
 
-        // ── Elevation Profile ────
+        // ── Elevation Profile ──────────────────────────────
 
         const canvas = document.getElementById('profile-canvas');
         const ctx = canvas.getContext('2d');
@@ -549,7 +650,7 @@ map.on('load', async () => {
 
         flyThrough = initFlyThrough(map, pathPoints, (progress) => {
             const mile = progress > 0 ? (progress / 1609.34) * (KNOWN_LENGTH_MI / cumDist) : null;
-            state.setMile(mile, 'flythrough');
+            setMile(mile, 'flythrough');
         }, updateControls);
 
         document.getElementById('flythrough-btn').addEventListener('click', () => {
@@ -559,12 +660,12 @@ map.on('load', async () => {
         });
 
         const scrollytelling = initScrollytelling({
-            onMileChange: function(mile) {
-                var flyMeters = mile * 1609.34;
+            onMileChange(mile) {
+                const flyMeters = mile * 1609.34;
                 flyThrough.setProgress(flyMeters);
-                state.setMile(mile, 'scroll');
+                setMile(mile, 'scroll');
             },
-            onSidebarToggle: function(isOpen) {
+            onSidebarToggle(isOpen) {
                 const flythroughEl = document.getElementById('flythrough-controls');
                 if (isOpen) {
                     flythroughEl.style.display = 'none';
@@ -575,17 +676,13 @@ map.on('load', async () => {
             }
         });
 
-        state.onMileChange(() => drawProfile());
+        onMileChange(() => drawProfile());
 
-        // Resize map when sidebar transition finishes
-        document.getElementById('scrollytelling-sidebar').addEventListener('transitionend', function() {
+        document.getElementById('scrollytelling-sidebar').addEventListener('transitionend', () => {
             map.resize();
         });
 
-        // Open sidebar by default
-        setTimeout(function() {
-            scrollytelling.open();
-        }, 600);
+        setTimeout(() => { scrollytelling.open(); }, 600);
 
         function interpProfileCoords(d) {
             const scale = KNOWN_LENGTH_MI / cumDist;
@@ -604,7 +701,7 @@ map.on('load', async () => {
         }
 
         function restoreRunner() {
-            const mile = state.getMile();
+            const mile = getMile();
             if (mile !== null) {
                 const c = interpProfileCoords(mile);
                 flyThrough.moveRunner(c.lon, c.lat);
@@ -691,9 +788,7 @@ map.on('load', async () => {
             ctx.beginPath();
             ctx.moveTo(pad.left, pad.top + ph);
             for (let i = 0; i < profile.length; i++) {
-                const x = pad.left + (dists[i] / maxD) * pw;
-                const y = pad.top + ph - ((elevs[i] - minE) / rangeE) * ph;
-                ctx.lineTo(x, y);
+                ctx.lineTo(pad.left + (dists[i] / maxD) * pw, pad.top + ph - ((elevs[i] - minE) / rangeE) * ph);
             }
             ctx.lineTo(pad.left + pw, pad.top + ph);
             ctx.closePath();
@@ -722,8 +817,8 @@ map.on('load', async () => {
                 ctx.setLineDash([2, 3]);
                 ctx.moveTo(sx, pad.top);
                 ctx.lineTo(sx, pad.top + ph);
-                    ctx.strokeStyle = 'rgba(196,168,130,0.3)';
-                    ctx.lineWidth = 0.75;
+                ctx.strokeStyle = 'rgba(196,168,130,0.3)';
+                ctx.lineWidth = 0.75;
                 ctx.stroke();
                 ctx.setLineDash([]);
                 if (si > 0 && si < SECTION_BOUNDARY_MILES.length - 1) {
@@ -744,7 +839,7 @@ map.on('load', async () => {
             }
             ctx.restore();
 
-            const scrubDist = hoverDist !== null ? hoverDist : state.getMile();
+            const scrubDist = hoverDist !== null ? hoverDist : getMile();
             if (scrubDist !== null && scrubDist > 0) {
                 const sx = pad.left + (scrubDist / maxD) * pw;
                 let sy = pad.top, eleAtScrub = minE;
@@ -786,7 +881,7 @@ map.on('load', async () => {
             document.getElementById('sidebar-toggle').classList.toggle('profile-collapsed');
         });
 
-        // ── Hover tracking: map → runner + profile ────
+        // ── Hover: map → runner + profile ──────────────────
 
         map.on('mousemove', (e) => {
             if (flyThrough.isRunning()) return;
@@ -815,11 +910,10 @@ map.on('load', async () => {
             drawProfile();
         });
 
-        // ── Click tracking: map → camera ────
+        // ── Click: map → camera ────────────────────────────
 
         map.on('click', (e) => {
             let minSq = Infinity;
-            let nearest = null;
             let nearestPt = null;
             let nearestIdx = 0;
             for (let i = 0; i < pathPoints.length; i++) {
@@ -835,11 +929,11 @@ map.on('load', async () => {
                     map.jumpTo({ center: [nearestPt.lon, nearestPt.lat] });
                 }
                 scrollytelling.jumpToMile(mile);
-                state.setMile(mile, 'map-click');
+                setMile(mile, 'map-click');
             }
         });
 
-        // ── Hover tracking: elevation profile → runner ────
+        // ── Hover: profile → runner ────────────────────────
 
         canvas.addEventListener('mousemove', (e) => {
             if (flyThrough.isRunning()) return;
@@ -868,7 +962,7 @@ map.on('load', async () => {
             drawProfile();
         });
 
-        // ── Click tracking: elevation profile → camera ────
+        // ── Click: profile → camera ────────────────────────
 
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
@@ -888,36 +982,35 @@ map.on('load', async () => {
                 map.jumpTo({ center: [coords.lon, coords.lat] });
             }
             scrollytelling.jumpToMile(clickDist);
-            state.setMile(clickDist, 'profile-click');
+            setMile(clickDist, 'profile-click');
         });
 
         fitBoundsAndRecord(courseBounds, { padding: FIT_BOUNDS_PADDING, duration: 3500, pitch: 55, bearing: 90 });
 
         updateControls();
 
-        // ── Intro overlay dismissal ────────────────────────────
-        // Wait for map idle + minimum 2s floor, then fade out overlay
-        var introOverlay = document.getElementById('intro-overlay');
-        var introDismissed = false;
-        var introStartTime = Date.now();
-        var INTRO_MIN_MS = 2000;
+        // ── Intro overlay ───────────────────────────────────
+
+        const introOverlay = document.getElementById('intro-overlay');
+        let introDismissed = false;
+        const introStartTime = Date.now();
+        const INTRO_MIN_MS = 2000;
 
         function dismissIntro() {
             if (introDismissed) return;
             introDismissed = true;
             introOverlay.classList.add('fade-out');
-            setTimeout(function() { introOverlay.style.display = 'none'; }, 700);
+            setTimeout(() => { introOverlay.style.display = 'none'; }, 700);
         }
 
         map.on('idle', function checkIntroIdle() {
-            var elapsed = Date.now() - introStartTime;
+            const elapsed = Date.now() - introStartTime;
             if (elapsed >= INTRO_MIN_MS) {
                 dismissIntro();
                 map.off('idle', checkIntroIdle);
             }
         });
 
-        // Fallback: if idle never fires (e.g. WebGL issues), dismiss after 4s
         setTimeout(dismissIntro, 4000);
 
     } catch (err) {
@@ -925,7 +1018,7 @@ map.on('load', async () => {
     }
 });
 
-function haversine(lon1, lat1, lon2, lat2) {
+function haversineMi(lon1, lat1, lon2, lat2) {
     const R = 3959;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
