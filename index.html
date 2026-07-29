@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sommet Innovations</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Sommet Innovations — Unified Infrastructure for Trail & Ultra Races</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -15,7 +18,6 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* ── Nav ─────────────────────────────────────────── */
         nav {
             display: flex;
             align-items: center;
@@ -34,123 +36,426 @@
             text-decoration: none;
         }
         .logo span { color: #FF3B30; }
-        nav a.nav-link {
-            color: rgba(255,255,255,0.5);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-        nav a.nav-link:hover { color: #fff; }
 
-        /* ── Hero ────────────────────────────────────────── */
         .hero {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 80px 40px 60px;
+            padding: 72px 40px 48px;
         }
         .hero h1 {
             font-family: 'Fraunces', Georgia, serif;
-            font-size: clamp(42px, 6vw, 72px);
+            font-size: clamp(40px, 6.5vw, 72px);
             font-weight: 800;
-            line-height: 1.05;
-            letter-spacing: -0.01em;
-            margin-bottom: 20px;
+            line-height: 1.08;
+            letter-spacing: -0.015em;
+            margin-bottom: 22px;
+            max-width: 800px;
         }
         .hero h1 span { color: #FF3B30; }
         .hero p {
-            color: rgba(255,255,255,0.55);
+            color: rgba(255,255,255,0.5);
             font-size: 18px;
             line-height: 1.7;
-            max-width: 560px;
+            max-width: 580px;
         }
 
-        /* ── Services ────────────────────────────────────── */
-        .services {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 40px 80px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
-        .service-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
+        .browser-window {
+            max-width: 1100px;
+            margin: 0 auto 80px;
+            background: #0d0d14;
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
-            padding: 28px 24px;
+            overflow: hidden;
+            position: relative;
         }
-        .service-icon {
-            margin-bottom: 14px;
+        .browser-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            gap: 12px;
+        }
+        .traffic-lights {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .traffic-lights span {
+            width: 10px; height: 10px;
+            border-radius: 50%;
             display: block;
-            width: 32px;
-            height: 32px;
-            color: #FF3B30;
         }
-        .service-icon svg {
+        .traffic-lights .tl-red { background: #ff5f56; }
+        .traffic-lights .tl-yellow { background: #ffbd2e; }
+        .traffic-lights .tl-green { background: #27c93f; }
+        .browser-url {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Inter', sans-serif;
+        }
+        .browser-url svg { width: 12px; height: 12px; opacity: 0.3; flex-shrink: 0; }
+        .browser-url span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .split-layout {
+            display: flex;
+            min-height: 500px;
+        }
+        .split-left {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .split-right {
+            width: 300px;
+            flex-shrink: 0;
+            padding: 22px 20px;
+            background: rgba(255,255,255,0.015);
+            border-left: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .split-right .context-badge {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #FF3B30;
+            text-transform: uppercase;
+        }
+        .split-right h2 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #fff;
+        }
+        .split-right p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.6;
+        }
+        .split-right .metric-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .split-right .metric-list span {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+        }
+        .split-right .metric-list .highlight {
+            color: #28C840;
+            font-weight: 500;
+        }
+
+        .context-bridge {
+            max-width: 1100px;
+            margin: 0 auto 36px;
+            padding: 0 40px;
+        }
+        .context-bridge .cb-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #FF3B30;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .context-bridge h2 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: clamp(18px, 2.5vw, 26px);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .context-bridge .cb-sub {
+            color: rgba(255,255,255,0.45);
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-bottom: 16px;
+        }
+        .context-bridge .cb-cta {
+            font-size: 11px;
+            font-weight: 600;
+            color: #FF3B30;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .context-bridge .cb-cta svg { width: 13px; height: 13px; }
+
+        .mockup-tab-bar {
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .mockup-tab {
+            padding: 10px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.35);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            white-space: nowrap;
+        }
+        .mockup-tab:hover { color: rgba(255,255,255,0.6); }
+        .mockup-tab.active { color: #FF3B30; border-bottom-color: #FF3B30; }
+
+        .model-content-area {
+            flex: 1;
+            position: relative;
+            min-height: 500px;
+        }
+        #mesh-map {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
         }
 
-        /* ── Icon Animations (ultra-subtle) ──────────────── */
+        .map-legend {
+            position: absolute;
+            bottom: 16px; left: 16px;
+            z-index: 5;
+            padding: 10px 14px;
+            background: rgba(10,10,15,0.85);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.8;
+            pointer-events: none;
+        }
+        .map-legend .dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .map-legend .dot.red { background: #FF3B30; }
+        .map-legend .dot.green { background: #28C840; }
+        .map-legend .dot.blue { background: rgba(100,150,255,0.8); }
 
-        /* Mountain + trail: trail draws itself */
-        .icon-mountain-trail {
-            stroke-dasharray: 40;
-            stroke-dashoffset: 40;
-            animation: trailDraw 4s ease-in-out infinite alternate;
+        .maplibregl-popup-content {
+            background: rgba(14,14,22,0.95) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            color: #fff !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 11px !important;
+            padding: 10px 14px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
         }
-        @keyframes trailDraw {
-            0% { stroke-dashoffset: 40; }
-            100% { stroke-dashoffset: 0; }
-        }
-
-        /* Radar: pulse rings expand outward */
-        .icon-radar-pulse {
-            animation: radarPulse 3s ease-out infinite;
-            opacity: 0;
-        }
-        .icon-radar-pulse:nth-child(2) { animation-delay: 1s; }
-        .icon-radar-pulse:nth-child(3) { animation-delay: 2s; }
-        @keyframes radarPulse {
-            0% { r: 3; opacity: 0.7; }
-            100% { r: 12; opacity: 0; }
+        .maplibregl-popup-tip {
+            border-top-color: rgba(255,255,255,0.1) !important;
         }
 
-        /* Stopwatch: second hand full revolution in 60s */
-        .icon-stopwatch-hand {
-            transform-origin: 16px 17px;
-            animation: handSweep 60s linear infinite;
+        .leaderboard-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            background: #0d0d14;
+            overflow: hidden;
+            display: none;
         }
-        @keyframes handSweep {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .leaderboard-overlay.active { display: block; }
+
+        .leaderboard-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #0d0d14;
         }
 
-        /* Browser window: subtle layout pulse */
-        .icon-browser-content {
-            animation: layoutPulse 4s ease-in-out infinite;
+        .lb-metrics {
+            display: flex;
+            gap: 0;
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
         }
-        @keyframes layoutPulse {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-0.5px); }
+        .lb-metrics .stat {
+            flex: 1;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.04);
         }
-        .service-card h3 {
+        .lb-metrics .stat:last-child { border-right: none; }
+        .lb-metrics .stat .num {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .lb-metrics .stat .lbl {
+            font-size: 9px;
+            color: rgba(255,255,255,0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+
+        .lb-filters {
+            display: flex;
+            gap: 6px;
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            flex-wrap: wrap;
+        }
+        .lb-filters .filter-pill {
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lb-filters .filter-pill.active {
+            background: rgba(255,59,48,0.1);
+            border-color: rgba(255,59,48,0.2);
+            color: #FF3B30;
+        }
+        .lb-filters .search-box {
+            margin-left: auto;
+            padding: 4px 10px;
+            border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+            font-family: 'Inter', sans-serif;
+            min-width: 140px;
+            outline: none;
+        }
+        .lb-filters .search-box:focus { border-color: rgba(255,59,48,0.3); background: rgba(255,255,255,0.04); }
+
+        #lb-scroll {
+            flex: 1;
+            overflow-y: auto;
+        }
+        #lb-scroll::-webkit-scrollbar { width: 4px; }
+        #lb-scroll::-webkit-scrollbar-track { background: transparent; }
+        #lb-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+
+        .leaderboard-card table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .leaderboard-card thead th {
+            text-align: left;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 9px;
+            color: rgba(255,255,255,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            letter-spacing: 0.06em;
+            background: #0d0d14;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .leaderboard-card tbody td {
+            padding: 8px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+        }
+        .leaderboard-card tbody tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        .leaderboard-card tbody .rank { color: rgba(255,255,255,0.2); font-weight: 500; width: 30px; }
+        .leaderboard-card tbody .bib { color: #FF3B30; font-weight: 700; width: 40px; }
+        .leaderboard-card tbody .name { color: rgba(255,255,255,0.6); }
+        .leaderboard-card tbody .div { color: rgba(255,255,255,0.2); font-size: 10px; width: 70px; }
+        .leaderboard-card tbody .pace { color: rgba(255,255,255,0.35); }
+        .leaderboard-card tbody .cp { color: rgba(255,255,255,0.3); font-size: 11px; }
+        .leaderboard-card tbody .finish { color: rgba(255,255,255,0.4); font-weight: 500; }
+
+        .pillars {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 80px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .pillar-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 28px 24px 32px;
+            transition: border-color 0.25s;
+        }
+        .pillar-card:hover { border-color: rgba(255,59,48,0.3); }
+        .pillar-icon {
+            width: 40px; height: 40px;
+            margin-bottom: 16px;
+        }
+        .pillar-icon svg { width: 100%; height: 100%; display: block; color: #FF3B30; }
+        .pillar-card h3 {
             font-family: 'Fraunces', Georgia, serif;
             font-size: 17px;
             font-weight: 700;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
             margin-bottom: 8px;
         }
-        .service-card p {
+        .pillar-card p {
             color: rgba(255,255,255,0.45);
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.65;
+        }
+        .pillar-card ul {
+            list-style: none;
+            margin-top: 12px;
+        }
+        .pillar-card ul li {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            padding: 3px 0 3px 16px;
+            position: relative;
+        }
+        .pillar-card ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #FF3B30;
+            opacity: 0.5;
         }
 
-        /* ── Featured Work ───────────────────────────────── */
-        .featured {
+        @keyframes icon-radar-pulse {
+            0% { opacity: 0.35; transform: scale(1); }
+            50% { opacity: 0; transform: scale(3.25); }
+            100% { opacity: 0.35; transform: scale(1); }
+        }
+        @keyframes icon-hand-tick {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .icon-radar-pulse { animation: icon-radar-pulse 2s ease-out infinite; transform-origin: 16px 16px; }
+        .icon-stopwatch-hand { animation: icon-hand-tick 60s linear infinite; transform-origin: 16px 17px; }
+
+        .comparison {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 40px 80px;
@@ -162,29 +467,51 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
             color: #FF3B30;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+        }
+        .comparison table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .comparison thead th {
+            text-align: left;
+            padding: 14px 18px;
+            font-weight: 600;
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            letter-spacing: 0.05em;
+        }
+        .comparison thead th:first-child { color: rgba(255,255,255,0.25); }
+        .comparison tbody td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.55);
+            vertical-align: top;
+        }
+        .comparison tbody td:first-child { color: rgba(255,255,255,0.6); font-weight: 500; }
+        .comparison tbody td:last-child { color: #fff; font-weight: 500; }
+
+        .featured {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 80px;
         }
         .featured-card {
             display: block;
             text-decoration: none;
             color: #fff;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px;
+            border-radius: 16px;
             overflow: hidden;
             transition: border-color 0.25s, transform 0.25s;
         }
-        .featured-card:hover {
-            border-color: rgba(255,59,48,0.4);
-            transform: translateY(-4px);
-        }
+        .featured-card:hover { border-color: rgba(255,59,48,0.35); transform: translateY(-3px); }
         .featured-preview {
-            width: 100%;
-            aspect-ratio: 16 / 7;
+            width: 100%; aspect-ratio: 16 / 7;
             background: #111118;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
             overflow: hidden;
         }
@@ -192,82 +519,209 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, transparent 50%, rgba(10,10,15,0.6) 100%);
+            background: linear-gradient(180deg, transparent 50%, rgba(10,10,15,0.5) 100%);
             pointer-events: none;
             z-index: 1;
         }
-        .featured-preview video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .featured-body {
-            padding: 32px 36px 36px;
-        }
+        .featured-preview video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .featured-body { padding: 28px 32px 32px; }
         .featured-body h2 {
             font-family: 'Fraunces', Georgia, serif;
-            font-size: 30px;
-            font-weight: 800;
-            margin-bottom: 10px;
+            font-size: 24px; font-weight: 700; margin-bottom: 8px;
         }
         .featured-body p {
-            color: rgba(255,255,255,0.5);
-            font-size: 15px;
-            line-height: 1.65;
-            max-width: 640px;
-            margin-bottom: 24px;
+            color: rgba(255,255,255,0.45);
+            font-size: 14px; line-height: 1.65;
+            max-width: 640px; margin-bottom: 20px;
         }
         .cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #FF3B30;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 12px 28px;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: background 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #FF3B30; color: #fff;
+            font-size: 14px; font-weight: 600;
+            padding: 12px 28px; border-radius: 8px;
+            text-decoration: none; transition: background 0.2s;
         }
         .cta:hover { background: #e6332a; }
-        .cta svg {
-            width: 16px;
-            height: 16px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+        .cta svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .featured-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+        .featured-tags span {
+            padding: 4px 12px; border-radius: 100px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            font-size: 11px; color: rgba(255,255,255,0.4);
         }
 
-        /* ── Footer ──────────────────────────────────────── */
+        .cta-banner {
+            max-width: 1200px; margin: 0 auto; padding: 0 40px 80px;
+        }
+        .cta-banner-inner {
+            background: linear-gradient(135deg, rgba(255,59,48,0.08) 0%, rgba(255,59,48,0.02) 100%);
+            border: 1px solid rgba(255,59,48,0.15);
+            border-radius: 16px; padding: 56px 48px; text-align: center;
+        }
+        .cta-banner-inner h2 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 28px; font-weight: 700; margin-bottom: 10px;
+        }
+        .cta-banner-inner p {
+            color: rgba(255,255,255,0.45); font-size: 15px;
+            max-width: 480px; margin: 0 auto 28px;
+        }
+
         footer {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px;
+            max-width: 1200px; margin: 0 auto; padding: 40px;
             border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: space-between;
+            color: rgba(255,255,255,0.3); font-size: 13px;
+        }
+
+        .right-athlete {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            height: 100%;
+        }
+        .right-athlete.active { display: flex; }
+        .right-default { display: flex; flex-direction: column; gap: 12px; }
+        .right-default.inactive { display: none; }
+
+        .ra-header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            color: rgba(255,255,255,0.3);
-            font-size: 13px;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
         }
-        footer a {
-            color: rgba(255,255,255,0.4);
-            text-decoration: none;
-            transition: color 0.2s;
+        .ra-avatar {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: rgba(255,59,48,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #FF3B30;
+            flex-shrink: 0;
         }
-        footer a:hover { color: #fff; }
+        .ra-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); flex: 1; }
+        .ra-name .bib { color: rgba(255,255,255,0.2); font-weight: 400; font-size: 10px; }
+        .ra-elapsed { font-size: 15px; font-weight: 700; color: #FF3B30; }
+        .ra-elapsed .lbl { font-size: 8px; font-weight: 400; color: rgba(255,255,255,0.2); }
 
-        @media (max-width: 640px) {
+        .ra-progress { padding: 4px 0; }
+        .ra-progress .bar {
+            height: 3px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            margin: 6px 0;
+            overflow: hidden;
+        }
+        .ra-progress .bar .fill {
+            height: 100%;
+            width: 79%;
+            background: #FF3B30;
+            border-radius: 2px;
+        }
+        .ra-progress .labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            color: rgba(255,255,255,0.15);
+        }
+        .ra-progress .labels .current { color: #FF3B30; font-weight: 600; }
+
+        .ra-splits {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+        .ra-splits::-webkit-scrollbar { width: 3px; }
+        .ra-splits::-webkit-scrollbar-track { background: transparent; }
+        .ra-splits::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+
+        .ra-split-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .ra-split-table thead th {
+            text-align: left;
+            padding: 4px 6px;
+            font-weight: 600;
+            font-size: 8px;
+            color: rgba(255,255,255,0.2);
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .ra-split-table tbody td {
+            padding: 3px 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.35);
+            white-space: nowrap;
+        }
+        .ra-split-table tbody .cp-name { color: rgba(255,255,255,0.5); }
+        .ra-split-table tbody .cp-dist { color: rgba(255,255,255,0.2); font-size: 9px; text-align: right; }
+        .ra-split-table tbody .cp-elev { color: rgba(255,255,255,0.35); font-size: 9px; text-align: right; }
+        .ra-split-table tbody .cp-pace { color: rgba(255,255,255,0.4); font-weight: 500; text-align: right; font-size: 10px; }
+        .ra-split-table tbody .done .cp-name { color: rgba(255,255,255,0.6); }
+        .ra-split-table tbody .done .cp-elev { color: rgba(255,255,255,0.5); }
+        .ra-split-table tbody .done .cp-pace { color: rgba(255,255,255,0.6); }
+        .ra-split-table tbody .current-row { background: rgba(255,59,48,0.06); border-radius: 3px; }
+        .ra-split-table tbody .current-row .cp-name { color: #FF3B30; font-weight: 600; }
+        .ra-split-table tbody .pending { opacity: 0.4; }
+        .ra-split-table tbody td:first-child { padding-left: 0; }
+        .ra-split-table tbody td:last-child { padding-right: 0; }
+
+        @media (max-width: 900px) {
+            .pillars { grid-template-columns: repeat(2, 1fr); }
+            .split-right { width: 220px; padding: 16px; }
+            .split-right h2 { font-size: 15px; }
+        }
+        @media (max-width: 768px) {
             nav { padding: 20px 24px; }
-            .hero { padding: 48px 24px 40px; }
-            .services { padding: 0 24px 56px; }
-            .featured { padding: 0 24px 56px; }
-            .featured-body { padding: 24px; }
+            .hero { padding: 48px 24px 36px; }
+            .hero h1 { font-size: clamp(28px, 7vw, 40px); }
+            .breal { display: none; }
+
+            .split-layout { flex-direction: column; }
+            .split-right {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid rgba(255,255,255,0.06);
+                padding: 16px 18px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .split-right .context-badge { width: 100%; }
+            .split-right h2 { font-size: 15px; flex: 1; min-width: 200px; }
+            .split-right p { width: 100%; font-size: 11px; }
+            .split-right .metric-list { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+
+            .pillars { grid-template-columns: 1fr; padding: 0 24px 48px; gap: 16px; }
+            .pillar-card { padding: 24px 20px 28px; }
+            .featured { padding: 0 24px 48px; }
+            .featured-body { padding: 20px; }
+            .featured-body h2 { font-size: 20px; }
+            .comparison { padding: 0 24px 48px; overflow-x: auto; }
+            .comparison table { font-size: 12px; }
+            .comparison thead th, .comparison tbody td { padding: 10px 12px; }
+            .cta-banner { padding: 0 24px 48px; }
+            .cta-banner-inner { padding: 36px 24px; }
+            .cta-banner-inner h2 { font-size: 22px; }
             footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 24px; }
+
+            .mockup-tab { font-size: 10px; padding: 8px 10px; }
+            .model-content-area { min-height: 360px; }
+            .leaderboard-card { height: 400px; }
+            .lb-metrics .stat .num { font-size: 14px; }
+            .lb-filters .search-box { min-width: 100px; }
+
+            .right-athlete { flex-direction: row; flex-wrap: wrap; }
+            .right-athlete .ra-header { width: 100%; }
+            .right-athlete .ra-progress { width: 100%; }
+            .right-athlete .ra-splits { width: 100%; max-height: 150px; }
+        }
+        @media (max-width: 640px) {
+            .browser-window { margin: 0 12px 48px; border-radius: 8px; }
+            .model-content-area { min-height: 280px; }
+            .leaderboard-card { height: 340px; }
+            .mockup-tab { font-size: 9px; padding: 6px 8px; }
         }
     </style>
 </head>
@@ -278,72 +732,208 @@
     </nav>
 
     <section class="hero">
-        <h1>Race experiences,<br><span>elevated.</span></h1>
-        <p>We build interactive 3D course maps, live tracking, and timing solutions for trail and ultra races.</p>
+        <h1>Race experiences,<br class="breal"> <span>elevated.</span></h1>
+        <p>The unified digital &amp; telemetry platform built for backcountry endurance events. Custom web, 3D cartography, mesh tracking, and chip timing engineered as one.</p>
     </section>
 
-    <section class="services">
-        <div class="service-card">
-            <span class="service-icon">
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <!-- Mountain range -->
-                    <path d="M2 27 L9 13 L13 19 L17 9 L22 18 L26 12 L30 27"/>
-                    <!-- Trail line winding through -->
-                    <path class="icon-mountain-trail" d="M8 25 Q12 19 14 22 Q16 25 19 20 Q22 15 24 18 Q26 21 28 24" stroke-width="1.2"/>
-                </svg>
-            </span>
-            <h3>3D Course Maps</h3>
-            <p>High-quality print and digital terrain maps with fly-through, elevation profiles, and scrollytelling.</p>
+    <section class="context-bridge">
+        <div class="cb-label">The Problem</div>
+        <h2>5 vendors. 10-mile dark zones. Fragmented data.</h2>
+        <p class="cb-sub">One platform replaces the patchwork: mesh sensors in deep backcountry, zero-latency timing, and bespoke web — all under a single contract.</p>
+        <div class="cb-cta">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 12V4M4 8l4 4 4-4"/></svg>
+            See it in action
         </div>
-        <div class="service-card">
-            <span class="service-icon">
+    </section>
+
+    <div class="browser-window">
+
+        <div class="browser-header">
+            <div class="traffic-lights">
+                <span class="tl-red"></span>
+                <span class="tl-yellow"></span>
+                <span class="tl-green"></span>
+            </div>
+            <div class="browser-url">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1L1 8l7 7M1 8h14"/></svg>
+                <span>app.sommet.run/dashboard</span>
+            </div>
+        </div>
+
+        <div class="split-layout">
+
+            <div class="split-left">
+                <div class="mockup-tab-bar">
+                    <button class="mockup-tab active" data-tab="1">Checkpoints</button>
+                    <button class="mockup-tab" data-tab="2">Leaderboard</button>
+                    <button class="mockup-tab" data-tab="3">Athlete Tracker</button>
+                </div>
+
+                <div class="model-content-area">
+                    <div id="mesh-map"></div>
+                    <div class="map-legend" id="map-legend">
+                        <span class="dot green"></span> Aid Station<br>
+                        <span class="dot red"></span> Mesh Checkpoint<br>
+                        <span class="dot blue"></span> Start / Finish
+                    </div>
+
+                    <div class="tab-content leaderboard-overlay" data-tab="2">
+                        <div class="leaderboard-card">
+                            <div class="lb-metrics">
+                                <div class="stat"><div class="num">247</div><div class="lbl">Total Starters</div></div>
+                                <div class="stat"><div class="num">183</div><div class="lbl">Active on Course</div></div>
+                                <div class="stat"><div class="num">42</div><div class="lbl">Finished</div></div>
+                                <div class="stat"><div class="num">22</div><div class="lbl">DNF / Stalled</div></div>
+                            </div>
+                            <div class="lb-filters">
+                                <span class="filter-pill active">Overall</span>
+                                <span class="filter-pill">Male</span>
+                                <span class="filter-pill">Female</span>
+                                <span class="filter-pill">Age 40-49</span>
+                                <span class="filter-pill">Age 50+</span>
+                                <input class="search-box" placeholder="Search bib or name…">
+                            </div>
+                            <div id="lb-scroll">
+                                <table>
+                                    <thead>
+                                        <tr><th>RK</th><th>BIB</th><th>ATHLETE</th><th>DIV</th><th>PACE</th><th>LAST CP</th><th>EST. FINISH</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td class="rank">1</td><td class="bib">#42</td><td class="name">Smith, Jordan</td><td class="div">M40-49</td><td class="pace">7:15/mi</td><td class="cp">Pfeifferhorn &middot; 28.3</td><td class="finish">4:12:00</td></tr>
+                                        <tr><td class="rank">2</td><td class="bib">#188</td><td class="name">Walmsley, Jim</td><td class="div">M Overall</td><td class="pace">7:12/mi</td><td class="cp">Snowbird Tram &middot; 22.0</td><td class="finish">4:15:30</td></tr>
+                                        <tr><td class="rank">3</td><td class="bib">#104</td><td class="name">Honnold, Alex</td><td class="div">M30-39</td><td class="pace">7:22/mi</td><td class="cp">Wolverine &middot; 18.0</td><td class="finish">4:20:15</td></tr>
+                                        <tr><td class="rank">4</td><td class="bib">#355</td><td class="name">Jornet, Kilian</td><td class="div">M Overall</td><td class="pace">7:05/mi</td><td class="cp">Snowbird Tram &middot; 22.0</td><td class="finish">4:08:45</td></tr>
+                                        <tr><td class="rank">5</td><td class="bib">#77</td><td class="name">Forsberg, Emelie</td><td class="div">F Overall</td><td class="pace">9:10/mi</td><td class="cp">Honeycomb &middot; 12.1</td><td class="finish">5:10:00</td></tr>
+                                        <tr><td class="rank">6</td><td class="bib">#221</td><td class="name">D'Haene, François</td><td class="div">M40-49</td><td class="pace">8:28/mi</td><td class="cp">Cardiff Pass &middot; 8.2</td><td class="finish">4:52:00</td></tr>
+                                        <tr><td class="rank">7</td><td class="bib">#305</td><td class="name">Miller, Zach</td><td class="div">M30-39</td><td class="pace">8:55/mi</td><td class="cp">Flagstaff &middot; 10.5</td><td class="finish">5:05:00</td></tr>
+                                        <tr><td class="rank">8</td><td class="bib">#89</td><td class="name">Bosio, Rory</td><td class="div">F40-49</td><td class="pace">10:02/mi</td><td class="cp">Broads Fork &middot; 3.2</td><td class="finish">5:45:00</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="split-right">
+                <div class="right-default" id="right-default">
+                    <div class="context-badge" id="context-badge">Featured Engine</div>
+                    <h2 id="demo-title">High-Density Split Coverage</h2>
+                    <p id="demo-description">Eliminate race day blind spots. We deploy low-power intermediate checkpoints between aid stations so you get split updates every few miles—not every few hours.</p>
+                    <div class="metric-list" id="demo-metrics">
+                        <span><span class="highlight">&#10003;</span> 3&times; more split points</span>
+                        <span><span class="highlight">&#10003;</span> 20 min max safety window</span>
+                        <span><span class="highlight">&#10003;</span> 100% offline mesh relays</span>
+                    </div>
+                </div>
+
+                <div class="right-athlete" id="right-athlete">
+                    <div class="ra-header">
+                        <div class="ra-avatar">42</div>
+                        <div class="ra-name">Jordan Smith <span class="bib">#42 &middot; M40-49</span></div>
+                        <div class="ra-elapsed">4:12 <span class="lbl">elapsed</span></div>
+                    </div>
+                    <div class="ra-progress">
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,0.6);">Mile 28.3</span>
+                            <span style="font-size:9px;color:rgba(255,255,255,0.25);">/ 35.6 mi</span>
+                        </div>
+                        <div class="bar"><div class="fill"></div></div>
+                        <div class="labels">
+                            <span>Start</span>
+                            <span class="current">&#9679; Pfeifferhorn</span>
+                            <span>Finish</span>
+                        </div>
+                    </div>
+                    <div class="ra-splits">
+                        <table class="ra-split-table">
+                            <thead><tr><th>CHECKPOINT</th><th>MI</th><th>ELEV</th><th>PACE</th></tr></thead>
+                            <tbody>
+                                <tr class="done"><td class="cp-name">Brighton Lot</td><td class="cp-dist">0.0</td><td class="cp-elev">8,510'</td><td class="cp-pace">—</td></tr>
+                                <tr class="done"><td class="cp-name">Broads Fork</td><td class="cp-dist">3.2</td><td class="cp-elev">9,120'</td><td class="cp-pace">8:48/mi</td></tr>
+                                <tr class="done"><td class="cp-name">Cardiff Pass</td><td class="cp-dist">8.2</td><td class="cp-elev">9,600'</td><td class="cp-pace">8:52/mi</td></tr>
+                                <tr class="done"><td class="cp-name">Flagstaff</td><td class="cp-dist">10.5</td><td class="cp-elev">9,380'</td><td class="cp-pace">9:22/mi</td></tr>
+                                <tr class="done"><td class="cp-name">Honeycomb</td><td class="cp-dist">12.1</td><td class="cp-elev">9,940'</td><td class="cp-pace">9:31/mi</td></tr>
+                                <tr class="done"><td class="cp-name">Wolverine</td><td class="cp-dist">18.0</td><td class="cp-elev">10,200'</td><td class="cp-pace">8:56/mi</td></tr>
+                                <tr class="done"><td class="cp-name">Snowbird Tram</td><td class="cp-dist">22.0</td><td class="cp-elev">10,640'</td><td class="cp-pace">8:53/mi</td></tr>
+                                <tr class="done"><td class="cp-name">Red Stack</td><td class="cp-dist">24.2</td><td class="cp-elev">10,410'</td><td class="cp-pace">9:14/mi</td></tr>
+                                <tr class="current-row"><td class="cp-name">&#9654; Pfeifferhorn</td><td class="cp-dist">28.3</td><td class="cp-elev">11,020'</td><td class="cp-pace"><span style="color:#FF3B30;font-size:10px;font-weight:600;">8:34/mi</span></td></tr>
+                                <tr class="pending"><td class="cp-name">Lone Peak</td><td class="cp-dist">31.0</td><td class="cp-elev">10,980'</td><td class="cp-pace">—</td></tr>
+                                <tr class="pending"><td class="cp-name">Bighorn</td><td class="cp-dist">33.2</td><td class="cp-elev">10,200'</td><td class="cp-pace">—</td></tr>
+                                <tr class="pending"><td class="cp-name">Parking Lot</td><td class="cp-dist">35.6</td><td class="cp-elev">8,530'</td><td class="cp-pace">—</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <section class="pillars">
+        <div class="pillar-card">
+            <div class="pillar-icon">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <g transform="translate(4,4)">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                        <line x1="8" y1="2" x2="8" y2="18"/>
+                        <line x1="16" y1="6" x2="16" y2="22"/>
+                    </g>
+                </svg>
+            </div>
+            <h3>High-Density Split Coverage</h3>
+            <p>HAM radio and standard timing chips only report from major aid stations. We deploy lightweight, weather-proof RFID readers and LoRa mesh relays in deep backcountry sections to give you frequent split updates and continuous safety tracking.</p>
+            <ul>
+                <li>Deployable mini-RFID mats between aid stations</li>
+                <li>LoRa mesh relays over zero-connectivity terrain</li>
+                <li>Automatic stalled-runner detection</li>
+            </ul>
+        </div>
+        <div class="pillar-card">
+            <div class="pillar-icon">
                 <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                    <!-- Center dot -->
-                    <circle cx="16" cy="16" r="2" fill="currentColor" stroke="none"/>
-                    <!-- Pulse rings (animated) -->
-                    <circle class="icon-radar-pulse" cx="16" cy="16" r="3" stroke-width="1" fill="none"/>
-                    <circle class="icon-radar-pulse" cx="16" cy="16" r="3" stroke-width="1" fill="none"/>
-                    <circle class="icon-radar-pulse" cx="16" cy="16" r="3" stroke-width="1" fill="none"/>
+                    <circle cx="16" cy="16" r="4" fill="currentColor" stroke="none"/>
+                    <circle class="icon-radar-pulse" cx="16" cy="16" r="4" stroke-width="1" fill="none"/>
                 </svg>
-            </span>
-            <h3>Live Tracking</h3>
-            <p>Near real-time tracking capabilities for spectators and event organizers via LoRa mesh.</p>
+            </div>
+            <h3>Backcountry Live Tracking</h3>
+            <p>Redundant tracking where cell service fails. LoRa mesh nodes at deep split points combine with satellite and cellular into a single live feed with real-time telemetry.</p>
+            <ul>
+                <li>Custom long-range LoRa mesh network deployment</li>
+                <li>Hybrid ingest: cellular + satellite + RF</li>
+                <li>Safety dashboard with stalled-runner alerts</li>
+            </ul>
         </div>
-        <div class="service-card">
-            <span class="service-icon">
+        <div class="pillar-card">
+            <div class="pillar-icon">
                 <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <!-- Watch body -->
                     <circle cx="16" cy="17" r="10"/>
-                    <!-- Crown -->
                     <path d="M13 4h6"/>
-                    <!-- Top lug -->
                     <path d="M14.5 4v-1.5h3V4"/>
-                    <!-- Second hand (sweeps 360° in 60s) -->
                     <line class="icon-stopwatch-hand" x1="16" y1="17" x2="16" y2="9" stroke-width="1.2"/>
-                    <!-- Center cap -->
                     <circle cx="16" cy="17" r="1" fill="currentColor" stroke="none"/>
-                    <!-- Tick marks -->
                     <line x1="16" y1="8" x2="16" y2="9.5" stroke-width="1"/>
                     <line x1="25" y1="17" x2="23.5" y2="17" stroke-width="1"/>
                     <line x1="16" y1="26" x2="16" y2="24.5" stroke-width="1"/>
                     <line x1="7" y1="17" x2="8.5" y2="17" stroke-width="1"/>
                 </svg>
-            </span>
-            <h3>Race Timing</h3>
-            <p>Chip timing, split tracking, and automated results. Live leaderboards athletes and fans can follow.</p>
+            </div>
+            <h3>Instant Leaderboards &amp; Results</h3>
+            <p>Clean, modern leaderboards that auto-populate directly from our timing sensors. Automatic division tracking, age-group sorting, and instant results without third-party iframe redirects.</p>
+            <ul>
+                <li>Zero-latency RFID chip pass ingestion</li>
+                <li>Automatic division &amp; age-group ranking</li>
+                <li>Aid station offline PWA backup</li>
+            </ul>
         </div>
-        <div class="service-card">
-            <span class="service-icon">
+        <div class="pillar-card">
+            <div class="pillar-icon">
                 <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <!-- Browser window frame -->
                     <rect x="3" y="5" width="26" height="22" rx="2"/>
-                    <!-- Title bar -->
                     <line x1="3" y1="10" x2="29" y2="10"/>
-                    <!-- Window dots -->
                     <circle cx="6.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
                     <circle cx="9.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
                     <circle cx="12.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
-                    <!-- Content blocks -->
                     <g class="icon-browser-content">
                         <rect x="5.5" y="12.5" width="9" height="3" rx="0.5" fill="currentColor" opacity="0.15" stroke="none"/>
                         <rect x="5.5" y="17.5" width="14" height="1.5" rx="0.5" fill="currentColor" opacity="0.1" stroke="none"/>
@@ -351,32 +941,488 @@
                         <rect x="17" y="12.5" width="9.5" height="9.5" rx="1" fill="currentColor" opacity="0.08" stroke="none"/>
                     </g>
                 </svg>
-            </span>
-            <h3>Event Websites</h3>
-            <p>Complete race websites with registration integration, schedules, and athlete lookups. Fast and mobile-friendly.</p>
+            </div>
+            <h3>Unified Web &amp; Hosting</h3>
+            <p>One custom, high-speed website that hosts your registration links, dynamic elevation profiles, interactive maps, and live finish-line results under your own brand.</p>
+            <ul>
+                <li>White-labeled race domain &amp; site</li>
+                <li>Embedded 3D course maps &amp; elevation profiles</li>
+                <li>Mobile-first PWA for fans &amp; participants</li>
+            </ul>
         </div>
     </section>
 
+    <section class="comparison">
+        <div class="section-label">Traditional vs. Sommet</div>
+        <table>
+            <thead>
+                <tr><th>Operational Capability</th><th>Traditional Vendor Patchwork</th><th>The Sommet Ecosystem</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Vendor Ownership</td><td>4–6 separate contracts, invoices, and points of contact</td><td>1 unified contract and single point of contact</td></tr>
+                <tr><td>Backcountry Tracking</td><td>10+ mile dark zones between major aid stations</td><td>High-density LoRa mesh nodes deployed every 2–3 miles</td></tr>
+                <tr><td>Split Ingestion</td><td>Clunky external links or iframe embeds with multi-minute delays</td><td>Immediate database sync from RFID mat to live leaderboard</td></tr>
+                <tr><td>Course Maps</td><td>Static PDF embeds or generic third-party widgets</td><td>WebGL 3D interactive course maps synced directly with live timing</td></tr>
+                <tr><td>Accountability</td><td>High risk of finger-pointing when tech fails on race day</td><td>End-to-end telemetry ownership across software and hardware</td></tr>
+            </tbody>
+        </table>
+    </section>
+
     <section class="featured">
-        <div class="section-label">Featured Work</div>
+        <div class="section-label">Featured Deployment</div>
         <a href="wurl_course_map/" class="featured-card">
             <div class="featured-preview">
                 <video src="wurl_course_map/data/wurl-hero.mp4" autoplay muted loop playsinline></video>
             </div>
             <div class="featured-body">
+                <div class="featured-tags">
+                    <span>3D Terrain</span><span>Scrollytelling</span><span>Elevation Profile</span><span>Fly-Through</span>
+                </div>
                 <h2>WURL Course Map</h2>
-                <p>Wasatch Ultimate Ridge Linkup &mdash; a 35.6-mile course through Utah's high country. Scrollytelling narrative, animated fly-through, real-time elevation profile, and 3D terrain visualization. A blueprint for the new standard in race course visualization.</p>
-                <span class="cta">
-                    Explore the Map
-                    <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-                </span>
+                <p>Wasatch Ultimate Ridge Linkup&mdash;a 35.6-mile course through Utah's high country. Real-time elevation profile, animated fly-through, and layered 3D terrain. Built with MapLibre GL, Three.js, and maplibre-contour. A blueprint for the new standard in race visualization.</p>
+                <span class="cta">Explore the Interactive Map<svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
             </div>
         </a>
     </section>
 
-    <footer>
-        <span>&copy; 2026 Sommet Innovations</span>
-    </footer>
+    <section class="cta-banner">
+        <div class="cta-banner-inner">
+            <h2>Ready to unify your race?</h2>
+            <p>From course design to finish-line results — one platform, one team, one point of contact.</p>
+            <a href="#" class="cta">Book a Demo<svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+        </div>
+    </section>
+
+    <footer><span>&copy; 2026 Sommet Innovations</span></footer>
+
+    <script>
+    var demoContexts = {
+        '1': {
+            title: 'High-Density Split Coverage',
+            desc: 'Eliminate race day blind spots. We deploy low-power intermediate checkpoints between aid stations so you get split updates every few miles\u2014not every few hours.',
+            metrics: ['<span class="highlight">&#10003;</span> 3&times; more split points', '<span class="highlight">&#10003;</span> 20 min max safety window', '<span class="highlight">&#10003;</span> 100% offline mesh relays']
+        },
+        '2': {
+            title: 'Zero-Latency RFID Leaderboard',
+            desc: 'Stop sending fans to third-party result links with 5-minute delays. Chip passes hit your database and update live leaderboards instantly with automatic division ranking.',
+            metrics: ['<span class="highlight">&#10003;</span> &lt;100ms ingestion latency', '<span class="highlight">&#10003;</span> Auto division &amp; age-group sort', '<span class="highlight">&#10003;</span> Projected finish times']
+        },
+        '3': {
+            title: 'Live Athlete Tracking Portal',
+            desc: 'Give fans, family, and sponsors a branded mobile experience. Interactive course maps, live split lookups, and elevation progress in one clean URL with no external redirects.',
+            metrics: ['<span class="highlight">&#10003;</span> White-labeled race domain', '<span class="highlight">&#10003;</span> Real-time split matrix', '<span class="highlight">&#10003;</span> Mobile-first PWA']
+        }
+    };
+
+    (function() {
+        var tabs = document.querySelectorAll('.mockup-tab');
+        var map = document.getElementById('mesh-map');
+        var leaderboard = document.querySelector('.leaderboard-overlay');
+        var rightDefault = document.getElementById('right-default');
+        var rightAthlete = document.getElementById('right-athlete');
+
+        tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                tabs.forEach(function(t) { t.classList.remove('active'); });
+                tab.classList.add('active');
+
+                var tabNum = tab.dataset.tab;
+
+                // Map + leaderboard visibility
+                if (tabNum === '2') {
+                    map.style.display = 'none';
+                    leaderboard.classList.add('active');
+                } else {
+                    map.style.display = 'block';
+                    leaderboard.classList.remove('active');
+                    if (window.meshMap) {
+                        setTimeout(function() { window.meshMap.resize(); }, 100);
+                    }
+                }
+
+                // Legend: only on tab 1 (checkpoints), hidden on 2 & 3
+                var legendEl = document.getElementById('map-legend');
+                if (legendEl) {
+                    legendEl.style.display = (tabNum === '1') ? '' : 'none';
+                }
+
+                // Athlete tracker: all nodes render as one color (red)
+                if (window.meshMap) {
+                    try {
+                        var isTab3 = tabNum === '3';
+                        // Move node layers to top
+                        ['nodes-aid-glow','nodes-aid','nodes-mesh-glow','nodes-mesh','nodes-special','athlete-marker','athlete-marker-glow'].forEach(function(l) {
+                            try { window.meshMap.moveLayer(l); } catch(e) {}
+                        });
+                        // Tab 3: all nodes red single color
+                        if (isTab3) {
+                            window.meshMap.setPaintProperty('nodes-aid', 'circle-color', '#FF3B30');
+                            window.meshMap.setPaintProperty('nodes-aid-glow', 'circle-color', '#FF3B30');
+                            window.meshMap.setPaintProperty('nodes-special', 'circle-color', '#FF3B30');
+                            window.meshMap.setPaintProperty('nodes-mesh', 'circle-color', '#FF3B30');
+                            window.meshMap.setPaintProperty('nodes-mesh-glow', 'circle-color', '#FF3B30');
+                        } else {
+                            window.meshMap.setPaintProperty('nodes-aid', 'circle-color', '#28C840');
+                            window.meshMap.setPaintProperty('nodes-aid-glow', 'circle-color', '#28C840');
+                            window.meshMap.setPaintProperty('nodes-special', 'circle-color', 'rgba(100,150,255,0.8)');
+                            window.meshMap.setPaintProperty('nodes-mesh', 'circle-color', '#FF3B30');
+                            window.meshMap.setPaintProperty('nodes-mesh-glow', 'circle-color', '#FF3B30');
+                        }
+                    } catch(e) {}
+                }
+
+                // Right panel content
+                if (tabNum === '3') {
+                    rightDefault.classList.add('inactive');
+                    rightAthlete.classList.add('active');
+                } else {
+                    rightDefault.classList.remove('inactive');
+                    rightAthlete.classList.remove('active');
+                }
+
+                // Athlete marker on map
+                if (window.meshMap) {
+                    var vis = tabNum === '3' ? 'visible' : 'none';
+                    try { window.meshMap.setLayoutProperty('athlete-marker', 'visibility', vis); } catch(e) {}
+                    try { window.meshMap.setLayoutProperty('athlete-marker-glow', 'visibility', vis); } catch(e) {}
+                }
+
+                // Context panel text
+                var context = demoContexts[tabNum];
+                if (context && tabNum !== '3') {
+                    document.getElementById('demo-title').textContent = context.title;
+                    document.getElementById('demo-description').textContent = context.desc;
+                    document.getElementById('demo-metrics').innerHTML = context.metrics.map(function(m) {
+                        return '<span>' + m + '</span>';
+                    }).join('');
+                }
+            });
+        });
+
+        // Leaderboard toy interactivity — filter pills
+        document.querySelectorAll('.filter-pill').forEach(function(pill) {
+            pill.addEventListener('click', function() {
+                var parent = pill.parentNode;
+                parent.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
+                pill.classList.add('active');
+                var filter = pill.textContent.trim().toLowerCase();
+                document.querySelectorAll('.leaderboard-card tbody tr').forEach(function(row) {
+                    var div = (row.querySelector('.div') || {}).textContent || '';
+                    if (filter === 'overall') { row.style.display = ''; return; }
+                    if (filter === 'male') { row.style.display = div.charAt(0) === 'M' ? '' : 'none'; return; }
+                    if (filter === 'female') { row.style.display = div.charAt(0) === 'F' ? '' : 'none'; return; }
+                    row.style.display = div.toLowerCase().indexOf(filter.replace('age ', '')) !== -1 ? '' : 'none';
+                });
+            });
+        });
+
+        // Leaderboard search
+        document.querySelector('.search-box').addEventListener('input', function() {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('.leaderboard-card tbody tr').forEach(function(row) {
+                var name = (row.querySelector('.name') || {}).textContent || '';
+                var bib = (row.querySelector('.bib') || {}).textContent || '';
+                row.style.display = (name.toLowerCase().indexOf(q) !== -1 || bib.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+            });
+        });
+
+        // Leaderboard row click — toy athlete select
+        document.querySelectorAll('.leaderboard-card tbody tr').forEach(function(row) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', function() {
+                document.querySelectorAll('.leaderboard-card tbody tr').forEach(function(r) {
+                    r.style.background = '';
+                });
+                row.style.background = 'rgba(255,59,48,0.08)';
+                var nameEl = row.querySelector('.name');
+                var bibEl = row.querySelector('.bib');
+                if (nameEl && bibEl) {
+                    var name = nameEl.textContent;
+                    var bib = bibEl.textContent;
+                    document.getElementById('demo-title').textContent = name;
+                    document.getElementById('demo-description').textContent = 'Selected athlete #' + bib.replace('#','') + '. Click a filter or search to browse.';
+                }
+            });
+        });
+    })();
+
+    (function() {
+        var container = document.getElementById('mesh-map');
+        if (!container) return;
+
+        var demSource = new mlcontour.DemSource({
+            url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+            encoding: 'terrarium',
+            maxzoom: 15,
+            worker: true,
+            cacheSize: 100
+        });
+        demSource.setupMaplibre(maplibregl);
+
+        var map = new maplibregl.Map({
+            container: 'mesh-map',
+            style: {
+                version: 8,
+                sources: {
+                    dark: {
+                        type: 'raster',
+                        tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+                        tileSize: 256,
+                        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+                    }
+                },
+                layers: [{ id: 'dark', type: 'raster', source: 'dark' }]
+            },
+            center: [-111.72, 40.565],
+            zoom: 11.6,
+            pitch: 45,
+            bearing: -18,
+            attributionControl: false
+        });
+        window.meshMap = map;
+        map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+
+        var nodePositions = null;
+
+        function parseGPX(text) {
+            var doc = new DOMParser().parseFromString(text, 'text/xml');
+            var trkpts = doc.querySelectorAll('trkpt');
+            var coords = [];
+            trkpts.forEach(function(pt) {
+                var lat = parseFloat(pt.getAttribute('lat'));
+                var lon = parseFloat(pt.getAttribute('lon'));
+                if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
+            });
+            return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } };
+        }
+
+        function loadData() {
+            fetch('wurl_course_map/data/WURL_Wasatch_Ultimate_Ridge_Linkup.gpx')
+                .then(function(r) { if (!r.ok) throw new Error('GPX failed'); return r.text(); })
+                .then(function(text) {
+                    var trail = parseGPX(text);
+                    if (!map.getSource('trail')) { addTrail(trail); }
+                })
+                .catch(function() {
+                    var pts = [];
+                    var lng = -111.788, lat = 40.610;
+                    for (var i = 0; i < 200; i++) {
+                        lng += 0.0009 + Math.sin(i * 0.15) * 0.0004;
+                        lat -= 0.0004 + Math.cos(i * 0.12) * 0.0002;
+                        pts.push([lng, lat]);
+                    }
+                    if (!map.getSource('trail')) { addTrail({ type: 'Feature', geometry: { type: 'LineString', coordinates: pts } }); }
+                });
+            addNodes();
+        }
+
+        function addTrail(geoJSON) {
+            map.addSource('trail', { type: 'geojson', data: geoJSON });
+            map.addLayer({ id: 'trail-glow', type: 'line', source: 'trail',
+                paint: { 'line-color': '#FF3B30', 'line-width': 5, 'line-opacity': 0.12, 'line-blur': 3 } });
+            map.addLayer({ id: 'trail', type: 'line', source: 'trail',
+                paint: { 'line-color': '#FF3B30', 'line-width': 2, 'line-opacity': 0.7 } });
+            // Move nodes back on top
+            ['nodes-aid-glow','nodes-aid','nodes-mesh-glow','nodes-mesh','nodes-special','athlete-marker','athlete-marker-glow'].forEach(function(l) {
+                try { map.moveLayer(l); } catch(e) {}
+            });
+            var bounds = new maplibregl.LngLatBounds();
+            geoJSON.geometry.coordinates.forEach(function(c) { bounds.extend(c); });
+            map.fitBounds(bounds, { padding: 50, maxZoom: 12, duration: 0 });
+        }
+
+        function initTerrain() {
+            if (map.getSource('terrainSource')) return;
+            try {
+                map.addSource('terrainSource', {
+                    type: 'raster-dem',
+                    tiles: [demSource.sharedDemProtocolUrl],
+                    encoding: 'terrarium',
+                    tileSize: 256,
+                    maxzoom: 15
+                });
+                map.setTerrain({ source: 'terrainSource', exaggeration: 1.2 });
+
+                map.addSource('contour-source', {
+                    type: 'vector',
+                    tiles: [
+                        demSource.contourProtocolUrl({
+                            multiplier: 3.28084,
+                            thresholds: {
+                                8: [200, 400],
+                                10: [100, 200],
+                                12: [100, 200],
+                                14: [50, 100],
+                                15: [50, 100],
+                                16: [50, 100],
+                                17: [50, 100],
+                                18: [50, 100]
+                            },
+                            contourLayer: 'contours',
+                            elevationKey: 'ele',
+                            levelKey: 'level',
+                            extent: 4096,
+                            buffer: 1
+                        })
+                    ],
+                    maxzoom: 18
+                });
+
+                map.addLayer({
+                    id: 'contour-lines',
+                    type: 'line',
+                    source: 'contour-source',
+                    'source-layer': 'contours',
+                    paint: {
+                        'line-color': 'rgba(255,255,255,0.12)',
+                        'line-width': ['match', ['get', 'level'], 1, 0.8, 0.4]
+                    }
+                });
+            } catch(e) {}
+        }
+
+        function onReady() {
+            initTerrain();
+            if (!map.getSource('trail')) loadData();
+        }
+
+        if (map.loaded()) { onReady(); } else { map.on('load', onReady); }
+
+        function addNodes() {
+            var aidStations = [
+                { lat: 40.59612, lng: -111.65131, label: 'Cardiff Pass', type: 'aid' },
+                { lat: 40.56094, lng: -111.64510, label: 'Snowbird Tram', type: 'aid' },
+                { lat: 40.52689, lng: -111.75607, label: 'Lone Peak', type: 'aid' }
+            ];
+            var meshNodes = [
+                { lat: 40.59397, lng: -111.72070, label: 'Broads Fork', type: 'mesh' },
+                { lat: 40.59304, lng: -111.70579, label: 'Dromedary', type: 'mesh' },
+                { lat: 40.59228, lng: -111.66695, label: 'Superior', type: 'mesh' },
+                { lat: 40.60155, lng: -111.61403, label: 'Honeycomb', type: 'mesh' },
+                { lat: 40.58540, lng: -111.60331, label: 'Wolverine', type: 'mesh' },
+                { lat: 40.56785, lng: -111.63828, label: 'Baldy', type: 'mesh' },
+                { lat: 40.53365, lng: -111.70584, label: 'Pfeifferhorn', type: 'mesh' },
+                { lat: 40.54954, lng: -111.66185, label: 'Red Stack', type: 'mesh' }
+            ];
+            var specialNodes = [
+                { lat: 40.61038, lng: -111.78823, label: 'Brighton Lot', type: 'start' },
+                { lat: 40.57181, lng: -111.79682, label: 'Parking Lot', type: 'finish' }
+            ];
+            var allNodes = specialNodes.concat(aidStations, meshNodes);
+            nodePositions = allNodes;
+
+            var features = allNodes.map(function(n) {
+                return { type: 'Feature', geometry: { type: 'Point', coordinates: [n.lng, n.lat] },
+                    properties: { type: n.type, label: n.label } };
+            });
+            map.addSource('nodes', { type: 'geojson', data: { type: 'FeatureCollection', features: features } });
+
+            map.addLayer({ id: 'nodes-aid-glow', type: 'circle', source: 'nodes',
+                filter: ['==', ['get', 'type'], 'aid'],
+                paint: { 'circle-radius': 14, 'circle-color': '#28C840', 'circle-opacity': 0.1, 'circle-blur': 2 } });
+            map.addLayer({ id: 'nodes-aid', type: 'circle', source: 'nodes',
+                filter: ['==', ['get', 'type'], 'aid'],
+                paint: { 'circle-radius': 6, 'circle-color': '#28C840', 'circle-opacity': 0.9,
+                    'circle-stroke-width': 2, 'circle-stroke-color': 'rgba(255,255,255,0.15)' } });
+
+            map.addLayer({ id: 'nodes-mesh-glow', type: 'circle', source: 'nodes',
+                filter: ['==', ['get', 'type'], 'mesh'],
+                paint: { 'circle-radius': 10, 'circle-color': '#FF3B30', 'circle-opacity': 0.15, 'circle-blur': 1.5 } });
+            map.addLayer({ id: 'nodes-mesh', type: 'circle', source: 'nodes',
+                filter: ['==', ['get', 'type'], 'mesh'],
+                paint: { 'circle-radius': 4, 'circle-color': '#FF3B30', 'circle-opacity': 0.8,
+                    'circle-stroke-width': 1.5, 'circle-stroke-color': 'rgba(255,255,255,0.1)' } });
+
+            map.addLayer({ id: 'nodes-special', type: 'circle', source: 'nodes',
+                filter: ['in', ['get', 'type'], ['literal', ['start', 'finish']]],
+                paint: { 'circle-radius': 6, 'circle-color': 'rgba(100,150,255,0.8)',
+                    'circle-stroke-width': 2, 'circle-stroke-color': 'rgba(255,255,255,0.2)' } });
+
+            // Athlete position marker (hidden by default, shown in tab 3)
+            map.addSource('athlete-pos', {
+                type: 'geojson',
+                data: { type: 'Feature', geometry: { type: 'Point', coordinates: [-111.63828, 40.56785] } }
+            });
+            map.addLayer({ id: 'athlete-marker', type: 'circle', source: 'athlete-pos',
+                layout: { visibility: 'none' },
+                paint: { 'circle-radius': 8, 'circle-color': '#FF3B30', 'circle-opacity': 0.6,
+                    'circle-stroke-width': 3, 'circle-stroke-color': '#fff' } });
+            map.addLayer({ id: 'athlete-marker-glow', type: 'circle', source: 'athlete-pos',
+                layout: { visibility: 'none' },
+                paint: { 'circle-radius': 18, 'circle-color': '#FF3B30', 'circle-opacity': 0.15, 'circle-blur': 4 } });
+
+            // Detail data per node for rich tooltips
+            var nodeDetails = {
+                'Brighton Lot': { elev: '8,510\'', ser: 'SN-AS-001', batt: 'AC', sig: '—', last: '—' },
+                'Broads Fork': { elev: '9,120\'', ser: 'SN-MR-104', batt: '82%', sig: '-72dBm', last: '14s ago' },
+                'Cardiff Pass': { elev: '9,600\'', ser: 'SN-AS-002', batt: '94%', sig: '-65dBm', last: '8s ago' },
+                'Dromedary': { elev: '9,450\'', ser: 'SN-MR-107', batt: '76%', sig: '-81dBm', last: '22s ago' },
+                'Superior': { elev: '10,100\'', ser: 'SN-MR-112', batt: '68%', sig: '-88dBm', last: '31s ago' },
+                'Honeycomb': { elev: '9,940\'', ser: 'SN-MR-118', batt: '91%', sig: '-70dBm', last: '5s ago' },
+                'Wolverine': { elev: '10,200\'', ser: 'SN-MR-124', batt: '55%', sig: '-94dBm', last: '47s ago' },
+                'Snowbird Tram': { elev: '10,640\'', ser: 'SN-AS-003', batt: '88%', sig: '-68dBm', last: '11s ago' },
+                'Baldy': { elev: '10,830\'', ser: 'SN-MR-131', batt: '43%', sig: '-97dBm', last: '1m ago' },
+                'Pfeifferhorn': { elev: '11,020\'', ser: 'SN-MR-138', batt: '61%', sig: '-85dBm', last: '26s ago' },
+                'Red Stack': { elev: '10,410\'', ser: 'SN-MR-145', batt: '37%', sig: '-102dBm', last: '2m ago' },
+                'Flagstaff': { elev: '9,380\'', ser: 'SN-MR-156', batt: '73%', sig: '-78dBm', last: '18s ago' },
+                'Lone Peak': { elev: '10,980\'', ser: 'SN-AS-004', batt: '96%', sig: '-61dBm', last: '3s ago' },
+                'Parking Lot': { elev: '8,530\'', ser: 'SN-AS-005', batt: 'AC', sig: '—', last: '—' }
+            };
+            // Popup on click — tab-aware content
+            function getPopupHTML(label, type) {
+                var d = nodeDetails[label] || {};
+                var tab = document.querySelector('.mockup-tab.active');
+                var isTab3 = tab && tab.dataset.tab === '3';
+                if (isTab3) {
+                    return '<b>' + label + '</b><br>' +
+                        '<span style="font-size:10px;color:rgba(255,255,255,0.4);">Mile: varies &middot; Elev: ' + (d.elev || '—') + ' &middot; Pace: 8:34/mi</span>';
+                }
+                var typeLabels = { aid: 'Aid Station', mesh: 'Mesh Checkpoint', start: 'Start', finish: 'Finish' };
+                return '<b>' + label + '</b><br>' +
+                    '<span style="font-size:9px;color:rgba(255,255,255,0.3);">' + (typeLabels[type] || 'Node') + '</span><br>' +
+                    '<span style="font-size:9px;color:rgba(255,255,255,0.4);line-height:1.8;">' +
+                    'S/N: ' + (d.ser || '—') + '<br>' +
+                    'Batt: ' + (d.batt || '—') + ' &middot; Sig: ' + (d.sig || '—') + '<br>' +
+                    'Elev: ' + (d.elev || '—') + ' &middot; Last: ' + (d.last || '—') +
+                    '</span>';
+            }
+            function showNodePopup(e) {
+                if (!e.features || !e.features[0]) return;
+                var p = e.features[0].properties;
+                var typeLabel = { aid: 'Aid Station', mesh: 'Mesh Checkpoint', start: 'Start', finish: 'Finish' }[p.type] || 'Node';
+                new maplibregl.Popup({ offset: 16, closeButton: false })
+                    .setLngLat(e.features[0].geometry.coordinates)
+                    .setHTML(getPopupHTML(p.label || typeLabel, p.type))
+                    .addTo(map);
+            }
+            map.on('click', 'nodes-aid', showNodePopup);
+            map.on('click', 'nodes-mesh', showNodePopup);
+            map.on('click', 'nodes-special', showNodePopup);
+
+            map.on('mouseenter', 'nodes-aid', function() { map.getCanvas().style.cursor = 'pointer'; });
+            map.on('mouseenter', 'nodes-mesh', function() { map.getCanvas().style.cursor = 'pointer'; });
+            map.on('mouseenter', 'nodes-special', function() { map.getCanvas().style.cursor = 'pointer'; });
+            map.on('mouseleave', 'nodes-aid', function() { map.getCanvas().style.cursor = ''; });
+            map.on('mouseleave', 'nodes-mesh', function() { map.getCanvas().style.cursor = ''; });
+            map.on('mouseleave', 'nodes-special', function() { map.getCanvas().style.cursor = ''; });
+
+            // Move node layers to top so they render above trail
+            ['nodes-aid-glow','nodes-aid','nodes-mesh-glow','nodes-mesh','nodes-special','athlete-marker','athlete-marker-glow'].forEach(function(l) {
+                try { map.moveLayer(l); } catch(e) {}
+            });
+
+            // Default open popup for Broads Fork
+            setTimeout(function() {
+                try {
+                    new maplibregl.Popup({ offset: 16, closeButton: false })
+                        .setLngLat([-111.72070, 40.59397])
+                        .setHTML(getPopupHTML('Broads Fork', 'mesh'))
+                        .addTo(map);
+                } catch(e) {}
+            }, 2000);
+        }
+    })();
+    </script>
 
 </body>
 </html>
