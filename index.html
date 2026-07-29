@@ -3,727 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sommet Innovations — Unified Infrastructure for Trail & Ultra Races</title>
+    <title>Sommet Innovations</title>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            min-height: 100vh;
-            background: #0a0a0f;
-            color: #fff;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 24px 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .logo {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: #fff;
-            text-decoration: none;
-        }
-        .logo span { color: #FF3B30; }
-
-        .hero {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 72px 40px 48px;
-        }
-        .hero h1 {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: clamp(40px, 6.5vw, 72px);
-            font-weight: 800;
-            line-height: 1.08;
-            letter-spacing: -0.015em;
-            margin-bottom: 22px;
-            max-width: 800px;
-        }
-        .hero h1 span { color: #FF3B30; }
-        .hero p {
-            color: rgba(255,255,255,0.5);
-            font-size: 18px;
-            line-height: 1.7;
-            max-width: 580px;
-        }
-
-        .browser-window {
-            max-width: 1100px;
-            margin: 0 auto 80px;
-            background: #0d0d14;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-        .browser-header {
-            display: flex;
-            align-items: center;
-            padding: 10px 16px;
-            background: rgba(255,255,255,0.02);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            gap: 12px;
-        }
-        .traffic-lights {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .traffic-lights span {
-            width: 10px; height: 10px;
-            border-radius: 50%;
-            display: block;
-        }
-        .traffic-lights .tl-red { background: #ff5f56; }
-        .traffic-lights .tl-yellow { background: #ffbd2e; }
-        .traffic-lights .tl-green { background: #27c93f; }
-        .browser-url {
-            flex: 1;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 6px;
-            padding: 5px 12px;
-            font-size: 11px;
-            color: rgba(255,255,255,0.3);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'Inter', sans-serif;
-        }
-        .browser-url svg { width: 12px; height: 12px; opacity: 0.3; flex-shrink: 0; }
-        .browser-url span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .split-layout {
-            display: flex;
-            min-height: 500px;
-        }
-        .split-left {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        .split-right {
-            width: 300px;
-            flex-shrink: 0;
-            padding: 22px 20px;
-            background: rgba(255,255,255,0.015);
-            border-left: 1px solid rgba(255,255,255,0.06);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .split-right .context-badge {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            color: #FF3B30;
-            text-transform: uppercase;
-        }
-        .split-right h2 {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 17px;
-            font-weight: 700;
-            line-height: 1.3;
-            color: #fff;
-        }
-        .split-right p {
-            font-size: 12px;
-            color: rgba(255,255,255,0.45);
-            line-height: 1.6;
-        }
-        .split-right .metric-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-top: 4px;
-        }
-        .split-right .metric-list span {
-            font-size: 11px;
-            color: rgba(255,255,255,0.3);
-        }
-        .split-right .metric-list .highlight {
-            color: #28C840;
-            font-weight: 500;
-        }
-
-        .context-bridge {
-            max-width: 1100px;
-            margin: 0 auto 36px;
-            padding: 0 40px;
-        }
-        .context-bridge .cb-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            color: #FF3B30;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .context-bridge h2 {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: clamp(18px, 2.5vw, 26px);
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .context-bridge .cb-sub {
-            color: rgba(255,255,255,0.45);
-            font-size: 14px;
-            line-height: 1.6;
-            max-width: 600px;
-            margin-bottom: 16px;
-        }
-        .context-bridge .cb-cta {
-            font-size: 11px;
-            font-weight: 600;
-            color: #FF3B30;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .context-bridge .cb-cta svg { width: 13px; height: 13px; }
-
-        .mockup-tab-bar {
-            display: flex;
-            align-items: center;
-            padding: 0 16px;
-            background: rgba(255,255,255,0.02);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .mockup-tab {
-            padding: 10px 16px;
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.35);
-            background: none;
-            border: none;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
-            transition: color 0.2s, border-color 0.2s;
-            white-space: nowrap;
-        }
-        .mockup-tab:hover { color: rgba(255,255,255,0.6); }
-        .mockup-tab.active { color: #FF3B30; border-bottom-color: #FF3B30; }
-
-        .model-content-area {
-            flex: 1;
-            position: relative;
-            min-height: 500px;
-        }
-        #mesh-map {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .map-legend {
-            position: absolute;
-            bottom: 16px; left: 16px;
-            z-index: 5;
-            padding: 10px 14px;
-            background: rgba(10,10,15,0.85);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 8px;
-            font-size: 10px;
-            color: rgba(255,255,255,0.5);
-            line-height: 1.8;
-            pointer-events: none;
-        }
-        .map-legend .dot {
-            display: inline-block;
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-            vertical-align: middle;
-        }
-        .map-legend .dot.red { background: #FF3B30; }
-        .map-legend .dot.green { background: #28C840; }
-        .map-legend .dot.blue { background: rgba(100,150,255,0.8); }
-
-        .maplibregl-popup-content {
-            background: rgba(14,14,22,0.95) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: #fff !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 11px !important;
-            padding: 10px 14px !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
-        }
-        .maplibregl-popup-tip {
-            border-top-color: rgba(255,255,255,0.1) !important;
-        }
-
-        .leaderboard-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            background: #0d0d14;
-            overflow: hidden;
-            display: none;
-        }
-        .leaderboard-overlay.active { display: block; }
-
-        .leaderboard-card {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background: #0d0d14;
-        }
-
-        .lb-metrics {
-            display: flex;
-            gap: 0;
-            padding: 14px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .lb-metrics .stat {
-            flex: 1;
-            text-align: center;
-            border-right: 1px solid rgba(255,255,255,0.04);
-        }
-        .lb-metrics .stat:last-child { border-right: none; }
-        .lb-metrics .stat .num {
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-        }
-        .lb-metrics .stat .lbl {
-            font-size: 9px;
-            color: rgba(255,255,255,0.25);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-top: 2px;
-        }
-
-        .lb-filters {
-            display: flex;
-            gap: 6px;
-            padding: 10px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            flex-wrap: wrap;
-        }
-        .lb-filters .filter-pill {
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 10px;
-            font-weight: 500;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.02);
-            color: rgba(255,255,255,0.3);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .lb-filters .filter-pill.active {
-            background: rgba(255,59,48,0.1);
-            border-color: rgba(255,59,48,0.2);
-            color: #FF3B30;
-        }
-        .lb-filters .search-box {
-            margin-left: auto;
-            padding: 4px 10px;
-            border-radius: 100px;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.02);
-            font-size: 10px;
-            color: rgba(255,255,255,0.6);
-            font-family: 'Inter', sans-serif;
-            min-width: 140px;
-            outline: none;
-        }
-        .lb-filters .search-box:focus { border-color: rgba(255,59,48,0.3); background: rgba(255,255,255,0.04); }
-
-        #lb-scroll {
-            flex: 1;
-            overflow-y: auto;
-        }
-        #lb-scroll::-webkit-scrollbar { width: 4px; }
-        #lb-scroll::-webkit-scrollbar-track { background: transparent; }
-        #lb-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
-
-        .leaderboard-card table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-        .leaderboard-card thead th {
-            text-align: left;
-            padding: 8px 16px;
-            font-weight: 600;
-            font-size: 9px;
-            color: rgba(255,255,255,0.2);
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            letter-spacing: 0.06em;
-            background: #0d0d14;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-        .leaderboard-card tbody td {
-            padding: 8px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-            color: rgba(255,255,255,0.5);
-            font-size: 12px;
-        }
-        .leaderboard-card tbody tr:hover td {
-            background: rgba(255,255,255,0.02);
-        }
-        .leaderboard-card tbody .rank { color: rgba(255,255,255,0.2); font-weight: 500; width: 30px; }
-        .leaderboard-card tbody .bib { color: #FF3B30; font-weight: 700; width: 40px; }
-        .leaderboard-card tbody .name { color: rgba(255,255,255,0.6); }
-        .leaderboard-card tbody .div { color: rgba(255,255,255,0.2); font-size: 10px; width: 70px; }
-        .leaderboard-card tbody .pace { color: rgba(255,255,255,0.35); }
-        .leaderboard-card tbody .cp { color: rgba(255,255,255,0.3); font-size: 11px; }
-        .leaderboard-card tbody .finish { color: rgba(255,255,255,0.4); font-weight: 500; }
-
-        .pillars {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px 80px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-        .pillar-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px;
-            padding: 28px 24px 32px;
-            transition: border-color 0.25s;
-        }
-        .pillar-card:hover { border-color: rgba(255,59,48,0.3); }
-        .pillar-icon {
-            width: 40px; height: 40px;
-            margin-bottom: 16px;
-        }
-        .pillar-icon svg { width: 100%; height: 100%; display: block; color: #FF3B30; }
-        .pillar-card h3 {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .pillar-card p {
-            color: rgba(255,255,255,0.45);
-            font-size: 13px;
-            line-height: 1.65;
-        }
-        .pillar-card ul {
-            list-style: none;
-            margin-top: 12px;
-        }
-        .pillar-card ul li {
-            color: rgba(255,255,255,0.5);
-            font-size: 12px;
-            padding: 3px 0 3px 16px;
-            position: relative;
-        }
-        .pillar-card ul li::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 8px;
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: #FF3B30;
-            opacity: 0.5;
-        }
-
-        @keyframes icon-radar-pulse {
-            0% { opacity: 0.35; transform: scale(1); }
-            50% { opacity: 0; transform: scale(3.25); }
-            100% { opacity: 0.35; transform: scale(1); }
-        }
-        @keyframes icon-hand-tick {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .icon-radar-pulse { animation: icon-radar-pulse 2s ease-out infinite; transform-origin: 16px 16px; }
-        .icon-stopwatch-hand { animation: icon-hand-tick 60s linear infinite; transform-origin: 16px 17px; }
-
-        .comparison {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px 80px;
-        }
-        .section-label {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #FF3B30;
-            margin-bottom: 14px;
-        }
-        .comparison table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        .comparison thead th {
-            text-align: left;
-            padding: 14px 18px;
-            font-weight: 600;
-            font-size: 12px;
-            color: rgba(255,255,255,0.35);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            letter-spacing: 0.05em;
-        }
-        .comparison thead th:first-child { color: rgba(255,255,255,0.25); }
-        .comparison tbody td {
-            padding: 14px 18px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            color: rgba(255,255,255,0.55);
-            vertical-align: top;
-        }
-        .comparison tbody td:first-child { color: rgba(255,255,255,0.6); font-weight: 500; }
-        .comparison tbody td:last-child { color: #fff; font-weight: 500; }
-
-        .featured {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px 80px;
-        }
-        .featured-card {
-            display: block;
-            text-decoration: none;
-            color: #fff;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: border-color 0.25s, transform 0.25s;
-        }
-        .featured-card:hover { border-color: rgba(255,59,48,0.35); transform: translateY(-3px); }
-        .featured-preview {
-            width: 100%; aspect-ratio: 16 / 7;
-            background: #111118;
-            position: relative;
-            overflow: hidden;
-        }
-        .featured-preview::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 50%, rgba(10,10,15,0.5) 100%);
-            pointer-events: none;
-            z-index: 1;
-        }
-        .featured-preview video { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .featured-body { padding: 28px 32px 32px; }
-        .featured-body h2 {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 24px; font-weight: 700; margin-bottom: 8px;
-        }
-        .featured-body p {
-            color: rgba(255,255,255,0.45);
-            font-size: 14px; line-height: 1.65;
-            max-width: 640px; margin-bottom: 20px;
-        }
-        .cta {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: #FF3B30; color: #fff;
-            font-size: 14px; font-weight: 600;
-            padding: 12px 28px; border-radius: 8px;
-            text-decoration: none; transition: background 0.2s;
-        }
-        .cta:hover { background: #e6332a; }
-        .cta svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .featured-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-        .featured-tags span {
-            padding: 4px 12px; border-radius: 100px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
-            font-size: 11px; color: rgba(255,255,255,0.4);
-        }
-
-        .cta-banner {
-            max-width: 1200px; margin: 0 auto; padding: 0 40px 80px;
-        }
-        .cta-banner-inner {
-            background: linear-gradient(135deg, rgba(255,59,48,0.08) 0%, rgba(255,59,48,0.02) 100%);
-            border: 1px solid rgba(255,59,48,0.15);
-            border-radius: 16px; padding: 56px 48px; text-align: center;
-        }
-        .cta-banner-inner h2 {
-            font-family: 'Fraunces', Georgia, serif;
-            font-size: 28px; font-weight: 700; margin-bottom: 10px;
-        }
-        .cta-banner-inner p {
-            color: rgba(255,255,255,0.45); font-size: 15px;
-            max-width: 480px; margin: 0 auto 28px;
-        }
-
-        footer {
-            max-width: 1200px; margin: 0 auto; padding: 40px;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            display: flex; align-items: center; justify-content: space-between;
-            color: rgba(255,255,255,0.3); font-size: 13px;
-        }
-
-        .right-athlete {
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            height: 100%;
-        }
-        .right-athlete.active { display: flex; }
-        .right-default { display: flex; flex-direction: column; gap: 12px; }
-        .right-default.inactive { display: none; }
-
-        .ra-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .ra-avatar {
-            width: 30px; height: 30px;
-            border-radius: 50%;
-            background: rgba(255,59,48,0.15);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-            color: #FF3B30;
-            flex-shrink: 0;
-        }
-        .ra-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); flex: 1; }
-        .ra-name .bib { color: rgba(255,255,255,0.2); font-weight: 400; font-size: 10px; }
-        .ra-elapsed { font-size: 15px; font-weight: 700; color: #FF3B30; }
-        .ra-elapsed .lbl { font-size: 8px; font-weight: 400; color: rgba(255,255,255,0.2); }
-
-        .ra-progress { padding: 4px 0; }
-        .ra-progress .bar {
-            height: 3px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 2px;
-            margin: 6px 0;
-            overflow: hidden;
-        }
-        .ra-progress .bar .fill {
-            height: 100%;
-            width: 79%;
-            background: #FF3B30;
-            border-radius: 2px;
-        }
-        .ra-progress .labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 8px;
-            color: rgba(255,255,255,0.15);
-        }
-        .ra-progress .labels .current { color: #FF3B30; font-weight: 600; }
-
-        .ra-splits {
-            flex: 1;
-            overflow-y: auto;
-            min-height: 0;
-        }
-        .ra-splits::-webkit-scrollbar { width: 3px; }
-        .ra-splits::-webkit-scrollbar-track { background: transparent; }
-        .ra-splits::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
-
-        .ra-split-table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        .ra-split-table thead th {
-            text-align: left;
-            padding: 4px 6px;
-            font-weight: 600;
-            font-size: 8px;
-            color: rgba(255,255,255,0.2);
-            letter-spacing: 0.06em;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .ra-split-table tbody td {
-            padding: 3px 6px;
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-            color: rgba(255,255,255,0.35);
-            white-space: nowrap;
-        }
-        .ra-split-table tbody .cp-name { color: rgba(255,255,255,0.5); }
-        .ra-split-table tbody .cp-dist { color: rgba(255,255,255,0.2); font-size: 9px; text-align: right; }
-        .ra-split-table tbody .cp-elev { color: rgba(255,255,255,0.35); font-size: 9px; text-align: right; }
-        .ra-split-table tbody .cp-pace { color: rgba(255,255,255,0.4); font-weight: 500; text-align: right; font-size: 10px; }
-        .ra-split-table tbody .done .cp-name { color: rgba(255,255,255,0.6); }
-        .ra-split-table tbody .done .cp-elev { color: rgba(255,255,255,0.5); }
-        .ra-split-table tbody .done .cp-pace { color: rgba(255,255,255,0.6); }
-        .ra-split-table tbody .current-row { background: rgba(255,59,48,0.06); border-radius: 3px; }
-        .ra-split-table tbody .current-row .cp-name { color: #FF3B30; font-weight: 600; }
-        .ra-split-table tbody .pending { opacity: 0.4; }
-        .ra-split-table tbody td:first-child { padding-left: 0; }
-        .ra-split-table tbody td:last-child { padding-right: 0; }
-
-        @media (max-width: 900px) {
-            .pillars { grid-template-columns: repeat(2, 1fr); }
-            .split-right { width: 220px; padding: 16px; }
-            .split-right h2 { font-size: 15px; }
-        }
-        @media (max-width: 768px) {
-            nav { padding: 20px 24px; }
-            .hero { padding: 48px 24px 36px; }
-            .hero h1 { font-size: clamp(28px, 7vw, 40px); }
-            .breal { display: none; }
-
-            .split-layout { flex-direction: column; }
-            .split-right {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid rgba(255,255,255,0.06);
-                padding: 16px 18px;
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 6px;
-            }
-            .split-right .context-badge { width: 100%; }
-            .split-right h2 { font-size: 15px; flex: 1; min-width: 200px; }
-            .split-right p { width: 100%; font-size: 11px; }
-            .split-right .metric-list { flex-direction: row; flex-wrap: wrap; gap: 10px; }
-
-            .pillars { grid-template-columns: 1fr; padding: 0 24px 48px; gap: 16px; }
-            .pillar-card { padding: 24px 20px 28px; }
-            .featured { padding: 0 24px 48px; }
-            .featured-body { padding: 20px; }
-            .featured-body h2 { font-size: 20px; }
-            .comparison { padding: 0 24px 48px; overflow-x: auto; }
-            .comparison table { font-size: 12px; }
-            .comparison thead th, .comparison tbody td { padding: 10px 12px; }
-            .cta-banner { padding: 0 24px 48px; }
-            .cta-banner-inner { padding: 36px 24px; }
-            .cta-banner-inner h2 { font-size: 22px; }
-            footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 24px; }
-
-            .mockup-tab { font-size: 10px; padding: 8px 10px; }
-            .model-content-area { min-height: 360px; }
-            .leaderboard-card { height: 400px; }
-            .lb-metrics .stat .num { font-size: 14px; }
-            .lb-filters .search-box { min-width: 100px; }
-
-            .right-athlete { flex-direction: row; flex-wrap: wrap; }
-            .right-athlete .ra-header { width: 100%; }
-            .right-athlete .ra-progress { width: 100%; }
-            .right-athlete .ra-splits { width: 100%; max-height: 150px; }
-        }
-        @media (max-width: 640px) {
-            .browser-window { margin: 0 12px 48px; border-radius: 8px; }
-            .model-content-area { min-height: 280px; }
-            .leaderboard-card { height: 340px; }
-            .mockup-tab { font-size: 9px; padding: 6px 8px; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -732,142 +17,240 @@
     </nav>
 
     <section class="hero">
-        <h1>Race experiences,<br class="breal"> <span>elevated.</span></h1>
-        <p>The unified digital &amp; telemetry platform built for backcountry endurance events. Custom web, 3D cartography, mesh tracking, and chip timing engineered as one.</p>
+        <h1><span>Unified</span> race tech <br class="breal"> infrastructure</h1>
+        <p>From pre-race web design to backcountry radio mesh &amp; finish line timing, we streamline your entire event setup.</p>
     </section>
 
-    <section class="context-bridge">
-        <div class="cb-label">The Problem</div>
-        <h2>5 vendors. 10-mile dark zones. Fragmented data.</h2>
-        <p class="cb-sub">One platform replaces the patchwork: mesh sensors in deep backcountry, zero-latency timing, and bespoke web — all under a single contract.</p>
-        <div class="cb-cta">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 12V4M4 8l4 4 4-4"/></svg>
-            See it in action
+    <section class="lifecycle-strip">
+        <div class="lifecycle-header">
+            <h2 class="section-heading">One connected engine from <span>registration</span> to <span>results</span>.</h2>
+        </div>
+        <div class="lifecycle-steps">
+            <div class="step-card" data-tab="1">
+                <h3>Pre-Race Web &amp; Prep</h3>
+                <p>Bespoke race website, registration integration, interactive 3D course maps, and vector print maps for SAR teams.</p>
+            </div>
+            <div class="step-card" data-tab="2">
+                <h3>Race Day Telemetry</h3>
+                <p>LoRa mesh radio checkpoints dropped in backcountry dark zones every 2–3 miles alongside RFID chip mats.</p>
+            </div>
+            <div class="step-card" data-tab="3">
+                <h3>Results &amp; Engagement</h3>
+                <p>Instant leaderboards, automated division sorting, and personal athlete replays under your custom domain.</p>
+            </div>
         </div>
     </section>
 
-    <div class="browser-window">
+    <div class="demo-canvas" id="demo-canvas">
 
-        <div class="browser-header">
-            <div class="traffic-lights">
-                <span class="tl-red"></span>
-                <span class="tl-yellow"></span>
-                <span class="tl-green"></span>
-            </div>
-            <div class="browser-url">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1L1 8l7 7M1 8h14"/></svg>
-                <span>app.sommet.run/dashboard</span>
-            </div>
-        </div>
-
-        <div class="split-layout">
-
-            <div class="split-left">
-                <div class="mockup-tab-bar">
-                    <button class="mockup-tab active" data-tab="1">Checkpoints</button>
-                    <button class="mockup-tab" data-tab="2">Leaderboard</button>
-                    <button class="mockup-tab" data-tab="3">Athlete Tracker</button>
+        <div class="demo-panel" data-tab="1">
+            <div class="demo-info">
+                <span class="section-label">PHASE 01 — PRE-RACE DIGITAL STOREFRONT</span>
+                <h2>Bespoke Web &amp; 3D Course Cartography</h2>
+                <p class="demo-subtitle">We build your custom event website, embed high-performance 3D course maps, and handle registration flows so runners arrive prepared and excited.</p>
+                <div class="demo-bullets">
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>White-Labeled Web Portal</strong><br>Custom domain hosting, mobile-first design, schedule lookups, and seamless registration platform integration.</div>
+                    </div>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Native WebGL 3D Cartography</strong><br>Smooth 60fps 3D terrain fly-throughs with interactive elevation profiles, surface type toggles, and milestone waypoints.</div>
+                    </div>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Print &amp; Safety Maps for SAR</strong><br>Auto-generated high-resolution vector topographic maps for safety briefings, permit applications, and Search &amp; Rescue teams.</div>
+                    </div>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Relay &amp; Logistics Planning</strong><br>Crew access maps, driving directions to exchange points, and drop-bag rules built directly into the interactive route profile.</div>
+                    </div>
                 </div>
-
-                <div class="model-content-area">
+            </div>
+            <div class="demo-view">
+                <div class="map-toolbar">
+                    <button class="map-tool-btn" id="register-btn">Register Now <span class="cap-count">(Cap: 300 / 42 Left)</span></button>
+                    <div class="map-tool-divider"></div>
+                    <button class="map-tool-btn">Export GPX</button>
+                    <button class="map-tool-btn">PDF Topo</button>
+                    <button class="map-tool-btn">Spectator Info</button>
+                </div>
+                <div class="map-stage" id="mesh-map-container">
                     <div id="mesh-map"></div>
                     <div class="map-legend" id="map-legend">
                         <span class="dot green"></span> Aid Station<br>
                         <span class="dot red"></span> Mesh Checkpoint<br>
                         <span class="dot blue"></span> Start / Finish
                     </div>
+                </div>
+                <div class="demo-dock" id="elevation-dock">
+                    <div class="dock-header">
+                        <span class="dock-label">ELEVATION PROFILE</span>
+                        <span class="dock-stats">Total Gain: 8,420' &middot; Max: 11,020' &middot; Grade: 14%</span>
+                    </div>
+                    <div class="dock-chart" id="elevation-chart"></div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="tab-content leaderboard-overlay" data-tab="2">
-                        <div class="leaderboard-card">
-                            <div class="lb-metrics">
-                                <div class="stat"><div class="num">247</div><div class="lbl">Total Starters</div></div>
-                                <div class="stat"><div class="num">183</div><div class="lbl">Active on Course</div></div>
-                                <div class="stat"><div class="num">42</div><div class="lbl">Finished</div></div>
-                                <div class="stat"><div class="num">22</div><div class="lbl">DNF / Stalled</div></div>
-                            </div>
-                            <div class="lb-filters">
-                                <span class="filter-pill active">Overall</span>
-                                <span class="filter-pill">Male</span>
-                                <span class="filter-pill">Female</span>
-                                <span class="filter-pill">Age 40-49</span>
-                                <span class="filter-pill">Age 50+</span>
-                                <input class="search-box" placeholder="Search bib or name…">
-                            </div>
-                            <div id="lb-scroll">
-                                <table>
-                                    <thead>
-                                        <tr><th>RK</th><th>BIB</th><th>ATHLETE</th><th>DIV</th><th>PACE</th><th>LAST CP</th><th>EST. FINISH</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr><td class="rank">1</td><td class="bib">#42</td><td class="name">Smith, Jordan</td><td class="div">M40-49</td><td class="pace">7:15/mi</td><td class="cp">Pfeifferhorn &middot; 28.3</td><td class="finish">4:12:00</td></tr>
-                                        <tr><td class="rank">2</td><td class="bib">#188</td><td class="name">Walmsley, Jim</td><td class="div">M Overall</td><td class="pace">7:12/mi</td><td class="cp">Snowbird Tram &middot; 22.0</td><td class="finish">4:15:30</td></tr>
-                                        <tr><td class="rank">3</td><td class="bib">#104</td><td class="name">Honnold, Alex</td><td class="div">M30-39</td><td class="pace">7:22/mi</td><td class="cp">Wolverine &middot; 18.0</td><td class="finish">4:20:15</td></tr>
-                                        <tr><td class="rank">4</td><td class="bib">#355</td><td class="name">Jornet, Kilian</td><td class="div">M Overall</td><td class="pace">7:05/mi</td><td class="cp">Snowbird Tram &middot; 22.0</td><td class="finish">4:08:45</td></tr>
-                                        <tr><td class="rank">5</td><td class="bib">#77</td><td class="name">Forsberg, Emelie</td><td class="div">F Overall</td><td class="pace">9:10/mi</td><td class="cp">Honeycomb &middot; 12.1</td><td class="finish">5:10:00</td></tr>
-                                        <tr><td class="rank">6</td><td class="bib">#221</td><td class="name">D'Haene, François</td><td class="div">M40-49</td><td class="pace">8:28/mi</td><td class="cp">Cardiff Pass &middot; 8.2</td><td class="finish">4:52:00</td></tr>
-                                        <tr><td class="rank">7</td><td class="bib">#305</td><td class="name">Miller, Zach</td><td class="div">M30-39</td><td class="pace">8:55/mi</td><td class="cp">Flagstaff &middot; 10.5</td><td class="finish">5:05:00</td></tr>
-                                        <tr><td class="rank">8</td><td class="bib">#89</td><td class="name">Bosio, Rory</td><td class="div">F40-49</td><td class="pace">10:02/mi</td><td class="cp">Broads Fork &middot; 3.2</td><td class="finish">5:45:00</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+        <div class="demo-panel" data-tab="2">
+            <div class="demo-info">
+                <span class="section-label">PHASE 02 — RACE DAY TELEMETRY &amp; SAFETY</span>
+                <h2>Backcountry Tracking &amp; Zero-Latency Ingestion</h2>
+                <p class="demo-subtitle">We deploy self-healing radio mesh gateways and lightweight RFID mats across cell-dead zones — giving you frequent intermediate splits, live spectator tracking, and automated safety alerts.</p>
+                <div class="demo-bullets">
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Deployable LoRa Mesh Network</strong><br>Battery-powered radio relays dropped every 2–3 miles in backcountry gaps to eliminate 10-mile dark zones without relying on cell towers or HAM operators.</div>
+                    </div>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>High-Density Intermediate Checkpoints</strong><br>Low-cost, lightweight RFID sensors and radio nodes placed between major aid stations so split updates drop every few miles instead of every few hours.</div>
+                    </div>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Automated Safety &amp; Stalled-Runner Alerts</strong><br>Automatic system pings if an athlete's split is overdue between nodes, giving Race Directors and SAR teams immediate last-known-location data.</div>
+                    </div>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Offline Local Storage Buffer</strong><br>Dual-frequency RFID mats store all chip passes locally and auto-sync to the cloud the moment a gateway connects, guaranteeing 100% data retention.</div>
                     </div>
                 </div>
             </div>
-
-            <div class="split-right">
-                <div class="right-default" id="right-default">
-                    <div class="context-badge" id="context-badge">Featured Engine</div>
-                    <h2 id="demo-title">High-Density Split Coverage</h2>
-                    <p id="demo-description">Eliminate race day blind spots. We deploy low-power intermediate checkpoints between aid stations so you get split updates every few miles—not every few hours.</p>
-                    <div class="metric-list" id="demo-metrics">
-                        <span><span class="highlight">&#10003;</span> 3&times; more split points</span>
-                        <span><span class="highlight">&#10003;</span> 20 min max safety window</span>
-                        <span><span class="highlight">&#10003;</span> 100% offline mesh relays</span>
+            <div class="demo-view">
+                <div class="map-stage" id="live-map-container">
+                    <div id="live-map"></div>
+                    <div class="safety-overlay" id="safety-overlay">
+                        <div class="safety-header">
+                            <span class="safety-dot active"></span> RUNNER STATUS
+                        </div>
+                        <div class="safety-legend">
+                            <span><span class="safety-dot moving"></span> Moving</span>
+                            <span><span class="safety-dot aid"></span> In Aid Station</span>
+                            <span><span class="safety-dot stalled"></span> Stalled</span>
+                        </div>
                     </div>
                 </div>
+                <div class="ingestion-bar">
+                    <div class="ingestion-stream">
+                        <span class="ingestion-time">06:14:22</span>
+                        <span class="ingestion-event">#42 C. Dauwalter &middot; Checkpoint 4B (Mile 18.2) &middot; Pace: 8:12/mi &middot; Via: LoRa Mesh</span>
+                    </div>
+                    <div class="ingestion-stream">
+                        <span class="ingestion-time">06:12:08</span>
+                        <span class="ingestion-event">#104 A. Honnold &middot; Checkpoint 3A (Mile 12.1) &middot; Pace: 8:34/mi &middot; Via: RFID Mat</span>
+                    </div>
+                    <div class="ingestion-stream">
+                        <span class="ingestion-time">06:09:44</span>
+                        <span class="ingestion-event">#355 K. Jornet &middot; Checkpoint 4B (Mile 18.2) &middot; Pace: 7:55/mi &middot; Via: LoRa Mesh</span>
+                    </div>
+                    <div class="ingestion-bar-footer">
+                        <span class="net-status">Hybrid Ingestion: <span class="net-lora">LoRa Mesh 78%</span> &middot; <span class="net-cell">Cellular 18%</span> &middot; <span class="net-buffer">Local RFID Buffer 4%</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <div class="right-athlete" id="right-athlete">
-                    <div class="ra-header">
-                        <div class="ra-avatar">42</div>
-                        <div class="ra-name">Jordan Smith <span class="bib">#42 &middot; M40-49</span></div>
-                        <div class="ra-elapsed">4:12 <span class="lbl">elapsed</span></div>
+        <div class="demo-panel" data-tab="3">
+            <div class="demo-info">
+                <span class="section-label">PHASE 03 — RESULTS &amp; ATHLETE RETENTION</span>
+                <h2>Instant Official Results &amp; Replay Data</h2>
+                <p class="demo-subtitle">No third-party iframe redirects or spreadsheet cleanup. Chip passes automatically calculate division rankings, personal split analytics, and shareable post-race media under your own domain.</p>
+                <div class="demo-bullets">
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Native Database Ingestion (Zero Redirects)</strong><br>Results live directly on your race website under your custom domain — keeping 100% of spectator traffic on your brand.</div>
                     </div>
-                    <div class="ra-progress">
-                        <div style="display:flex;justify-content:space-between;">
-                            <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,0.6);">Mile 28.3</span>
-                            <span style="font-size:9px;color:rgba(255,255,255,0.25);">/ 35.6 mi</span>
-                        </div>
-                        <div class="bar"><div class="fill"></div></div>
-                        <div class="labels">
-                            <span>Start</span>
-                            <span class="current">&#9679; Pfeifferhorn</span>
-                            <span>Finish</span>
-                        </div>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Automated Division &amp; Age-Group Sorting</strong><br>Instant calculation of overall standings, gender divisions, age groups, and master categories the second an athlete crosses the finish mat.</div>
                     </div>
-                    <div class="ra-splits">
-                        <table class="ra-split-table">
-                            <thead><tr><th>CHECKPOINT</th><th>MI</th><th>ELEV</th><th>PACE</th></tr></thead>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Personalized Split Analytics &amp; Replay</strong><br>Runners and coaches get deep pacing analysis across every intermediate backcountry checkpoint to see exactly where time was gained or lost.</div>
+                    </div>
+                    <div class="demo-bullet">
+                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                        <div><strong>Post-Race Artifacts &amp; Media Sync</strong><br>Automated finisher certificates, shareable result badges, and photo/video timestamp matching powered by RFID split logs.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-view">
+                <div class="results-leaderboard">
+                    <div class="lb-metrics">
+                        <div class="stat"><div class="num">248</div><div class="lbl">Finished</div></div>
+                        <div class="stat"><div class="num">12</div><div class="lbl">Active</div></div>
+                        <div class="stat"><div class="num">14</div><div class="lbl">DNF / Cutoff</div></div>
+                        <div class="stat"><div class="num highlight-stat">Broken</div><div class="lbl">Course Record (-4m 12s)</div></div>
+                    </div>
+                    <div class="lb-filters">
+                        <span class="filter-pill active">Overall</span>
+                        <span class="filter-pill">Men</span>
+                        <span class="filter-pill">Women</span>
+                        <span class="filter-pill">Age 18-29</span>
+                        <span class="filter-pill">Age 30-39</span>
+                        <span class="filter-pill">Age 40-49</span>
+                        <input class="search-box" placeholder="Search bib or name…">
+                    </div>
+                    <div id="lb-scroll">
+                        <table>
+                            <thead>
+                                <tr><th>RK</th><th>BIB</th><th>ATHLETE</th><th>TIME</th><th>PACE</th><th>LAST CP</th></tr>
+                            </thead>
                             <tbody>
-                                <tr class="done"><td class="cp-name">Brighton Lot</td><td class="cp-dist">0.0</td><td class="cp-elev">8,510'</td><td class="cp-pace">—</td></tr>
-                                <tr class="done"><td class="cp-name">Broads Fork</td><td class="cp-dist">3.2</td><td class="cp-elev">9,120'</td><td class="cp-pace">8:48/mi</td></tr>
-                                <tr class="done"><td class="cp-name">Cardiff Pass</td><td class="cp-dist">8.2</td><td class="cp-elev">9,600'</td><td class="cp-pace">8:52/mi</td></tr>
-                                <tr class="done"><td class="cp-name">Flagstaff</td><td class="cp-dist">10.5</td><td class="cp-elev">9,380'</td><td class="cp-pace">9:22/mi</td></tr>
-                                <tr class="done"><td class="cp-name">Honeycomb</td><td class="cp-dist">12.1</td><td class="cp-elev">9,940'</td><td class="cp-pace">9:31/mi</td></tr>
-                                <tr class="done"><td class="cp-name">Wolverine</td><td class="cp-dist">18.0</td><td class="cp-elev">10,200'</td><td class="cp-pace">8:56/mi</td></tr>
-                                <tr class="done"><td class="cp-name">Snowbird Tram</td><td class="cp-dist">22.0</td><td class="cp-elev">10,640'</td><td class="cp-pace">8:53/mi</td></tr>
-                                <tr class="done"><td class="cp-name">Red Stack</td><td class="cp-dist">24.2</td><td class="cp-elev">10,410'</td><td class="cp-pace">9:14/mi</td></tr>
-                                <tr class="current-row"><td class="cp-name">&#9654; Pfeifferhorn</td><td class="cp-dist">28.3</td><td class="cp-elev">11,020'</td><td class="cp-pace"><span style="color:#FF3B30;font-size:10px;font-weight:600;">8:34/mi</span></td></tr>
-                                <tr class="pending"><td class="cp-name">Lone Peak</td><td class="cp-dist">31.0</td><td class="cp-elev">10,980'</td><td class="cp-pace">—</td></tr>
-                                <tr class="pending"><td class="cp-name">Bighorn</td><td class="cp-dist">33.2</td><td class="cp-elev">10,200'</td><td class="cp-pace">—</td></tr>
-                                <tr class="pending"><td class="cp-name">Parking Lot</td><td class="cp-dist">35.6</td><td class="cp-elev">8,530'</td><td class="cp-pace">—</td></tr>
+                                <tr><td class="rank">1</td><td class="bib">#42</td><td class="name">Smith, Jordan</td><td class="finish">4:12:00</td><td class="pace">7:15/mi</td><td class="cp">Finish</td></tr>
+                                <tr><td class="rank">2</td><td class="bib">#188</td><td class="name">Walmsley, Jim</td><td class="finish">4:15:30</td><td class="pace">7:12/mi</td><td class="cp">Finish</td></tr>
+                                <tr><td class="rank">3</td><td class="bib">#104</td><td class="name">Honnold, Alex</td><td class="finish">4:20:15</td><td class="pace">7:22/mi</td><td class="cp">Finish</td></tr>
+                                <tr><td class="rank">4</td><td class="bib">#355</td><td class="name">Jornet, Kilian</td><td class="finish">4:08:45</td><td class="pace">7:05/mi</td><td class="cp">Finish</td></tr>
+                                <tr><td class="rank">5</td><td class="bib">#77</td><td class="name">Forsberg, Emelie</td><td class="finish">5:10:00</td><td class="pace">9:10/mi</td><td class="cp">Finish</td></tr>
+                                <tr><td class="rank">6</td><td class="bib">#221</td><td class="name">D'Haene, François</td><td class="finish">4:52:00</td><td class="pace">8:28/mi</td><td class="cp">Cardiff Pass</td></tr>
+                                <tr><td class="rank">7</td><td class="bib">#305</td><td class="name">Miller, Zach</td><td class="finish">5:05:00</td><td class="pace">8:55/mi</td><td class="cp">Flagstaff</td></tr>
+                                <tr><td class="rank">8</td><td class="bib">#89</td><td class="name">Bosio, Rory</td><td class="finish">5:45:00</td><td class="pace">10:02/mi</td><td class="cp">Broads Fork</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+                <div class="athlete-drawer" id="athlete-drawer">
+                    <div class="drawer-header">
+                        <div class="drawer-athlete">
+                            <span class="drawer-avatar">42</span>
+                            <div>
+                                <div class="drawer-name">Jordan Smith <span class="drawer-bib">#42</span></div>
+                                <div class="drawer-meta">4th Overall &middot; M40-49 &middot; Wasatch 100M</div>
+                            </div>
+                        </div>
+                        <div class="drawer-time">21:14:08</div>
+                    </div>
+                    <div class="drawer-progress">
+                        <div class="drawer-progress-bar"><div class="drawer-progress-fill" style="width:79%"></div></div>
+                        <div class="drawer-progress-labels">
+                            <span>Start</span>
+                            <span class="current">Pfeifferhorn</span>
+                            <span>Finish</span>
+                        </div>
+                    </div>
+                    <div class="drawer-splits">
+                        <table class="ra-split-table">
+                            <thead><tr><th>CHECKPOINT</th><th>MI</th><th>SPLIT</th><th>PACE</th><th>DIV RK</th></tr></thead>
+                            <tbody>
+                                <tr class="done"><td>Brighton Lot</td><td>0.0</td><td>—</td><td>—</td><td>—</td></tr>
+                                <tr class="done"><td>Broads Fork</td><td>3.2</td><td>28:10</td><td>8:48/mi</td><td>3rd</td></tr>
+                                <tr class="done"><td>Cardiff Pass</td><td>8.2</td><td>1:12:40</td><td>8:52/mi</td><td>2nd</td></tr>
+                                <tr class="done"><td>Snowbird Tram</td><td>22.0</td><td>3:15:20</td><td>8:53/mi</td><td>2nd</td></tr>
+                                <tr class="current-row"><td>Pfeifferhorn</td><td>28.3</td><td>4:02:10</td><td>8:34/mi</td><td>1st</td></tr>
+                                <tr class="pending"><td>Lone Peak</td><td>31.0</td><td>—</td><td>—</td><td>—</td></tr>
+                                <tr class="pending"><td>Parking Lot</td><td>35.6</td><td>—</td><td>—</td><td>—</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="drawer-badge">
+                        <span>Wasatch 100M &middot; 21:14:08 &middot; 4th Overall</span>
+                        <button class="badge-share">Share Finisher Card</button>
+                    </div>
+                </div>
             </div>
-
         </div>
+
     </div>
 
     <section class="pillars">
@@ -995,434 +378,7 @@
 
     <footer><span>&copy; 2026 Sommet Innovations</span></footer>
 
-    <script>
-    var demoContexts = {
-        '1': {
-            title: 'High-Density Split Coverage',
-            desc: 'Eliminate race day blind spots. We deploy low-power intermediate checkpoints between aid stations so you get split updates every few miles\u2014not every few hours.',
-            metrics: ['<span class="highlight">&#10003;</span> 3&times; more split points', '<span class="highlight">&#10003;</span> 20 min max safety window', '<span class="highlight">&#10003;</span> 100% offline mesh relays']
-        },
-        '2': {
-            title: 'Zero-Latency RFID Leaderboard',
-            desc: 'Stop sending fans to third-party result links with 5-minute delays. Chip passes hit your database and update live leaderboards instantly with automatic division ranking.',
-            metrics: ['<span class="highlight">&#10003;</span> &lt;100ms ingestion latency', '<span class="highlight">&#10003;</span> Auto division &amp; age-group sort', '<span class="highlight">&#10003;</span> Projected finish times']
-        },
-        '3': {
-            title: 'Live Athlete Tracking Portal',
-            desc: 'Give fans, family, and sponsors a branded mobile experience. Interactive course maps, live split lookups, and elevation progress in one clean URL with no external redirects.',
-            metrics: ['<span class="highlight">&#10003;</span> White-labeled race domain', '<span class="highlight">&#10003;</span> Real-time split matrix', '<span class="highlight">&#10003;</span> Mobile-first PWA']
-        }
-    };
-
-    (function() {
-        var tabs = document.querySelectorAll('.mockup-tab');
-        var map = document.getElementById('mesh-map');
-        var leaderboard = document.querySelector('.leaderboard-overlay');
-        var rightDefault = document.getElementById('right-default');
-        var rightAthlete = document.getElementById('right-athlete');
-
-        tabs.forEach(function(tab) {
-            tab.addEventListener('click', function() {
-                tabs.forEach(function(t) { t.classList.remove('active'); });
-                tab.classList.add('active');
-
-                var tabNum = tab.dataset.tab;
-
-                // Map + leaderboard visibility
-                if (tabNum === '2') {
-                    map.style.display = 'none';
-                    leaderboard.classList.add('active');
-                } else {
-                    map.style.display = 'block';
-                    leaderboard.classList.remove('active');
-                    if (window.meshMap) {
-                        setTimeout(function() { window.meshMap.resize(); }, 100);
-                    }
-                }
-
-                // Legend: only on tab 1 (checkpoints), hidden on 2 & 3
-                var legendEl = document.getElementById('map-legend');
-                if (legendEl) {
-                    legendEl.style.display = (tabNum === '1') ? '' : 'none';
-                }
-
-                // Athlete tracker: all nodes render as one color (red)
-                if (window.meshMap) {
-                    try {
-                        var isTab3 = tabNum === '3';
-                        // Move node layers to top
-                        ['nodes-aid-glow','nodes-aid','nodes-mesh-glow','nodes-mesh','nodes-special','athlete-marker','athlete-marker-glow'].forEach(function(l) {
-                            try { window.meshMap.moveLayer(l); } catch(e) {}
-                        });
-                        // Tab 3: all nodes red single color
-                        if (isTab3) {
-                            window.meshMap.setPaintProperty('nodes-aid', 'circle-color', '#FF3B30');
-                            window.meshMap.setPaintProperty('nodes-aid-glow', 'circle-color', '#FF3B30');
-                            window.meshMap.setPaintProperty('nodes-special', 'circle-color', '#FF3B30');
-                            window.meshMap.setPaintProperty('nodes-mesh', 'circle-color', '#FF3B30');
-                            window.meshMap.setPaintProperty('nodes-mesh-glow', 'circle-color', '#FF3B30');
-                        } else {
-                            window.meshMap.setPaintProperty('nodes-aid', 'circle-color', '#28C840');
-                            window.meshMap.setPaintProperty('nodes-aid-glow', 'circle-color', '#28C840');
-                            window.meshMap.setPaintProperty('nodes-special', 'circle-color', 'rgba(100,150,255,0.8)');
-                            window.meshMap.setPaintProperty('nodes-mesh', 'circle-color', '#FF3B30');
-                            window.meshMap.setPaintProperty('nodes-mesh-glow', 'circle-color', '#FF3B30');
-                        }
-                    } catch(e) {}
-                }
-
-                // Right panel content
-                if (tabNum === '3') {
-                    rightDefault.classList.add('inactive');
-                    rightAthlete.classList.add('active');
-                } else {
-                    rightDefault.classList.remove('inactive');
-                    rightAthlete.classList.remove('active');
-                }
-
-                // Athlete marker on map
-                if (window.meshMap) {
-                    var vis = tabNum === '3' ? 'visible' : 'none';
-                    try { window.meshMap.setLayoutProperty('athlete-marker', 'visibility', vis); } catch(e) {}
-                    try { window.meshMap.setLayoutProperty('athlete-marker-glow', 'visibility', vis); } catch(e) {}
-                }
-
-                // Context panel text
-                var context = demoContexts[tabNum];
-                if (context && tabNum !== '3') {
-                    document.getElementById('demo-title').textContent = context.title;
-                    document.getElementById('demo-description').textContent = context.desc;
-                    document.getElementById('demo-metrics').innerHTML = context.metrics.map(function(m) {
-                        return '<span>' + m + '</span>';
-                    }).join('');
-                }
-            });
-        });
-
-        // Leaderboard toy interactivity — filter pills
-        document.querySelectorAll('.filter-pill').forEach(function(pill) {
-            pill.addEventListener('click', function() {
-                var parent = pill.parentNode;
-                parent.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
-                pill.classList.add('active');
-                var filter = pill.textContent.trim().toLowerCase();
-                document.querySelectorAll('.leaderboard-card tbody tr').forEach(function(row) {
-                    var div = (row.querySelector('.div') || {}).textContent || '';
-                    if (filter === 'overall') { row.style.display = ''; return; }
-                    if (filter === 'male') { row.style.display = div.charAt(0) === 'M' ? '' : 'none'; return; }
-                    if (filter === 'female') { row.style.display = div.charAt(0) === 'F' ? '' : 'none'; return; }
-                    row.style.display = div.toLowerCase().indexOf(filter.replace('age ', '')) !== -1 ? '' : 'none';
-                });
-            });
-        });
-
-        // Leaderboard search
-        document.querySelector('.search-box').addEventListener('input', function() {
-            var q = this.value.toLowerCase();
-            document.querySelectorAll('.leaderboard-card tbody tr').forEach(function(row) {
-                var name = (row.querySelector('.name') || {}).textContent || '';
-                var bib = (row.querySelector('.bib') || {}).textContent || '';
-                row.style.display = (name.toLowerCase().indexOf(q) !== -1 || bib.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
-            });
-        });
-
-        // Leaderboard row click — toy athlete select
-        document.querySelectorAll('.leaderboard-card tbody tr').forEach(function(row) {
-            row.style.cursor = 'pointer';
-            row.addEventListener('click', function() {
-                document.querySelectorAll('.leaderboard-card tbody tr').forEach(function(r) {
-                    r.style.background = '';
-                });
-                row.style.background = 'rgba(255,59,48,0.08)';
-                var nameEl = row.querySelector('.name');
-                var bibEl = row.querySelector('.bib');
-                if (nameEl && bibEl) {
-                    var name = nameEl.textContent;
-                    var bib = bibEl.textContent;
-                    document.getElementById('demo-title').textContent = name;
-                    document.getElementById('demo-description').textContent = 'Selected athlete #' + bib.replace('#','') + '. Click a filter or search to browse.';
-                }
-            });
-        });
-    })();
-
-    (function() {
-        var container = document.getElementById('mesh-map');
-        if (!container) return;
-
-        var demSource = new mlcontour.DemSource({
-            url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
-            encoding: 'terrarium',
-            maxzoom: 15,
-            worker: true,
-            cacheSize: 100
-        });
-        demSource.setupMaplibre(maplibregl);
-
-        var map = new maplibregl.Map({
-            container: 'mesh-map',
-            style: {
-                version: 8,
-                sources: {
-                    dark: {
-                        type: 'raster',
-                        tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
-                        tileSize: 256,
-                        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-                    }
-                },
-                layers: [{ id: 'dark', type: 'raster', source: 'dark' }]
-            },
-            center: [-111.72, 40.565],
-            zoom: 11.6,
-            pitch: 45,
-            bearing: -18,
-            attributionControl: false
-        });
-        window.meshMap = map;
-        map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
-
-        var nodePositions = null;
-
-        function parseGPX(text) {
-            var doc = new DOMParser().parseFromString(text, 'text/xml');
-            var trkpts = doc.querySelectorAll('trkpt');
-            var coords = [];
-            trkpts.forEach(function(pt) {
-                var lat = parseFloat(pt.getAttribute('lat'));
-                var lon = parseFloat(pt.getAttribute('lon'));
-                if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
-            });
-            return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } };
-        }
-
-        function loadData() {
-            fetch('wurl_course_map/data/WURL_Wasatch_Ultimate_Ridge_Linkup.gpx')
-                .then(function(r) { if (!r.ok) throw new Error('GPX failed'); return r.text(); })
-                .then(function(text) {
-                    var trail = parseGPX(text);
-                    if (!map.getSource('trail')) { addTrail(trail); }
-                })
-                .catch(function() {
-                    var pts = [];
-                    var lng = -111.788, lat = 40.610;
-                    for (var i = 0; i < 200; i++) {
-                        lng += 0.0009 + Math.sin(i * 0.15) * 0.0004;
-                        lat -= 0.0004 + Math.cos(i * 0.12) * 0.0002;
-                        pts.push([lng, lat]);
-                    }
-                    if (!map.getSource('trail')) { addTrail({ type: 'Feature', geometry: { type: 'LineString', coordinates: pts } }); }
-                });
-            addNodes();
-        }
-
-        function addTrail(geoJSON) {
-            map.addSource('trail', { type: 'geojson', data: geoJSON });
-            map.addLayer({ id: 'trail-glow', type: 'line', source: 'trail',
-                paint: { 'line-color': '#FF3B30', 'line-width': 5, 'line-opacity': 0.12, 'line-blur': 3 } });
-            map.addLayer({ id: 'trail', type: 'line', source: 'trail',
-                paint: { 'line-color': '#FF3B30', 'line-width': 2, 'line-opacity': 0.7 } });
-            // Move nodes back on top
-            ['nodes-aid-glow','nodes-aid','nodes-mesh-glow','nodes-mesh','nodes-special','athlete-marker','athlete-marker-glow'].forEach(function(l) {
-                try { map.moveLayer(l); } catch(e) {}
-            });
-            var bounds = new maplibregl.LngLatBounds();
-            geoJSON.geometry.coordinates.forEach(function(c) { bounds.extend(c); });
-            map.fitBounds(bounds, { padding: 50, maxZoom: 12, duration: 0 });
-        }
-
-        function initTerrain() {
-            if (map.getSource('terrainSource')) return;
-            try {
-                map.addSource('terrainSource', {
-                    type: 'raster-dem',
-                    tiles: [demSource.sharedDemProtocolUrl],
-                    encoding: 'terrarium',
-                    tileSize: 256,
-                    maxzoom: 15
-                });
-                map.setTerrain({ source: 'terrainSource', exaggeration: 1.2 });
-
-                map.addSource('contour-source', {
-                    type: 'vector',
-                    tiles: [
-                        demSource.contourProtocolUrl({
-                            multiplier: 3.28084,
-                            thresholds: {
-                                8: [200, 400],
-                                10: [100, 200],
-                                12: [100, 200],
-                                14: [50, 100],
-                                15: [50, 100],
-                                16: [50, 100],
-                                17: [50, 100],
-                                18: [50, 100]
-                            },
-                            contourLayer: 'contours',
-                            elevationKey: 'ele',
-                            levelKey: 'level',
-                            extent: 4096,
-                            buffer: 1
-                        })
-                    ],
-                    maxzoom: 18
-                });
-
-                map.addLayer({
-                    id: 'contour-lines',
-                    type: 'line',
-                    source: 'contour-source',
-                    'source-layer': 'contours',
-                    paint: {
-                        'line-color': 'rgba(255,255,255,0.12)',
-                        'line-width': ['match', ['get', 'level'], 1, 0.8, 0.4]
-                    }
-                });
-            } catch(e) {}
-        }
-
-        function onReady() {
-            initTerrain();
-            if (!map.getSource('trail')) loadData();
-        }
-
-        if (map.loaded()) { onReady(); } else { map.on('load', onReady); }
-
-        function addNodes() {
-            var aidStations = [
-                { lat: 40.59612, lng: -111.65131, label: 'Cardiff Pass', type: 'aid' },
-                { lat: 40.56094, lng: -111.64510, label: 'Snowbird Tram', type: 'aid' },
-                { lat: 40.52689, lng: -111.75607, label: 'Lone Peak', type: 'aid' }
-            ];
-            var meshNodes = [
-                { lat: 40.59397, lng: -111.72070, label: 'Broads Fork', type: 'mesh' },
-                { lat: 40.59304, lng: -111.70579, label: 'Dromedary', type: 'mesh' },
-                { lat: 40.59228, lng: -111.66695, label: 'Superior', type: 'mesh' },
-                { lat: 40.60155, lng: -111.61403, label: 'Honeycomb', type: 'mesh' },
-                { lat: 40.58540, lng: -111.60331, label: 'Wolverine', type: 'mesh' },
-                { lat: 40.56785, lng: -111.63828, label: 'Baldy', type: 'mesh' },
-                { lat: 40.53365, lng: -111.70584, label: 'Pfeifferhorn', type: 'mesh' },
-                { lat: 40.54954, lng: -111.66185, label: 'Red Stack', type: 'mesh' }
-            ];
-            var specialNodes = [
-                { lat: 40.61038, lng: -111.78823, label: 'Brighton Lot', type: 'start' },
-                { lat: 40.57181, lng: -111.79682, label: 'Parking Lot', type: 'finish' }
-            ];
-            var allNodes = specialNodes.concat(aidStations, meshNodes);
-            nodePositions = allNodes;
-
-            var features = allNodes.map(function(n) {
-                return { type: 'Feature', geometry: { type: 'Point', coordinates: [n.lng, n.lat] },
-                    properties: { type: n.type, label: n.label } };
-            });
-            map.addSource('nodes', { type: 'geojson', data: { type: 'FeatureCollection', features: features } });
-
-            map.addLayer({ id: 'nodes-aid-glow', type: 'circle', source: 'nodes',
-                filter: ['==', ['get', 'type'], 'aid'],
-                paint: { 'circle-radius': 14, 'circle-color': '#28C840', 'circle-opacity': 0.1, 'circle-blur': 2 } });
-            map.addLayer({ id: 'nodes-aid', type: 'circle', source: 'nodes',
-                filter: ['==', ['get', 'type'], 'aid'],
-                paint: { 'circle-radius': 6, 'circle-color': '#28C840', 'circle-opacity': 0.9,
-                    'circle-stroke-width': 2, 'circle-stroke-color': 'rgba(255,255,255,0.15)' } });
-
-            map.addLayer({ id: 'nodes-mesh-glow', type: 'circle', source: 'nodes',
-                filter: ['==', ['get', 'type'], 'mesh'],
-                paint: { 'circle-radius': 10, 'circle-color': '#FF3B30', 'circle-opacity': 0.15, 'circle-blur': 1.5 } });
-            map.addLayer({ id: 'nodes-mesh', type: 'circle', source: 'nodes',
-                filter: ['==', ['get', 'type'], 'mesh'],
-                paint: { 'circle-radius': 4, 'circle-color': '#FF3B30', 'circle-opacity': 0.8,
-                    'circle-stroke-width': 1.5, 'circle-stroke-color': 'rgba(255,255,255,0.1)' } });
-
-            map.addLayer({ id: 'nodes-special', type: 'circle', source: 'nodes',
-                filter: ['in', ['get', 'type'], ['literal', ['start', 'finish']]],
-                paint: { 'circle-radius': 6, 'circle-color': 'rgba(100,150,255,0.8)',
-                    'circle-stroke-width': 2, 'circle-stroke-color': 'rgba(255,255,255,0.2)' } });
-
-            // Athlete position marker (hidden by default, shown in tab 3)
-            map.addSource('athlete-pos', {
-                type: 'geojson',
-                data: { type: 'Feature', geometry: { type: 'Point', coordinates: [-111.63828, 40.56785] } }
-            });
-            map.addLayer({ id: 'athlete-marker', type: 'circle', source: 'athlete-pos',
-                layout: { visibility: 'none' },
-                paint: { 'circle-radius': 8, 'circle-color': '#FF3B30', 'circle-opacity': 0.6,
-                    'circle-stroke-width': 3, 'circle-stroke-color': '#fff' } });
-            map.addLayer({ id: 'athlete-marker-glow', type: 'circle', source: 'athlete-pos',
-                layout: { visibility: 'none' },
-                paint: { 'circle-radius': 18, 'circle-color': '#FF3B30', 'circle-opacity': 0.15, 'circle-blur': 4 } });
-
-            // Detail data per node for rich tooltips
-            var nodeDetails = {
-                'Brighton Lot': { elev: '8,510\'', ser: 'SN-AS-001', batt: 'AC', sig: '—', last: '—' },
-                'Broads Fork': { elev: '9,120\'', ser: 'SN-MR-104', batt: '82%', sig: '-72dBm', last: '14s ago' },
-                'Cardiff Pass': { elev: '9,600\'', ser: 'SN-AS-002', batt: '94%', sig: '-65dBm', last: '8s ago' },
-                'Dromedary': { elev: '9,450\'', ser: 'SN-MR-107', batt: '76%', sig: '-81dBm', last: '22s ago' },
-                'Superior': { elev: '10,100\'', ser: 'SN-MR-112', batt: '68%', sig: '-88dBm', last: '31s ago' },
-                'Honeycomb': { elev: '9,940\'', ser: 'SN-MR-118', batt: '91%', sig: '-70dBm', last: '5s ago' },
-                'Wolverine': { elev: '10,200\'', ser: 'SN-MR-124', batt: '55%', sig: '-94dBm', last: '47s ago' },
-                'Snowbird Tram': { elev: '10,640\'', ser: 'SN-AS-003', batt: '88%', sig: '-68dBm', last: '11s ago' },
-                'Baldy': { elev: '10,830\'', ser: 'SN-MR-131', batt: '43%', sig: '-97dBm', last: '1m ago' },
-                'Pfeifferhorn': { elev: '11,020\'', ser: 'SN-MR-138', batt: '61%', sig: '-85dBm', last: '26s ago' },
-                'Red Stack': { elev: '10,410\'', ser: 'SN-MR-145', batt: '37%', sig: '-102dBm', last: '2m ago' },
-                'Flagstaff': { elev: '9,380\'', ser: 'SN-MR-156', batt: '73%', sig: '-78dBm', last: '18s ago' },
-                'Lone Peak': { elev: '10,980\'', ser: 'SN-AS-004', batt: '96%', sig: '-61dBm', last: '3s ago' },
-                'Parking Lot': { elev: '8,530\'', ser: 'SN-AS-005', batt: 'AC', sig: '—', last: '—' }
-            };
-            // Popup on click — tab-aware content
-            function getPopupHTML(label, type) {
-                var d = nodeDetails[label] || {};
-                var tab = document.querySelector('.mockup-tab.active');
-                var isTab3 = tab && tab.dataset.tab === '3';
-                if (isTab3) {
-                    return '<b>' + label + '</b><br>' +
-                        '<span style="font-size:10px;color:rgba(255,255,255,0.4);">Mile: varies &middot; Elev: ' + (d.elev || '—') + ' &middot; Pace: 8:34/mi</span>';
-                }
-                var typeLabels = { aid: 'Aid Station', mesh: 'Mesh Checkpoint', start: 'Start', finish: 'Finish' };
-                return '<b>' + label + '</b><br>' +
-                    '<span style="font-size:9px;color:rgba(255,255,255,0.3);">' + (typeLabels[type] || 'Node') + '</span><br>' +
-                    '<span style="font-size:9px;color:rgba(255,255,255,0.4);line-height:1.8;">' +
-                    'S/N: ' + (d.ser || '—') + '<br>' +
-                    'Batt: ' + (d.batt || '—') + ' &middot; Sig: ' + (d.sig || '—') + '<br>' +
-                    'Elev: ' + (d.elev || '—') + ' &middot; Last: ' + (d.last || '—') +
-                    '</span>';
-            }
-            function showNodePopup(e) {
-                if (!e.features || !e.features[0]) return;
-                var p = e.features[0].properties;
-                var typeLabel = { aid: 'Aid Station', mesh: 'Mesh Checkpoint', start: 'Start', finish: 'Finish' }[p.type] || 'Node';
-                new maplibregl.Popup({ offset: 16, closeButton: false })
-                    .setLngLat(e.features[0].geometry.coordinates)
-                    .setHTML(getPopupHTML(p.label || typeLabel, p.type))
-                    .addTo(map);
-            }
-            map.on('click', 'nodes-aid', showNodePopup);
-            map.on('click', 'nodes-mesh', showNodePopup);
-            map.on('click', 'nodes-special', showNodePopup);
-
-            map.on('mouseenter', 'nodes-aid', function() { map.getCanvas().style.cursor = 'pointer'; });
-            map.on('mouseenter', 'nodes-mesh', function() { map.getCanvas().style.cursor = 'pointer'; });
-            map.on('mouseenter', 'nodes-special', function() { map.getCanvas().style.cursor = 'pointer'; });
-            map.on('mouseleave', 'nodes-aid', function() { map.getCanvas().style.cursor = ''; });
-            map.on('mouseleave', 'nodes-mesh', function() { map.getCanvas().style.cursor = ''; });
-            map.on('mouseleave', 'nodes-special', function() { map.getCanvas().style.cursor = ''; });
-
-            // Move node layers to top so they render above trail
-            ['nodes-aid-glow','nodes-aid','nodes-mesh-glow','nodes-mesh','nodes-special','athlete-marker','athlete-marker-glow'].forEach(function(l) {
-                try { map.moveLayer(l); } catch(e) {}
-            });
-
-            // Default open popup for Broads Fork
-            setTimeout(function() {
-                try {
-                    new maplibregl.Popup({ offset: 16, closeButton: false })
-                        .setLngLat([-111.72070, 40.59397])
-                        .setHTML(getPopupHTML('Broads Fork', 'mesh'))
-                        .addTo(map);
-                } catch(e) {}
-            }, 2000);
-        }
-    })();
-    </script>
+    <script src="app.js"></script>
 
 </body>
 </html>
