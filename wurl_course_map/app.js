@@ -62,7 +62,16 @@ const map = new maplibregl.Map({
     maxPitch: 70
 });
 
-// ── Controls state ────────────────────────────────────────
+// ── Force attribution compact ─────────────────────────────
+
+document.head.appendChild(Object.assign(document.createElement('style'), {
+    textContent: '.maplibregl-ctrl-attrib.maplibregl-compact{padding:0!important;min-width:0!important}' +
+        '.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-inner{display:none!important}' +
+        '.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button{display:block!important;border-radius:50%!important;background-color:#fff!important}' +
+        '.maplibregl-ctrl-attrib:hover .maplibregl-ctrl-attrib-inner{display:inline!important;padding:6px 10px!important}'
+}));
+
+// ── Navigation controls ───────────────────────────────────
 
 const compass = document.getElementById('compass');
 const compassSvg = document.getElementById('compass-svg');
@@ -874,6 +883,12 @@ map.on('load', async () => {
         drawProfile();
         window.addEventListener('resize', drawProfile);
         profilePanel.addEventListener('transitionend', () => drawProfile());
+
+        if (window.innerWidth <= 768) {
+            profilePanel.classList.add('collapsed');
+            document.getElementById('flythrough-controls').classList.add('profile-collapsed');
+            document.getElementById('sidebar-toggle').classList.add('profile-collapsed');
+        }
 
         toggleBtn.addEventListener('click', () => {
             profilePanel.classList.toggle('collapsed');
