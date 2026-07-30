@@ -4,6 +4,7 @@
     var frame = document.getElementById('unity-frame');
     var scrollRoom = document.getElementById('unity-scroll-room');
     var demos = document.querySelectorAll('.frame-demo');
+    var textBlocks = document.querySelectorAll('.unity-text-block');
     var urlPath = document.getElementById('url-path-desktop');
     var frameDemos = document.querySelector('.frame-demos');
     if (!frame || !scrollRoom || !demos.length || !urlPath || !frameDemos) return;
@@ -46,6 +47,10 @@
             d.style.opacity = opacities[i];
             d.style.pointerEvents = 'none';
             d.style.zIndex = Math.round((1 - Math.abs(i - raw)) * 100);
+        });
+
+        textBlocks.forEach(function(t, i) {
+            t.classList.toggle('active', i === primary);
         });
 
         urlPath.textContent = PATHS[primary] || '';

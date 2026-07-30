@@ -54,9 +54,53 @@ nav {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 40px 80px;
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+.unity-text {
+    flex: 0 0 280px;
+    position: sticky;
+    top: 24px;
+    height: calc(100vh - 48px);
+}
+
+.unity-text-block {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.45s ease, visibility 0.45s ease;
+    pointer-events: none;
+}
+
+.unity-text-block.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.unity-text-block h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    color: #fff;
+}
+
+.unity-text-block p {
+    color: rgba(255,255,255,0.45);
+    font-size: 14px;
+    line-height: 1.7;
 }
 
 .unity-scroll-room {
+    flex: 1;
+    min-width: 0;
     height: 200vh;
     position: relative;
 }
@@ -803,7 +847,9 @@ footer {
     .hero { padding: 48px 24px 24px; }
     .hero h1 { font-size: clamp(28px, 7vw, 40px); }
 
-    .desktop-unity { padding: 0 16px 60px; }
+    .desktop-unity { display: block; padding: 0 16px 60px; gap: 0; }
+    .unity-text { display: none; }
+    .unity-scroll-room { flex: none; width: 100%; }
     .unity-frame { top: 12px; height: calc(100vh - 24px); border-radius: 8px; }
     .browser-chrome { padding: 6px 10px; gap: 8px; }
     .traffic-lights .dot { width: 8px; height: 8px; }
