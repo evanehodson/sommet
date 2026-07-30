@@ -71,7 +71,7 @@ nav {
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px;
     overflow: hidden;
-    background: #0d0d14;
+    background: rgba(255,255,255,0.02);
 }
 
 .browser-chrome {
@@ -79,7 +79,7 @@ nav {
     align-items: center;
     gap: 12px;
     padding: 10px 14px;
-    background: #0d0d14;
+    background: rgba(255,255,255,0.02);
     border-bottom: 1px solid rgba(255,255,255,0.06);
     flex-shrink: 0;
 }
@@ -135,6 +135,227 @@ nav {
 .frame-demo .results-leaderboard { height: 100%; }
 .frame-demo .leaderboard-card { height: 100%; }
 .frame-demo .lb-scroll { flex: 1; overflow-y: auto; }
+
+/* ── Unity Frame: Light demo refinements ── */
+
+.unity-frame .frame-demo {
+    background: #f7f4f0;
+    color: #1e1b18;
+}
+
+.unity-frame .browser-chrome {
+    background: rgba(255,255,255,0.02);
+    border-bottom-color: rgba(255,255,255,0.06);
+}
+
+.unity-frame .signup-form {
+    background: #f7f4f0;
+    border-right-color: rgba(30,27,24,0.06);
+}
+
+.unity-frame .signup-form h2 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #1e1b18;
+}
+
+.unity-frame .signup-sub {
+    color: rgba(30,27,24,0.45);
+}
+
+.unity-frame .signup-field label {
+    color: rgba(30,27,24,0.4);
+}
+
+.unity-frame .signup-field input,
+.unity-frame .signup-field select {
+    background: #fff;
+    border-color: rgba(30,27,24,0.08);
+    color: #1e1b18;
+}
+
+.unity-frame .signup-field input:focus,
+.unity-frame .signup-field select:focus {
+    border-color: rgba(212,72,56,0.3);
+}
+
+.unity-frame .signup-field input::placeholder {
+    color: rgba(30,27,24,0.15);
+}
+
+.unity-frame .signup-field select option {
+    background: #fff;
+    color: #1e1b18;
+}
+
+.unity-frame .signup-divider {
+    background: rgba(30,27,24,0.06);
+}
+
+.unity-frame .signup-section-label {
+    color: rgba(30,27,24,0.25);
+}
+
+.unity-frame .signup-badge {
+    color: rgba(30,27,24,0.25);
+}
+
+.unity-frame .signup-badge svg {
+    color: rgba(30,27,24,0.2);
+}
+
+.unity-frame .signup-submit {
+    background: #d44838;
+}
+
+.unity-frame .signup-submit:hover {
+    background: #c43d2e;
+}
+
+.unity-frame .signup-note {
+    color: rgba(30,27,24,0.3);
+}
+
+.unity-frame .signup-sidebar {
+    background: #fff;
+}
+
+.unity-frame .signup-card {
+    background: #faf8f5;
+    border-color: rgba(30,27,24,0.06);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.unity-frame .signup-price {
+    color: #d44838;
+}
+
+.unity-frame .signup-price-lbl {
+    color: rgba(30,27,24,0.35);
+}
+
+.unity-frame .signup-perks li {
+    color: rgba(30,27,24,0.5);
+}
+
+.unity-frame .signup-perks li::before {
+    background: #28a84a;
+}
+
+.unity-frame .demo-dock {
+    background: #faf8f5;
+    border-top-color: rgba(30,27,24,0.06);
+}
+
+.unity-frame .dock-label {
+    color: rgba(30,27,24,0.25);
+}
+
+.unity-frame .dock-stats {
+    color: rgba(30,27,24,0.3);
+}
+
+.unity-frame .dock-chart {
+    background: rgba(30,27,24,0.03);
+}
+
+.unity-frame .map-legend {
+    background: rgba(247,244,240,0.92);
+    border-color: rgba(30,27,24,0.08);
+    color: rgba(30,27,24,0.5);
+}
+
+.unity-frame .results-leaderboard,
+.unity-frame .leaderboard-card {
+    background: #f7f4f0;
+}
+
+.unity-frame .lb-metrics {
+    border-bottom-color: rgba(30,27,24,0.05);
+}
+
+.unity-frame .lb-metrics .stat {
+    border-right-color: rgba(30,27,24,0.05);
+}
+
+.unity-frame .lb-metrics .stat .num {
+    color: #1e1b18;
+}
+
+.unity-frame .lb-metrics .stat .lbl {
+    color: rgba(30,27,24,0.3);
+}
+
+.unity-frame .lb-filters {
+    border-bottom-color: rgba(30,27,24,0.05);
+}
+
+.unity-frame .lb-filters .filter-pill {
+    border-color: rgba(30,27,24,0.08);
+    background: rgba(30,27,24,0.03);
+    color: rgba(30,27,24,0.4);
+}
+
+.unity-frame .lb-filters .filter-pill.active {
+    background: rgba(212,72,56,0.08);
+    border-color: rgba(212,72,56,0.2);
+    color: #d44838;
+}
+
+.unity-frame .lb-filters .search-box {
+    background: #fff;
+    border-color: rgba(30,27,24,0.08);
+    color: #1e1b18;
+}
+
+.unity-frame .lb-filters .search-box:focus {
+    border-color: rgba(212,72,56,0.3);
+    background: #fff;
+}
+
+.unity-frame .leaderboard-card table {
+    color: #1e1b18;
+}
+
+.unity-frame .leaderboard-card thead th {
+    background: #f7f4f0;
+    border-bottom-color: rgba(30,27,24,0.05);
+    color: rgba(30,27,24,0.25);
+}
+
+.unity-frame .leaderboard-card tbody td {
+    border-bottom-color: rgba(30,27,24,0.04);
+    color: rgba(30,27,24,0.55);
+}
+
+.unity-frame .leaderboard-card tbody tr:hover td {
+    background: rgba(30,27,24,0.02);
+}
+
+.unity-frame .leaderboard-card tbody .rank {
+    color: rgba(30,27,24,0.25);
+}
+
+.unity-frame .leaderboard-card tbody .bib {
+    color: #d44838;
+}
+
+.unity-frame .leaderboard-card tbody .name {
+    color: rgba(30,27,24,0.65);
+}
+
+.unity-frame .leaderboard-card tbody .div {
+    color: rgba(30,27,24,0.3);
+}
+
+.unity-frame .leaderboard-card tbody .finish {
+    color: rgba(30,27,24,0.5);
+}
+
+.unity-frame .leaderboard-card tbody .pace {
+    color: rgba(30,27,24,0.45);
+}
 
 /* ── Mobile stacked cards layout ── */
 

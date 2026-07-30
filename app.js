@@ -94,14 +94,14 @@
             version: 8,
             glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
             sources: {
-                dark: {
+                light: {
                     type: 'raster',
-                    tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+                    tiles: ['https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'],
                     tileSize: 256,
                     attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
                 }
             },
-            layers: [{ id: 'dark', type: 'raster', source: 'dark' }]
+            layers: [{ id: 'light', type: 'raster', source: 'light', paint: { 'raster-saturation': 0.6, 'raster-contrast': 0.1 } }]
         },
         center: [-123.067, 44.052],
         zoom: 15,
@@ -278,15 +278,15 @@
             style: {
                 version: 8,
                 glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
-                sources: {
-                    dark: {
-                        type: 'raster',
-                        tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+sources: {
+                light: {
+                    type: 'raster',
+                    tiles: ['https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'],
                         tileSize: 256,
                         attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
                     }
                 },
-                layers: [{ id: 'dark', type: 'raster', source: 'dark' }]
+                layers: [{ id: 'light', type: 'raster', source: 'light', paint: { 'raster-saturation': 0.6, 'raster-contrast': 0.1 } }]
             },
             center: [-123.067, 44.052],
             zoom: 15,
