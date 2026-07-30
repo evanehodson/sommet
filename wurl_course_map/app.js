@@ -884,11 +884,9 @@ map.on('load', async () => {
         window.addEventListener('resize', drawProfile);
         profilePanel.addEventListener('transitionend', () => drawProfile());
 
-        if (window.innerWidth <= 768) {
-            profilePanel.classList.add('collapsed');
-            document.getElementById('flythrough-controls').classList.add('profile-collapsed');
-            document.getElementById('sidebar-toggle').classList.add('profile-collapsed');
-        }
+        profilePanel.classList.add('collapsed');
+        document.getElementById('flythrough-controls').classList.add('profile-collapsed');
+        document.getElementById('sidebar-toggle').classList.add('profile-collapsed');
 
         toggleBtn.addEventListener('click', () => {
             profilePanel.classList.toggle('collapsed');

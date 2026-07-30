@@ -17,339 +17,369 @@
     </nav>
 
     <section class="hero">
-        <h1><span>Unified</span> race tech <br class="breal"> infrastructure</h1>
-        <p>From pre-race web design to backcountry radio mesh &amp; finish line timing, we streamline your entire event setup.</p>
+        <h1>One connected engine from <span>registration</span> to <span>results</span>.</h1>
+        <p>Your race website, course maps, and live results — one place, one team, no runaround.</p>
     </section>
 
-    <section class="lifecycle-strip">
-        <div class="lifecycle-header">
-            <h2 class="section-heading">One connected engine from <span>registration</span> to <span>results</span>.</h2>
-        </div>
-        <div class="lifecycle-steps">
-            <div class="step-card" data-tab="1">
-                <h3>Pre-Race Web &amp; Prep</h3>
-                <p>Bespoke race website, registration integration, interactive 3D course maps, and vector print maps for SAR teams.</p>
-            </div>
-            <div class="step-card" data-tab="2">
-                <h3>Race Day Telemetry</h3>
-                <p>LoRa mesh radio checkpoints dropped in backcountry dark zones every 2–3 miles alongside RFID chip mats.</p>
-            </div>
-            <div class="step-card" data-tab="3">
-                <h3>Results &amp; Engagement</h3>
-                <p>Instant leaderboards, automated division sorting, and personal athlete replays under your custom domain.</p>
-            </div>
-        </div>
-    </section>
+    <!-- ── Desktop: scroll unity layout ── -->
+    <div class="desktop-unity">
 
-    <div class="demo-canvas" id="demo-canvas">
+        <div class="unity-scroll-room" id="unity-scroll-room">
+            <div class="unity-frame" id="unity-frame">
+            <div class="browser-chrome">
+                <div class="traffic-lights">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <div class="url-bar">
+                    <span class="url-lock">&#x1F512;</span>
+                    <span class="url-host">yourrace.com</span>
+                    <span class="url-path" id="url-path-desktop">/register</span>
+                </div>
+            </div>
+            <div class="frame-demos">
+                <div class="frame-demo active" data-demo="register">
 
-        <div class="demo-panel" data-tab="1">
-            <div class="demo-info">
-                <span class="section-label">PHASE 01 — PRE-RACE DIGITAL STOREFRONT</span>
-                <h2>Bespoke Web &amp; 3D Course Cartography</h2>
-                <p class="demo-subtitle">We build your custom event website, embed high-performance 3D course maps, and handle registration flows so runners arrive prepared and excited.</p>
-                <div class="demo-bullets">
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>White-Labeled Web Portal</strong><br>Custom domain hosting, mobile-first design, schedule lookups, and seamless registration platform integration.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Native WebGL 3D Cartography</strong><br>Smooth 60fps 3D terrain fly-throughs with interactive elevation profiles, surface type toggles, and milestone waypoints.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Print &amp; Safety Maps for SAR</strong><br>Auto-generated high-resolution vector topographic maps for safety briefings, permit applications, and Search &amp; Rescue teams.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Relay &amp; Logistics Planning</strong><br>Crew access maps, driving directions to exchange points, and drop-bag rules built directly into the interactive route profile.</div>
-                    </div>
-                </div>
-            </div>
-            <div class="demo-view">
-                <div class="map-toolbar">
-                    <button class="map-tool-btn" id="register-btn">Register Now <span class="cap-count">(Cap: 300 / 42 Left)</span></button>
-                    <div class="map-tool-divider"></div>
-                    <button class="map-tool-btn">Export GPX</button>
-                    <button class="map-tool-btn">PDF Topo</button>
-                    <button class="map-tool-btn">Spectator Info</button>
-                </div>
-                <div class="map-stage" id="mesh-map-container">
-                    <div id="mesh-map"></div>
-                    <div class="map-legend" id="map-legend">
-                        <span class="dot green"></span> Aid Station<br>
-                        <span class="dot red"></span> Mesh Checkpoint<br>
-                        <span class="dot blue"></span> Start / Finish
-                    </div>
-                </div>
-                <div class="demo-dock" id="elevation-dock">
-                    <div class="dock-header">
-                        <span class="dock-label">ELEVATION PROFILE</span>
-                        <span class="dock-stats">Total Gain: 8,420' &middot; Max: 11,020' &middot; Grade: 14%</span>
-                    </div>
-                    <div class="dock-chart" id="elevation-chart"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="demo-panel" data-tab="2">
-            <div class="demo-info">
-                <span class="section-label">PHASE 02 — RACE DAY TELEMETRY &amp; SAFETY</span>
-                <h2>Backcountry Tracking &amp; Zero-Latency Ingestion</h2>
-                <p class="demo-subtitle">We deploy self-healing radio mesh gateways and lightweight RFID mats across cell-dead zones — giving you frequent intermediate splits, live spectator tracking, and automated safety alerts.</p>
-                <div class="demo-bullets">
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Deployable LoRa Mesh Network</strong><br>Battery-powered radio relays dropped every 2–3 miles in backcountry gaps to eliminate 10-mile dark zones without relying on cell towers or HAM operators.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>High-Density Intermediate Checkpoints</strong><br>Low-cost, lightweight RFID sensors and radio nodes placed between major aid stations so split updates drop every few miles instead of every few hours.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Automated Safety &amp; Stalled-Runner Alerts</strong><br>Automatic system pings if an athlete's split is overdue between nodes, giving Race Directors and SAR teams immediate last-known-location data.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Offline Local Storage Buffer</strong><br>Dual-frequency RFID mats store all chip passes locally and auto-sync to the cloud the moment a gateway connects, guaranteeing 100% data retention.</div>
-                    </div>
-                </div>
-            </div>
-            <div class="demo-view">
-                <div class="map-stage" id="live-map-container">
-                    <div id="live-map"></div>
-                    <div class="safety-overlay" id="safety-overlay">
-                        <div class="safety-header">
-                            <span class="safety-dot active"></span> RUNNER STATUS
+                    <div class="signup-layout">
+                        <div class="signup-form">
+                            <h2>Register for Pre's Trail 5k</h2>
+                            <p class="signup-sub">Pre's Trail &middot; Eugene, OR &middot; October 11, 2026 &middot; 8:00 AM</p>
+                            <div class="signup-field">
+                                <label>Full Name</label>
+                                <input type="text" placeholder="e.g. Alex Rivera">
+                            </div>
+                            <div class="signup-field">
+                                <label>Email</label>
+                                <input type="email" placeholder="alex@example.com">
+                            </div>
+                            <div class="signup-row">
+                                <div class="signup-field">
+                                    <label>Gender</label>
+                                    <select><option>Male</option><option>Female</option><option>Non-Binary</option></select>
+                                </div>
+                                <div class="signup-field">
+                                    <label>Age Group</label>
+                                    <select><option>18-29</option><option>30-39</option><option>40-49</option><option>50+</option></select>
+                                </div>
+                            </div>
+                            <div class="signup-field">
+                                <label>Emergency Contact</label>
+                                <input type="text" placeholder="Name &amp; Phone">
+                            </div>
+                            <div class="signup-divider"></div>
+                            <div class="signup-section-label">Payment Details</div>
+                            <div class="signup-field">
+                                <label>Card Number</label>
+                                <input type="text" placeholder="1234 5678 9012 3456">
+                            </div>
+                            <div class="signup-row">
+                                <div class="signup-field">
+                                    <label>Expiry</label>
+                                    <input type="text" placeholder="MM/YY">
+                                </div>
+                                <div class="signup-field">
+                                    <label>CVC</label>
+                                    <input type="text" placeholder="123">
+                                </div>
+                            </div>
+                            <div class="signup-badge">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="9" r="1.5" fill="currentColor"/></svg>
+                                All payments processed securely via Stripe
+                            </div>
+                            <button class="signup-submit">Pay $35 &amp; Register</button>
+                            <p class="signup-note">Registration closes Sep 30 &middot; 120 spots remaining</p>
                         </div>
-                        <div class="safety-legend">
-                            <span><span class="safety-dot moving"></span> Moving</span>
-                            <span><span class="safety-dot aid"></span> In Aid Station</span>
-                            <span><span class="safety-dot stalled"></span> Stalled</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="ingestion-bar">
-                    <div class="ingestion-stream">
-                        <span class="ingestion-time">06:14:22</span>
-                        <span class="ingestion-event">#42 C. Dauwalter &middot; Checkpoint 4B (Mile 18.2) &middot; Pace: 8:12/mi &middot; Via: LoRa Mesh</span>
-                    </div>
-                    <div class="ingestion-stream">
-                        <span class="ingestion-time">06:12:08</span>
-                        <span class="ingestion-event">#104 A. Honnold &middot; Checkpoint 3A (Mile 12.1) &middot; Pace: 8:34/mi &middot; Via: RFID Mat</span>
-                    </div>
-                    <div class="ingestion-stream">
-                        <span class="ingestion-time">06:09:44</span>
-                        <span class="ingestion-event">#355 K. Jornet &middot; Checkpoint 4B (Mile 18.2) &middot; Pace: 7:55/mi &middot; Via: LoRa Mesh</span>
-                    </div>
-                    <div class="ingestion-bar-footer">
-                        <span class="net-status">Hybrid Ingestion: <span class="net-lora">LoRa Mesh 78%</span> &middot; <span class="net-cell">Cellular 18%</span> &middot; <span class="net-buffer">Local RFID Buffer 4%</span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="demo-panel" data-tab="3">
-            <div class="demo-info">
-                <span class="section-label">PHASE 03 — RESULTS &amp; ATHLETE RETENTION</span>
-                <h2>Instant Official Results &amp; Replay Data</h2>
-                <p class="demo-subtitle">No third-party iframe redirects or spreadsheet cleanup. Chip passes automatically calculate division rankings, personal split analytics, and shareable post-race media under your own domain.</p>
-                <div class="demo-bullets">
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Native Database Ingestion (Zero Redirects)</strong><br>Results live directly on your race website under your custom domain — keeping 100% of spectator traffic on your brand.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Automated Division &amp; Age-Group Sorting</strong><br>Instant calculation of overall standings, gender divisions, age groups, and master categories the second an athlete crosses the finish mat.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Personalized Split Analytics &amp; Replay</strong><br>Runners and coaches get deep pacing analysis across every intermediate backcountry checkpoint to see exactly where time was gained or lost.</div>
-                    </div>
-                    <div class="demo-bullet">
-                        <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
-                        <div><strong>Post-Race Artifacts &amp; Media Sync</strong><br>Automated finisher certificates, shareable result badges, and photo/video timestamp matching powered by RFID split logs.</div>
-                    </div>
-                </div>
-            </div>
-            <div class="demo-view">
-                <div class="results-leaderboard">
-                    <div class="lb-metrics">
-                        <div class="stat"><div class="num">248</div><div class="lbl">Finished</div></div>
-                        <div class="stat"><div class="num">12</div><div class="lbl">Active</div></div>
-                        <div class="stat"><div class="num">14</div><div class="lbl">DNF / Cutoff</div></div>
-                        <div class="stat"><div class="num highlight-stat">Broken</div><div class="lbl">Course Record (-4m 12s)</div></div>
-                    </div>
-                    <div class="lb-filters">
-                        <span class="filter-pill active">Overall</span>
-                        <span class="filter-pill">Men</span>
-                        <span class="filter-pill">Women</span>
-                        <span class="filter-pill">Age 18-29</span>
-                        <span class="filter-pill">Age 30-39</span>
-                        <span class="filter-pill">Age 40-49</span>
-                        <input class="search-box" placeholder="Search bib or name…">
-                    </div>
-                    <div id="lb-scroll">
-                        <table>
-                            <thead>
-                                <tr><th>RK</th><th>BIB</th><th>ATHLETE</th><th>TIME</th><th>PACE</th><th>LAST CP</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td class="rank">1</td><td class="bib">#42</td><td class="name">Smith, Jordan</td><td class="finish">4:12:00</td><td class="pace">7:15/mi</td><td class="cp">Finish</td></tr>
-                                <tr><td class="rank">2</td><td class="bib">#188</td><td class="name">Walmsley, Jim</td><td class="finish">4:15:30</td><td class="pace">7:12/mi</td><td class="cp">Finish</td></tr>
-                                <tr><td class="rank">3</td><td class="bib">#104</td><td class="name">Honnold, Alex</td><td class="finish">4:20:15</td><td class="pace">7:22/mi</td><td class="cp">Finish</td></tr>
-                                <tr><td class="rank">4</td><td class="bib">#355</td><td class="name">Jornet, Kilian</td><td class="finish">4:08:45</td><td class="pace">7:05/mi</td><td class="cp">Finish</td></tr>
-                                <tr><td class="rank">5</td><td class="bib">#77</td><td class="name">Forsberg, Emelie</td><td class="finish">5:10:00</td><td class="pace">9:10/mi</td><td class="cp">Finish</td></tr>
-                                <tr><td class="rank">6</td><td class="bib">#221</td><td class="name">D'Haene, François</td><td class="finish">4:52:00</td><td class="pace">8:28/mi</td><td class="cp">Cardiff Pass</td></tr>
-                                <tr><td class="rank">7</td><td class="bib">#305</td><td class="name">Miller, Zach</td><td class="finish">5:05:00</td><td class="pace">8:55/mi</td><td class="cp">Flagstaff</td></tr>
-                                <tr><td class="rank">8</td><td class="bib">#89</td><td class="name">Bosio, Rory</td><td class="finish">5:45:00</td><td class="pace">10:02/mi</td><td class="cp">Broads Fork</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="athlete-drawer" id="athlete-drawer">
-                    <div class="drawer-header">
-                        <div class="drawer-athlete">
-                            <span class="drawer-avatar">42</span>
-                            <div>
-                                <div class="drawer-name">Jordan Smith <span class="drawer-bib">#42</span></div>
-                                <div class="drawer-meta">4th Overall &middot; M40-49 &middot; Wasatch 100M</div>
+                        <div class="signup-sidebar">
+                            <div class="signup-card">
+                                <div class="signup-price">$35</div>
+                                <div class="signup-price-lbl">Registration Fee</div>
+                                <ul class="signup-perks">
+                                    <li>Chip-timed results</li>
+                                    <li>Custom race bib</li>
+                                    <li>Finisher medal</li>
+                                    <li>Post-race refreshments</li>
+                                    <li>Age-group awards</li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="drawer-time">21:14:08</div>
                     </div>
-                    <div class="drawer-progress">
-                        <div class="drawer-progress-bar"><div class="drawer-progress-fill" style="width:79%"></div></div>
-                        <div class="drawer-progress-labels">
-                            <span>Start</span>
-                            <span class="current">Pfeifferhorn</span>
-                            <span>Finish</span>
+
+                </div>
+                <div class="frame-demo" data-demo="course">
+
+                    <div class="map-stage" id="mesh-map-container-desktop">
+                        <div id="mesh-map-desktop"></div>
+                        <div class="map-legend">
+                            <span class="dot blue"></span> Start / Finish<br>
+                            <span class="dot purple"></span> Parking<br>
+                            <span class="dot yellow"></span> Restrooms
                         </div>
                     </div>
-                    <div class="drawer-splits">
-                        <table class="ra-split-table">
-                            <thead><tr><th>CHECKPOINT</th><th>MI</th><th>SPLIT</th><th>PACE</th><th>DIV RK</th></tr></thead>
-                            <tbody>
-                                <tr class="done"><td>Brighton Lot</td><td>0.0</td><td>—</td><td>—</td><td>—</td></tr>
-                                <tr class="done"><td>Broads Fork</td><td>3.2</td><td>28:10</td><td>8:48/mi</td><td>3rd</td></tr>
-                                <tr class="done"><td>Cardiff Pass</td><td>8.2</td><td>1:12:40</td><td>8:52/mi</td><td>2nd</td></tr>
-                                <tr class="done"><td>Snowbird Tram</td><td>22.0</td><td>3:15:20</td><td>8:53/mi</td><td>2nd</td></tr>
-                                <tr class="current-row"><td>Pfeifferhorn</td><td>28.3</td><td>4:02:10</td><td>8:34/mi</td><td>1st</td></tr>
-                                <tr class="pending"><td>Lone Peak</td><td>31.0</td><td>—</td><td>—</td><td>—</td></tr>
-                                <tr class="pending"><td>Parking Lot</td><td>35.6</td><td>—</td><td>—</td><td>—</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="demo-dock" id="elevation-dock-desktop">
+                        <div class="dock-header">
+                            <span class="dock-label">COURSE</span>
+                            <span class="dock-stats">Distance: 5k &middot; Surface: Bark chip &middot; Mostly flat</span>
+                        </div>
+                        <div class="dock-chart" id="elevation-chart-desktop"></div>
                     </div>
-                    <div class="drawer-badge">
-                        <span>Wasatch 100M &middot; 21:14:08 &middot; 4th Overall</span>
-                        <button class="badge-share">Share Finisher Card</button>
+
+                </div>
+                <div class="frame-demo" data-demo="results">
+
+                    <div class="results-leaderboard leaderboard-card">
+                        <div class="lb-metrics">
+                            <div class="stat"><div class="num">156</div><div class="lbl">Finished</div></div>
+                            <div class="stat"><div class="num">18:24</div><div class="lbl">Fastest Time</div></div>
+                            <div class="stat"><div class="num">32:10</div><div class="lbl">Median Time</div></div>
+                        </div>
+                        <div class="lb-filters">
+                            <span class="filter-pill active" data-filter="overall">Overall</span>
+                            <span class="filter-pill" data-filter="men">Men</span>
+                            <span class="filter-pill" data-filter="women">Women</span>
+                            <span class="filter-pill" data-filter="18-29">18-29</span>
+                            <span class="filter-pill" data-filter="30-39">30-39</span>
+                            <span class="filter-pill" data-filter="40-49">40-49</span>
+                            <span class="filter-pill" data-filter="50+">50+</span>
+                            <input class="search-box" placeholder="Search bib or name…">
+                        </div>
+                        <div class="lb-scroll">
+                            <table>
+                                <thead>
+                                    <tr><th>RK</th><th>BIB</th><th>ATHLETE</th><th>DIV</th><th>TIME</th><th>PACE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="rank">1</td><td class="bib">#101</td><td class="name">Martinez, Carlos</td><td class="div">M30-39</td><td class="finish">18:24</td><td class="pace">5:56/mi</td></tr>
+                                    <tr><td class="rank">2</td><td class="bib">#204</td><td class="name">Thompson, Sarah</td><td class="div">F25-29</td><td class="finish">19:12</td><td class="pace">6:11/mi</td></tr>
+                                    <tr><td class="rank">3</td><td class="bib">#307</td><td class="name">Wilson, James</td><td class="div">M40-49</td><td class="finish">19:48</td><td class="pace">6:23/mi</td></tr>
+                                    <tr><td class="rank">4</td><td class="bib">#112</td><td class="name">Patel, Anika</td><td class="div">F30-39</td><td class="finish">20:05</td><td class="pace">6:29/mi</td></tr>
+                                    <tr><td class="rank">5</td><td class="bib">#425</td><td class="name">O'Brien, Liam</td><td class="div">M25-29</td><td class="finish">20:33</td><td class="pace">6:38/mi</td></tr>
+                                    <tr><td class="rank">6</td><td class="bib">#089</td><td class="name">Chang, Emily</td><td class="div">F30-39</td><td class="finish">21:02</td><td class="pace">6:47/mi</td></tr>
+                                    <tr><td class="rank">7</td><td class="bib">#156</td><td class="name">Rodriguez, Miguel</td><td class="div">M18-29</td><td class="finish">21:44</td><td class="pace">7:01/mi</td></tr>
+                                    <tr><td class="rank">8</td><td class="bib">#233</td><td class="name">Washington, Keisha</td><td class="div">F40-49</td><td class="finish">22:10</td><td class="pace">7:09/mi</td></tr>
+                                    <tr><td class="rank">9</td><td class="bib">#378</td><td class="name">Baker, Sam</td><td class="div">M30-39</td><td class="finish">22:48</td><td class="pace">7:21/mi</td></tr>
+                                    <tr><td class="rank">10</td><td class="bib">#045</td><td class="name">Kim, Soo-Jin</td><td class="div">F50+</td><td class="finish">23:15</td><td class="pace">7:30/mi</td></tr>
+                                    <tr><td class="rank">11</td><td class="bib">#501</td><td class="name">Hernandez, David</td><td class="div">M40-49</td><td class="finish">24:02</td><td class="pace">7:45/mi</td></tr>
+                                    <tr><td class="rank">12</td><td class="bib">#167</td><td class="name">Garcia, Maria</td><td class="div">F25-29</td><td class="finish">24:38</td><td class="pace">7:57/mi</td></tr>
+                                    <tr><td class="rank">13</td><td class="bib">#292</td><td class="name">Taylor, Ryan</td><td class="div">M30-39</td><td class="finish">25:14</td><td class="pace">8:08/mi</td></tr>
+                                    <tr><td class="rank">14</td><td class="bib">#330</td><td class="name">Nakamura, Yuki</td><td class="div">F18-29</td><td class="finish">25:50</td><td class="pace">8:20/mi</td></tr>
+                                    <tr><td class="rank">15</td><td class="bib">#118</td><td class="name">Collins, Brendan</td><td class="div">M50+</td><td class="finish">26:32</td><td class="pace">8:34/mi</td></tr>
+                                    <tr><td class="rank">16</td><td class="bib">#276</td><td class="name">Davis, Jasmine</td><td class="div">F30-39</td><td class="finish">27:18</td><td class="pace">8:48/mi</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+
                 </div>
             </div>
+        </div>
+
         </div>
 
     </div>
 
-    <section class="pillars">
-        <div class="pillar-card">
-            <div class="pillar-icon">
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <g transform="translate(4,4)">
-                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                        <line x1="8" y1="2" x2="8" y2="18"/>
-                        <line x1="16" y1="6" x2="16" y2="22"/>
-                    </g>
-                </svg>
-            </div>
-            <h3>High-Density Split Coverage</h3>
-            <p>HAM radio and standard timing chips only report from major aid stations. We deploy lightweight, weather-proof RFID readers and LoRa mesh relays in deep backcountry sections to give you frequent split updates and continuous safety tracking.</p>
-            <ul>
-                <li>Deployable mini-RFID mats between aid stations</li>
-                <li>LoRa mesh relays over zero-connectivity terrain</li>
-                <li>Automatic stalled-runner detection</li>
-            </ul>
-        </div>
-        <div class="pillar-card">
-            <div class="pillar-icon">
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                    <circle cx="16" cy="16" r="4" fill="currentColor" stroke="none"/>
-                    <circle class="icon-radar-pulse" cx="16" cy="16" r="4" stroke-width="1" fill="none"/>
-                </svg>
-            </div>
-            <h3>Backcountry Live Tracking</h3>
-            <p>Redundant tracking where cell service fails. LoRa mesh nodes at deep split points combine with satellite and cellular into a single live feed with real-time telemetry.</p>
-            <ul>
-                <li>Custom long-range LoRa mesh network deployment</li>
-                <li>Hybrid ingest: cellular + satellite + RF</li>
-                <li>Safety dashboard with stalled-runner alerts</li>
-            </ul>
-        </div>
-        <div class="pillar-card">
-            <div class="pillar-icon">
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="16" cy="17" r="10"/>
-                    <path d="M13 4h6"/>
-                    <path d="M14.5 4v-1.5h3V4"/>
-                    <line class="icon-stopwatch-hand" x1="16" y1="17" x2="16" y2="9" stroke-width="1.2"/>
-                    <circle cx="16" cy="17" r="1" fill="currentColor" stroke="none"/>
-                    <line x1="16" y1="8" x2="16" y2="9.5" stroke-width="1"/>
-                    <line x1="25" y1="17" x2="23.5" y2="17" stroke-width="1"/>
-                    <line x1="16" y1="26" x2="16" y2="24.5" stroke-width="1"/>
-                    <line x1="7" y1="17" x2="8.5" y2="17" stroke-width="1"/>
-                </svg>
-            </div>
-            <h3>Instant Leaderboards &amp; Results</h3>
-            <p>Clean, modern leaderboards that auto-populate directly from our timing sensors. Automatic division tracking, age-group sorting, and instant results without third-party iframe redirects.</p>
-            <ul>
-                <li>Zero-latency RFID chip pass ingestion</li>
-                <li>Automatic division &amp; age-group ranking</li>
-                <li>Aid station offline PWA backup</li>
-            </ul>
-        </div>
-        <div class="pillar-card">
-            <div class="pillar-icon">
-                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="5" width="26" height="22" rx="2"/>
-                    <line x1="3" y1="10" x2="29" y2="10"/>
-                    <circle cx="6.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
-                    <circle cx="9.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
-                    <circle cx="12.5" cy="7.5" r="0.8" fill="currentColor" stroke="none"/>
-                    <g class="icon-browser-content">
-                        <rect x="5.5" y="12.5" width="9" height="3" rx="0.5" fill="currentColor" opacity="0.15" stroke="none"/>
-                        <rect x="5.5" y="17.5" width="14" height="1.5" rx="0.5" fill="currentColor" opacity="0.1" stroke="none"/>
-                        <rect x="5.5" y="20.5" width="11" height="1.5" rx="0.5" fill="currentColor" opacity="0.1" stroke="none"/>
-                        <rect x="17" y="12.5" width="9.5" height="9.5" rx="1" fill="currentColor" opacity="0.08" stroke="none"/>
-                    </g>
-                </svg>
-            </div>
-            <h3>Unified Web &amp; Hosting</h3>
-            <p>One custom, high-speed website that hosts your registration links, dynamic elevation profiles, interactive maps, and live finish-line results under your own brand.</p>
-            <ul>
-                <li>White-labeled race domain &amp; site</li>
-                <li>Embedded 3D course maps &amp; elevation profiles</li>
-                <li>Mobile-first PWA for fans &amp; participants</li>
-            </ul>
-        </div>
-    </section>
+    <!-- ── Mobile: stacked card layout ── -->
+    <div class="mobile-cards">
 
-    <section class="comparison">
-        <div class="section-label">Traditional vs. Sommet</div>
-        <table>
-            <thead>
-                <tr><th>Operational Capability</th><th>Traditional Vendor Patchwork</th><th>The Sommet Ecosystem</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>Vendor Ownership</td><td>4–6 separate contracts, invoices, and points of contact</td><td>1 unified contract and single point of contact</td></tr>
-                <tr><td>Backcountry Tracking</td><td>10+ mile dark zones between major aid stations</td><td>High-density LoRa mesh nodes deployed every 2–3 miles</td></tr>
-                <tr><td>Split Ingestion</td><td>Clunky external links or iframe embeds with multi-minute delays</td><td>Immediate database sync from RFID mat to live leaderboard</td></tr>
-                <tr><td>Course Maps</td><td>Static PDF embeds or generic third-party widgets</td><td>WebGL 3D interactive course maps synced directly with live timing</td></tr>
-                <tr><td>Accountability</td><td>High risk of finger-pointing when tech fails on race day</td><td>End-to-end telemetry ownership across software and hardware</td></tr>
-            </tbody>
-        </table>
-    </section>
+        <section class="feature-section-mobile" data-section="register">
+            <div class="feature-section-inner">
+                <aside class="feature-info">
+                    <span class="section-label">Website &amp; Registration</span>
+                    <h2>A real race website with registration built in</h2>
+                    <p>No redirect to a third-party checkout page. No "powered by" branding from another platform. Runners sign up on your domain, and their info lives right where your race lives.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>Custom website on your domain</strong><br>Mobile-first, clean, and built for your race. We handle the technical setup.</div>
+                        </div>
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>Registration that stays on your site</strong><br>Built-in checkout through Stripe. No iframes, no redirects to a generic signup page.</div>
+                        </div>
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>Set it and forget it — with a real person to call</strong><br>We don't hand you a dashboard and walk away. If something needs updating, you reach a human, not a ticket system.</div>
+                        </div>
+                    </div>
+                </aside>
+                <div class="feature-visual">
+                    <div class="signup-layout">
+                        <div class="signup-form">
+                            <h2>Register for Pre's Trail 5k</h2>
+                            <p class="signup-sub">Pre's Trail &middot; Eugene, OR &middot; October 11, 2026 &middot; 8:00 AM</p>
+                            <div class="signup-field">
+                                <label>Full Name</label>
+                                <input type="text" placeholder="e.g. Alex Rivera">
+                            </div>
+                            <div class="signup-field">
+                                <label>Email</label>
+                                <input type="email" placeholder="alex@example.com">
+                            </div>
+                            <div class="signup-row">
+                                <div class="signup-field">
+                                    <label>Gender</label>
+                                    <select><option>Male</option><option>Female</option><option>Non-Binary</option></select>
+                                </div>
+                                <div class="signup-field">
+                                    <label>Age Group</label>
+                                    <select><option>18-29</option><option>30-39</option><option>40-49</option><option>50+</option></select>
+                                </div>
+                            </div>
+                            <div class="signup-field">
+                                <label>Emergency Contact</label>
+                                <input type="text" placeholder="Name &amp; Phone">
+                            </div>
+                            <div class="signup-divider"></div>
+                            <div class="signup-section-label">Payment Details</div>
+                            <div class="signup-field">
+                                <label>Card Number</label>
+                                <input type="text" placeholder="1234 5678 9012 3456">
+                            </div>
+                            <div class="signup-row">
+                                <div class="signup-field">
+                                    <label>Expiry</label>
+                                    <input type="text" placeholder="MM/YY">
+                                </div>
+                                <div class="signup-field">
+                                    <label>CVC</label>
+                                    <input type="text" placeholder="123">
+                                </div>
+                            </div>
+                            <div class="signup-badge">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="9" r="1.5" fill="currentColor"/></svg>
+                                All payments processed securely via Stripe
+                            </div>
+                            <button class="signup-submit">Pay $35 &amp; Register</button>
+                            <p class="signup-note">Registration closes Sep 30 &middot; 120 spots remaining</p>
+                        </div>
+                        <div class="signup-sidebar">
+                            <div class="signup-card">
+                                <div class="signup-price">$35</div>
+                                <div class="signup-price-lbl">Registration Fee</div>
+                                <ul class="signup-perks">
+                                    <li>Chip-timed results</li>
+                                    <li>Custom race bib</li>
+                                    <li>Finisher medal</li>
+                                    <li>Post-race refreshments</li>
+                                    <li>Age-group awards</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-section-mobile" data-section="course">
+            <div class="feature-section-inner">
+                <aside class="feature-info">
+                    <span class="section-label">Maps &amp; Race Info</span>
+                    <h2>Your course, your details, one place to find them</h2>
+                    <p>Where to park, where the start line is, where the bathrooms are — all on one page instead of pieced together from three different Facebook posts.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>Interactive course map with the route marked</strong><br>Runners can explore every turn before race day, right from their phone.</div>
+                        </div>
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>Start line, parking, restrooms, and water stops</strong><br>Everything a runner needs to find their way, marked clearly on one map.</div>
+                        </div>
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>One link to share instead of a folder of screenshots</strong><br>Send runners a single URL. Your race info isn't scattered across a dozen different posts.</div>
+                        </div>
+                    </div>
+                </aside>
+                <div class="feature-visual">
+                    <div class="map-stage" id="mesh-map-container-mobile">
+                        <div id="mesh-map-mobile"></div>
+                        <div class="map-legend">
+                            <span class="dot blue"></span> Start / Finish<br>
+                            <span class="dot purple"></span> Parking<br>
+                            <span class="dot yellow"></span> Restrooms
+                        </div>
+                    </div>
+                    <div class="demo-dock" id="elevation-dock-mobile">
+                        <div class="dock-header">
+                            <span class="dock-label">COURSE</span>
+                            <span class="dock-stats">Distance: 5k &middot; Surface: Bark chip &middot; Mostly flat</span>
+                        </div>
+                        <div class="dock-chart" id="elevation-chart-mobile"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-section-mobile" data-section="results">
+            <div class="feature-section-inner">
+                <aside class="feature-info">
+                    <span class="section-label">Timing &amp; Live Results</span>
+                    <h2>Fast, live results on your own site</h2>
+                    <p>Finish times get posted quickly, on your domain, with simple gender and age-group filters. No spreadsheets to clean up, no embeds from a third-party timing site.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>Results on your site, not someone else's</strong><br>Every finisher appears directly on your race website under your domain.</div>
+                        </div>
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>Instant sorting by division and age group</strong><br>Overall, gender, and age-group rankings calculate automatically.</div>
+                        </div>
+                        <div class="feature-bullet">
+                            <span class="bullet-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 8l3 3 5-6"/></svg></span>
+                            <div><strong>Someone is actually watching</strong><br>Your race has a real person on our end monitoring the feed. If something goes wrong, you hear a voice.</div>
+                        </div>
+                    </div>
+                </aside>
+                <div class="feature-visual">
+                    <div class="results-leaderboard leaderboard-card">
+                        <div class="lb-metrics">
+                            <div class="stat"><div class="num">156</div><div class="lbl">Finished</div></div>
+                            <div class="stat"><div class="num">18:24</div><div class="lbl">Fastest Time</div></div>
+                            <div class="stat"><div class="num">32:10</div><div class="lbl">Median Time</div></div>
+                        </div>
+                        <div class="lb-filters">
+                            <span class="filter-pill active" data-filter="overall">Overall</span>
+                            <span class="filter-pill" data-filter="men">Men</span>
+                            <span class="filter-pill" data-filter="women">Women</span>
+                            <span class="filter-pill" data-filter="18-29">18-29</span>
+                            <span class="filter-pill" data-filter="30-39">30-39</span>
+                            <span class="filter-pill" data-filter="40-49">40-49</span>
+                            <span class="filter-pill" data-filter="50+">50+</span>
+                            <input class="search-box" placeholder="Search bib or name…">
+                        </div>
+                        <div class="lb-scroll">
+                            <table>
+                                <thead>
+                                    <tr><th>RK</th><th>BIB</th><th>ATHLETE</th><th>DIV</th><th>TIME</th><th>PACE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="rank">1</td><td class="bib">#101</td><td class="name">Martinez, Carlos</td><td class="div">M30-39</td><td class="finish">18:24</td><td class="pace">5:56/mi</td></tr>
+                                    <tr><td class="rank">2</td><td class="bib">#204</td><td class="name">Thompson, Sarah</td><td class="div">F25-29</td><td class="finish">19:12</td><td class="pace">6:11/mi</td></tr>
+                                    <tr><td class="rank">3</td><td class="bib">#307</td><td class="name">Wilson, James</td><td class="div">M40-49</td><td class="finish">19:48</td><td class="pace">6:23/mi</td></tr>
+                                    <tr><td class="rank">4</td><td class="bib">#112</td><td class="name">Patel, Anika</td><td class="div">F30-39</td><td class="finish">20:05</td><td class="pace">6:29/mi</td></tr>
+                                    <tr><td class="rank">5</td><td class="bib">#425</td><td class="name">O'Brien, Liam</td><td class="div">M25-29</td><td class="finish">20:33</td><td class="pace">6:38/mi</td></tr>
+                                    <tr><td class="rank">6</td><td class="bib">#089</td><td class="name">Chang, Emily</td><td class="div">F30-39</td><td class="finish">21:02</td><td class="pace">6:47/mi</td></tr>
+                                    <tr><td class="rank">7</td><td class="bib">#156</td><td class="name">Rodriguez, Miguel</td><td class="div">M18-29</td><td class="finish">21:44</td><td class="pace">7:01/mi</td></tr>
+                                    <tr><td class="rank">8</td><td class="bib">#233</td><td class="name">Washington, Keisha</td><td class="div">F40-49</td><td class="finish">22:10</td><td class="pace">7:09/mi</td></tr>
+                                    <tr><td class="rank">9</td><td class="bib">#378</td><td class="name">Baker, Sam</td><td class="div">M30-39</td><td class="finish">22:48</td><td class="pace">7:21/mi</td></tr>
+                                    <tr><td class="rank">10</td><td class="bib">#045</td><td class="name">Kim, Soo-Jin</td><td class="div">F50+</td><td class="finish">23:15</td><td class="pace">7:30/mi</td></tr>
+                                    <tr><td class="rank">11</td><td class="bib">#501</td><td class="name">Hernandez, David</td><td class="div">M40-49</td><td class="finish">24:02</td><td class="pace">7:45/mi</td></tr>
+                                    <tr><td class="rank">12</td><td class="bib">#167</td><td class="name">Garcia, Maria</td><td class="div">F25-29</td><td class="finish">24:38</td><td class="pace">7:57/mi</td></tr>
+                                    <tr><td class="rank">13</td><td class="bib">#292</td><td class="name">Taylor, Ryan</td><td class="div">M30-39</td><td class="finish">25:14</td><td class="pace">8:08/mi</td></tr>
+                                    <tr><td class="rank">14</td><td class="bib">#330</td><td class="name">Nakamura, Yuki</td><td class="div">F18-29</td><td class="finish">25:50</td><td class="pace">8:20/mi</td></tr>
+                                    <tr><td class="rank">15</td><td class="bib">#118</td><td class="name">Collins, Brendan</td><td class="div">M50+</td><td class="finish">26:32</td><td class="pace">8:34/mi</td></tr>
+                                    <tr><td class="rank">16</td><td class="bib">#276</td><td class="name">Davis, Jasmine</td><td class="div">F30-39</td><td class="finish">27:18</td><td class="pace">8:48/mi</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
 
     <section class="featured">
         <div class="section-label">Featured Deployment</div>
@@ -362,7 +392,7 @@
                     <span>3D Terrain</span><span>Scrollytelling</span><span>Elevation Profile</span><span>Fly-Through</span>
                 </div>
                 <h2>WURL Course Map</h2>
-                <p>Wasatch Ultimate Ridge Linkup&mdash;a 35.6-mile course through Utah's high country. Real-time elevation profile, animated fly-through, and layered 3D terrain. Built with MapLibre GL, Three.js, and maplibre-contour. A blueprint for the new standard in race visualization.</p>
+                <p>Wasatch Ultimate Ridge Linkup&mdash;a 35.6-mile course through Utah's high country. Real-time elevation profile, animated fly-through, and layered 3D terrain. Built with MapLibre GL and maplibre-contour.</p>
                 <span class="cta">Explore the Interactive Map<svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
             </div>
         </a>
@@ -370,8 +400,8 @@
 
     <section class="cta-banner">
         <div class="cta-banner-inner">
-            <h2>Ready to unify your race?</h2>
-            <p>From course design to finish-line results — one platform, one team, one point of contact.</p>
+            <h2>Ready to bring your race together?</h2>
+            <p>We work one race at a time. That means yours gets our full attention — from the first draft of your site to the last finisher's time. One platform, one team, one point of contact.</p>
             <a href="#" class="cta">Book a Demo<svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
         </div>
     </section>
