@@ -6,7 +6,7 @@
     var demos = document.querySelectorAll('.frame-demo');
     var textBlocks = document.querySelectorAll('.unity-text-block');
     var urlPath = document.getElementById('url-path-desktop');
-    var frameDemos = document.querySelector('.frame-demos');
+    var frameDemos = document.querySelector('.frame-demos-inner');
     if (!frame || !scrollRoom || !demos.length || !urlPath || !frameDemos) return;
 
     var SECT_COUNT = 3;
@@ -57,8 +57,8 @@
 
         var sectProgress = raw - primary;
         var breathe = Math.sin(sectProgress * Math.PI);
-        var scale = 0.997 + breathe * 0.006;
-        var shiftY = (sectProgress - 0.5) * 6;
+        var scale = 1 + breathe * 0.006;
+        var shiftY = breathe * 3;
         frameDemos.style.transform = 'scale(' + scale + ') translateY(' + shiftY + 'px)';
     }
 

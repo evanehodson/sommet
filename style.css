@@ -161,6 +161,12 @@ nav {
     position: relative;
     overflow: hidden;
     min-height: 0;
+    background: #f7f4f0;
+}
+
+.frame-demos-inner {
+    position: absolute;
+    inset: 0;
     transform-origin: center center;
 }
 
@@ -174,6 +180,7 @@ nav {
     overflow: hidden;
 }
 
+.frame-demo-text { display: none; }
 .frame-demo .signup-layout { flex: 1; overflow-y: auto; }
 .frame-demo .map-stage { flex: 1; min-height: 0; }
 .frame-demo .results-leaderboard { height: 100%; }
@@ -854,6 +861,26 @@ footer {
     .browser-chrome { padding: 6px 10px; gap: 8px; }
     .traffic-lights .dot { width: 8px; height: 8px; }
     .url-bar { padding: 4px 8px; font-size: 9px; }
+    .frame-demo-text {
+        display: block;
+        flex-shrink: 0;
+        padding: 20px;
+        border-top: 1px solid rgba(30,27,24,0.06);
+        background: #f7f4f0;
+    }
+    .frame-demo-text h3 {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #1e1b18;
+    }
+    .frame-demo-text p {
+        color: rgba(30,27,24,0.5);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
     .unity-frame .signup-form h2 { font-size: 20px; }
     .unity-frame .signup-sub { font-size: 11px; }
     .unity-frame .signup-field label { font-size: 10px; }
@@ -869,6 +896,9 @@ footer {
     .unity-frame .lb-metrics .stat .lbl { font-size: 8px; }
     .unity-frame .lb-filters .filter-pill { font-size: 9px; padding: 4px 10px; }
     .unity-frame .lb-filters .search-box { font-size: 9px; padding: 5px 10px; min-width: 80px; }
+
+    .unity-frame .results-leaderboard { height: auto; flex: 1; min-height: 0; }
+    .map-stage { min-height: 200px; }
 
     .featured { padding: 0 24px 48px; }
     .featured-body { padding: 20px; }
