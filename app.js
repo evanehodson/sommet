@@ -77,7 +77,7 @@
 
 (function() {
     var container = document.getElementById('mesh-map-desktop');
-    if (!container) return initMobileMap();
+    if (!container) return;
 
     var demSource = new mlcontour.DemSource({
         url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
@@ -259,184 +259,6 @@
         });
     }
 
-    function initMobileMap() {
-        // Fallback: initialize the mobile map container instead
-        var mobileContainer = document.getElementById('mesh-map-mobile');
-        if (!mobileContainer) return;
-
-        var demSource = new mlcontour.DemSource({
-            url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
-            encoding: 'terrarium',
-            maxzoom: 15,
-            worker: true,
-            cacheSize: 100
-        });
-        demSource.setupMaplibre(maplibregl);
-
-        var map = new maplibregl.Map({
-            container: 'mesh-map-mobile',
-            style: {
-                version: 8,
-                glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
-sources: {
-                light: {
-                    type: 'raster',
-                    tiles: ['https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'],
-                        tileSize: 256,
-                        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-                    }
-                },
-                layers: [{ id: 'light', type: 'raster', source: 'light', paint: { 'raster-saturation': 0.6, 'raster-contrast': 0.1 } }]
-            },
-            center: [-123.067, 44.052],
-            zoom: 15,
-            pitch: 0,
-            bearing: 0,
-            attributionControl: false
-        });
-        window.meshMapMobile = map;
-        map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
-
-        var gpxProfile = null;
-        var elevationChart = document.getElementById('elevation-chart-mobile');
-
-        function parseGPX(text) {
-            var doc = new DOMParser().parseFromString(text, 'text/xml');
-            var trkpts = doc.querySelectorAll('trkpt');
-            var coords = [];
-            var profile = [];
-            trkpts.forEach(function(pt) {
-                var lat = parseFloat(pt.getAttribute('lat'));
-                var lon = parseFloat(pt.getAttribute('lon'));
-                if (!isNaN(lat) && !isNaN(lon)) coords.push([lon, lat]);
-                var ele = pt.querySelector('ele');
-                if (ele) {
-                    var e = parseFloat(ele.textContent);
-                    if (!isNaN(e)) profile.push(e * 3.28084);
-                }
-            });
-            if (profile.length === coords.length) gpxProfile = profile;
-            return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } };
-        }
-
-        window.drawElevationMobile = function() {
-            if (!elevationChart || !gpxProfile || gpxProfile.length < 2) return;
-            var w = elevationChart.clientWidth, h = elevationChart.clientHeight;
-            if (w === 0 || h === 0) return;
-            elevationChart.innerHTML = '';
-            var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('width', w);
-            svg.setAttribute('height', h);
-            svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-            var minEle = Math.min.apply(null, gpxProfile);
-            var maxEle = Math.max.apply(null, gpxProfile);
-            var range = maxEle - minEle || 1;
-            var pad = 4;
-            var drawW = w - pad * 2, drawH = h - pad * 2;
-            var pts = gpxProfile.map(function(e, i) {
-                var x = pad + (i / (gpxProfile.length - 1)) * drawW;
-                var y = pad + drawH - ((e - minEle) / range) * drawH;
-                return x + ',' + y;
-            });
-            var polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-            polyline.setAttribute('points', pts.join(' '));
-            polyline.setAttribute('fill', 'none');
-            polyline.setAttribute('stroke', '#FF3B30');
-            polyline.setAttribute('stroke-width', '1.5');
-            polyline.setAttribute('stroke-linejoin', 'round');
-            svg.appendChild(polyline);
-            elevationChart.appendChild(svg);
-        }
-
-        function loadData() {
-            fetch('Pres_Trail.gpx')
-                .then(function(r) { if (!r.ok) throw new Error('GPX failed'); return r.text(); })
-                .then(function(text) {
-                    var trail = parseGPX(text);
-                    if (!map.getSource('trail')) { addTrail(trail); }
-                    window.drawElevationMobile();
-                })
-                .catch(function() {
-                    var pts = [];
-                    var lng = -123.08, lat = 44.052;
-                    for (var i = 0; i < 200; i++) {
-                        lng += 0.0003 + Math.sin(i * 0.2) * 0.0001;
-                        lat += 0.0001 + Math.cos(i * 0.15) * 0.0001;
-                        pts.push([lng, lat]);
-                    }
-                    gpxProfile = pts.map(function() { return 420 + Math.random() * 20; });
-                    if (!map.getSource('trail')) { addTrail({ type: 'Feature', geometry: { type: 'LineString', coordinates: pts } }); }
-                    window.drawElevationMobile();
-                });
-            addNodes();
-        }
-
-        window.addEventListener('resize', function() {
-            if (typeof window.drawElevationMobile === 'function') window.drawElevationMobile();
-        });
-
-        function addTrail(geoJSON) {
-            map.addSource('trail', { type: 'geojson', data: geoJSON });
-            map.addLayer({ id: 'trail-glow', type: 'line', source: 'trail',
-                paint: { 'line-color': '#FF3B30', 'line-width': 5, 'line-opacity': 0.12, 'line-blur': 3 } });
-            map.addLayer({ id: 'trail', type: 'line', source: 'trail',
-                paint: { 'line-color': '#FF3B30', 'line-width': 2, 'line-opacity': 0.7 } });
-            var bounds = new maplibregl.LngLatBounds();
-            geoJSON.geometry.coordinates.forEach(function(c) { bounds.extend(c); });
-            map.fitBounds(bounds, { padding: 60, maxZoom: 16, duration: 0 });
-        }
-
-        function onReady() {
-            if (!map.getSource('trail')) loadData();
-        }
-
-        if (map.loaded()) { onReady(); } else { map.on('load', onReady); }
-
-        function addNodes() {
-            var nodes = [
-                { lat: 44.052, lng: -123.067, label: 'Start / Finish', type: 'start' },
-                { lat: 44.054, lng: -123.074, label: 'Parking', type: 'parking' },
-                { lat: 44.051, lng: -123.060, label: 'Restrooms', type: 'restrooms' }
-            ];
-            var features = nodes.map(function(n) {
-                return { type: 'Feature', geometry: { type: 'Point', coordinates: [n.lng, n.lat] },
-                    properties: { type: n.type, label: n.label } };
-            });
-            map.addSource('nodes', { type: 'geojson', data: { type: 'FeatureCollection', features: features } });
-
-            map.addLayer({ id: 'nodes-start', type: 'circle', source: 'nodes',
-                filter: ['==', ['get', 'type'], 'start'],
-                paint: { 'circle-radius': 8, 'circle-color': 'rgba(100,150,255,0.9)',
-                    'circle-stroke-width': 2, 'circle-stroke-color': 'rgba(255,255,255,0.2)' } });
-            map.addLayer({ id: 'nodes-parking', type: 'circle', source: 'nodes',
-                filter: ['==', ['get', 'type'], 'parking'],
-                paint: { 'circle-radius': 6, 'circle-color': '#9B59B6', 'circle-opacity': 0.8,
-                    'circle-stroke-width': 1.5, 'circle-stroke-color': 'rgba(255,255,255,0.15)' } });
-            map.addLayer({ id: 'nodes-restrooms', type: 'circle', source: 'nodes',
-                filter: ['==', ['get', 'type'], 'restrooms'],
-                paint: { 'circle-radius': 6, 'circle-color': '#FFBD2E', 'circle-opacity': 0.8,
-                    'circle-stroke-width': 1.5, 'circle-stroke-color': 'rgba(255,255,255,0.15)' } });
-
-            function showPopup(e) {
-                if (!e.features || !e.features[0]) return;
-                var p = e.features[0].properties;
-                new maplibregl.Popup({ offset: 16, closeButton: false })
-                    .setLngLat(e.features[0].geometry.coordinates)
-                    .setHTML('<b>' + p.label + '</b>')
-                    .addTo(map);
-            }
-
-            map.on('click', 'nodes-start', showPopup);
-            map.on('click', 'nodes-parking', showPopup);
-            map.on('click', 'nodes-restrooms', showPopup);
-            map.on('mouseenter', 'nodes-start', function() { map.getCanvas().style.cursor = 'pointer'; });
-            map.on('mouseenter', 'nodes-parking', function() { map.getCanvas().style.cursor = 'pointer'; });
-            map.on('mouseenter', 'nodes-restrooms', function() { map.getCanvas().style.cursor = 'pointer'; });
-            map.on('mouseleave', 'nodes-start', function() { map.getCanvas().style.cursor = ''; });
-            map.on('mouseleave', 'nodes-parking', function() { map.getCanvas().style.cursor = ''; });
-            map.on('mouseleave', 'nodes-restrooms', function() { map.getCanvas().style.cursor = ''; });
-        }
-    }
 })();
 
 // ── Leaderboard Interactivity ──────────────────────────
@@ -477,9 +299,6 @@ sources: {
         });
     }
 
-    // Bind both desktop and mobile leaderboards
     var desktopLB = document.querySelector('.desktop-unity .leaderboard-card');
-    var mobileLB = document.querySelector('.mobile-cards .leaderboard-card');
     if (desktopLB) bindLeaderboard(desktopLB);
-    if (mobileLB) bindLeaderboard(mobileLB);
 })();

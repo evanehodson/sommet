@@ -357,85 +357,6 @@ nav {
     color: rgba(30,27,24,0.45);
 }
 
-/* ── Mobile stacked cards layout ── */
-
-.mobile-cards { display: none; }
-
-.feature-section-mobile {
-    max-width: 1100px;
-    margin: 0 auto 60px;
-    padding: 0 40px;
-}
-.feature-section-inner {
-    display: flex;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    overflow: hidden;
-    background: #0d0d14;
-    min-height: 500px;
-}
-
-.feature-info {
-    width: 300px;
-    flex-shrink: 0;
-    padding: 24px 22px;
-    background: rgba(255,255,255,0.015);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-.feature-info .section-label {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #FF3B30;
-    margin-bottom: 0;
-}
-.feature-info h2 {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.3;
-    color: #fff;
-}
-.feature-info > p {
-    font-size: 12px;
-    color: rgba(255,255,255,0.45);
-    line-height: 1.6;
-}
-.feature-bullets {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 4px;
-}
-.feature-bullet {
-    display: flex;
-    gap: 8px;
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-    line-height: 1.5;
-}
-.feature-bullet strong { color: rgba(255,255,255,0.7); font-size: 11px; }
-.bullet-icon {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    margin-top: 1px;
-    color: #28C840;
-}
-.bullet-icon svg { width: 100%; height: 100%; display: block; }
-
-.feature-visual {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
 /* ── Map ── */
 
 .map-stage {
@@ -443,7 +364,7 @@ nav {
     position: relative;
     min-height: 400px;
 }
-#mesh-map-desktop, #mesh-map-mobile {
+#mesh-map-desktop {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -878,23 +799,30 @@ footer {
 /* ── Responsive ── */
 
 @media (max-width: 768px) {
-    .desktop-unity { display: none; }
-    .mobile-cards { display: block; }
-
     nav { padding: 20px 24px; }
     .hero { padding: 48px 24px 24px; }
     .hero h1 { font-size: clamp(28px, 7vw, 40px); }
 
-    .feature-section-mobile { padding: 0 24px; margin-bottom: 40px; }
-    .feature-section-inner { flex-direction: column; min-height: auto; }
-    .feature-info {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-        padding: 18px 18px;
-    }
-    .feature-info h2 { font-size: 16px; }
-    .map-stage { min-height: 300px; }
+    .desktop-unity { padding: 0 16px 60px; }
+    .unity-frame { top: 12px; height: calc(100vh - 24px); border-radius: 8px; }
+    .browser-chrome { padding: 6px 10px; gap: 8px; }
+    .traffic-lights .dot { width: 8px; height: 8px; }
+    .url-bar { padding: 4px 8px; font-size: 9px; }
+    .unity-frame .signup-form h2 { font-size: 20px; }
+    .unity-frame .signup-sub { font-size: 11px; }
+    .unity-frame .signup-field label { font-size: 10px; }
+    .unity-frame .signup-field input,
+    .unity-frame .signup-field select { font-size: 11px; padding: 6px 10px; }
+    .unity-frame .signup-submit { font-size: 13px; padding: 10px 20px; }
+    .unity-frame .signup-card { padding: 14px 16px; }
+    .unity-frame .signup-price { font-size: 28px; }
+    .unity-frame .leaderboard-card { font-size: 10px; }
+    .unity-frame .leaderboard-card thead th { font-size: 8px; padding: 5px 10px; }
+    .unity-frame .leaderboard-card tbody td { font-size: 10px; padding: 5px 10px; }
+    .unity-frame .lb-metrics .stat .num { font-size: 16px; }
+    .unity-frame .lb-metrics .stat .lbl { font-size: 8px; }
+    .unity-frame .lb-filters .filter-pill { font-size: 9px; padding: 4px 10px; }
+    .unity-frame .lb-filters .search-box { font-size: 9px; padding: 5px 10px; min-width: 80px; }
 
     .featured { padding: 0 24px 48px; }
     .featured-body { padding: 20px; }
@@ -912,11 +840,6 @@ footer {
     .lb-filters .search-box { min-width: 100px; }
 }
 
-@media (min-width: 769px) {
-    .mobile-cards { display: none; }
-}
-
 @media (max-width: 640px) {
-    .map-stage { min-height: 220px; }
     .leaderboard-card { height: 340px; }
 }
