@@ -5,12 +5,18 @@
     var scrollRoom = document.getElementById('unity-scroll-room');
     var demos = document.querySelectorAll('.frame-demo');
     var textBlocks = document.querySelectorAll('.unity-text-block');
+    var urlHost = document.getElementById('url-host-desktop');
     var urlPath = document.getElementById('url-path-desktop');
     var frameDemos = document.querySelector('.frame-demos-inner');
+    var lpSlides = document.querySelectorAll('.lp-slide');
+    var galleryDots = document.querySelectorAll('.lp-gallery-dot');
     if (!frame || !scrollRoom || !demos.length || !urlPath || !frameDemos) return;
 
-    var SECT_COUNT = 3;
-    var PATHS = ['/register', '/course', '/results'];
+    var SECT_COUNT = 4;
+    var HOST_BASE = 'yourrace.com';
+    var PATHS = ['', '/register', '/course', '/results'];
+    var SITE_HOSTS = ['ridgeline50k.com', 'cascademarathon.com', 'puddlejumpers.com', 'solsticemile.com'];
+    var GALLERY_MS = 4000;
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
     function smoothstep(t) { return t * t * (3 - 2 * t); }
@@ -26,6 +32,47 @@
         return clamp(scrolled / scrollRange, 0, 1) * (SECT_COUNT - 1);
     }
 
+    var galleryIndex = 0;
+    var galleryTimer = null;
+    var galleryRunning = false;
+    var siteVisible = false;
+
+    function showSlide(i) {
+        galleryIndex = (i + lpSlides.length) % lpSlides.length;
+        lpSlides.forEach(function(s, idx) {
+            s.style.opacity = idx === galleryIndex ? 1 : 0;
+            s.style.pointerEvents = 'none';
+        });
+        galleryDots.forEach(function(d, idx) {
+            d.classList.toggle('active', idx === galleryIndex);
+        });
+        if (siteVisible) {
+            urlHost.textContent = SITE_HOSTS[galleryIndex] || HOST_BASE;
+            urlPath.textContent = '';
+        }
+    }
+
+    function startGallery() {
+        if (galleryRunning || !lpSlides.length) return;
+        galleryRunning = true;
+        galleryTimer = setInterval(function() { showSlide(galleryIndex + 1); }, GALLERY_MS);
+    }
+
+    function stopGallery() {
+        galleryRunning = false;
+        if (galleryTimer) { clearInterval(galleryTimer); galleryTimer = null; }
+    }
+
+    galleryDots.forEach(function(d, idx) {
+        d.addEventListener('click', function() {
+            showSlide(idx);
+            if (galleryRunning) {
+                clearInterval(galleryTimer);
+                galleryTimer = setInterval(function() { showSlide(galleryIndex + 1); }, GALLERY_MS);
+            }
+        });
+    });
+
     var prevRaw = -1;
 
     function update() {
@@ -35,7 +82,7 @@
 
         var primary = 0;
         var maxOp = 0;
-        var opacities = [0, 0, 0];
+        var opacities = [0, 0, 0, 0];
 
         for (var i = 0; i < SECT_COUNT; i++) {
             var t = clamp(1 - Math.abs(i - raw), 0, 1);
@@ -53,10 +100,18 @@
             t.classList.toggle('active', i === primary);
         });
 
-        urlPath.textContent = PATHS[primary] || '';
+        siteVisible = !!lpSlides.length && opacities[0] > 0.01;
+        if (siteVisible) {
+            if (!galleryRunning) { showSlide(galleryIndex); startGallery(); }
+        } else {
+            stopGallery();
+        }
 
-        var sectProgress = raw - primary;
-        var breathe = Math.sin(sectProgress * Math.PI);
+        urlHost.textContent = siteVisible ? (SITE_HOSTS[galleryIndex] || HOST_BASE) : HOST_BASE;
+        urlPath.textContent = siteVisible ? '' : (PATHS[primary] || '');
+
+        var sectionProgress = raw - Math.floor(raw);
+        var breathe = Math.sin(sectionProgress * Math.PI);
         var scale = 1 + breathe * 0.006;
         var shiftY = breathe * 3;
         frameDemos.style.transform = 'scale(' + scale + ') translateY(' + shiftY + 'px)';
