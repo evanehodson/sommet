@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Press Expedition 50</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="menu">
+        <a class="menu-brand" href="#top">Press Expedition</a>
+        <div class="menu-links">
+            <a href="#history">History</a>
+            <a href="#course">Course Info</a>
+            <a class="menu-reg" href="#register">Register</a>
+            <a href="#sponsors">Sponsors</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <header class="hero" id="top">
+        <img class="hero-bg" src="pexels-vanngo-ng-105653827-33874841.jpg" alt="Black and white photograph of a trail crossing high, open mountain terrain">
+        <div class="hero-tint"></div>
+        <div class="hero-tint2"></div>
+        <div class="hero-inner">
+            <p class="hero-kicker">The Seattle Press</p>
+            <h1 class="hero-title">Expedition<span class="hero-title-fill">Fifty</span></h1>
+            <p class="hero-sub">Olympic National Park &mdash; August 8th</p>
+            <div class="hero-actions">
+                <a class="btn" href="#register">Register</a>
+                <span class="hero-price">$185 <b>through June</b></span>
+            </div>
+            <div class="hero-meta">
+                <span>50 MILES</span><span>+7,749&prime;</span><span>18 hour cutoff</span><span>Self-supported</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="map-layout" id="course">
+        <div class="map-stage">
+            <div id="ridge-topo"></div>
+            <div id="ridge-topo-detail"></div>
+            <span class="map-north" aria-hidden="true">
+                <svg viewBox="0 0 9 11" aria-hidden="true"><path d="M4.5 0 L9 11 L4.5 8 L0 11 Z" fill="#161310"/></svg>
+                N
+            </span>
+            <span class="map-coords">47&deg;34&prime;N&ndash;47&deg;58&prime;N &middot; 123&deg;26&prime;W&ndash;123&deg;39&prime;W</span>
+        </div>
+        <section class="field" id="history">
+            <div class="field-figure">
+                <div class="field-figure-head">Course data</div>
+                <div class="field-nums">
+                    <div class="big-num">50<em>Miles, one way</em></div>
+                    <div class="big-num dark-num">7,749&prime;<em>Total gain</em></div>
+                    <div class="big-num">5,018&prime;<em>Press Point, highest</em></div>
+                </div>
+            </div>
+            <div class="field-copy">
+                <h2>The worst piece of country conceivable.</h2>
+                <div class="columns">
+                    <p>In January of 1890 the Press party spent nine days crossing what a modern runner covers in an afternoon &mdash; chest-deep snow, failing rations, and a line no white party had recorded before them. Their diary does not flatter the terrain.</p>
+                    <p>The divide itself sits at 3,667 feet, unremarkable by Cascade standards, but it is the hinge of the whole traverse: everything before it drains toward the Elwha, everything after toward the Quinault. Runners feel the switch underfoot before they see it on a map.</p>
+                    <p>From the 5,018-foot saddle at Press Point to the ravine floor at The Slot, the course keeps the original party&rsquo;s discipline &mdash; no vehicles, no resupply beyond what a crew can walk in, and aid stations set where the old camps stood.</p>
+                    <p>Aid Station 4 sits at the same saddle today, staffed, stocked, and reachable by crew &mdash; the one mercy the modern course grants that the original party never had. Six checkpoints, fifty miles, one daylight.</p>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <footer class="site-foot">
+        <span>Olympic National Park, Washington</span>
+    </footer>
+
+    <script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>

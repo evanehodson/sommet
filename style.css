@@ -194,8 +194,15 @@ nav {
     inset: 0;
     opacity: 0;
     pointer-events: none;
-    overflow-y: auto;
+    overflow: hidden;
     transition: opacity 0.45s ease;
+}
+.lp-site-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: #111;
 }
 .unity-frame .frame-demo[data-demo="site"] { background: transparent; }
 
@@ -231,6 +238,19 @@ nav {
     background: #FF3B30;
     transform: scale(1.2);
 }
+.lp-gallery-play {
+    width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0; border: none; border-radius: 50%;
+    background: transparent; color: rgba(255,255,255,0.7);
+    cursor: pointer; margin-right: 2px;
+    transition: color 0.2s, background 0.2s;
+}
+.lp-gallery-play:hover { color: #fff; background: rgba(255,255,255,0.15); }
+.lp-gallery-play svg { width: 9px; height: 11px; display: block; }
+.lp-gallery-play .ico-play { display: none; }
+.lp-gallery-dots.paused .lp-gallery-play .ico-play { display: block; }
+.lp-gallery-dots.paused .lp-gallery-play .ico-pause { display: none; }
 
 .lp { height: 100%; display: flex; flex-direction: column; }
 .lp-btn {
@@ -239,275 +259,6 @@ nav {
     font-family: 'Inter', sans-serif; transition: background 0.2s;
 }
 
-/* ── Ridgeline 50K — sidebar + elevation strip ── */
-.lp-slide[data-lp="ridge"] { background: #0f281c; color: #e8ddd0; }
-.lp-ridge { flex-direction: row; }
-.lp-ridge-sidebar {
-    width: 140px; flex-shrink: 0;
-    display: flex; flex-direction: column;
-    padding: 20px 16px; gap: 3px;
-    border-right: 1px solid rgba(232,221,208,0.08);
-    background: rgba(0,0,0,0.15);
-}
-.lp-ridge-logo {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 11px; font-weight: 700; color: #d4733a;
-    letter-spacing: 0.04em; margin-bottom: 12px; line-height: 1.2;
-}
-.lp-ridge-stat {
-    display: flex; flex-direction: column; gap: 1px;
-    padding: 6px 0; border-bottom: 1px solid rgba(232,221,208,0.04);
-}
-.lp-ridge-stat:last-child { border-bottom: none; }
-.lp-ridge-mile {
-    font-size: 10px; font-weight: 700; color: #d4733a;
-    letter-spacing: 0.04em;
-}
-.lp-ridge-label {
-    font-size: 8px; color: rgba(232,221,208,0.4);
-    letter-spacing: 0.02em;
-}
-.lp-ridge-notice {
-    margin-top: auto; font-size: 7.5px;
-    color: rgba(232,221,208,0.25); line-height: 1.4;
-    padding-top: 12px; border-top: 1px solid rgba(232,221,208,0.06);
-}
-.lp-ridge-main {
-    flex: 1; display: flex; min-width: 0;
-}
-.lp-ridge-content {
-    flex: 1; display: flex; flex-direction: column;
-    justify-content: center; padding: 32px 28px;
-}
-.lp-ridge-suptitle {
-    font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em;
-    color: #d4733a; font-weight: 600; margin-bottom: 6px;
-}
-.lp-ridge-title {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 36px; font-weight: 800; line-height: 1.0;
-    color: #e8ddd0; margin-bottom: 10px;
-}
-.lp-ridge-desc {
-    font-size: 10px; line-height: 1.6;
-    color: rgba(232,221,208,0.45); margin-bottom: 14px;
-    max-width: 280px;
-}
-.lp-ridge-meta {
-    display: flex; flex-direction: column; gap: 2px;
-    font-size: 9px; color: rgba(232,221,208,0.3); margin-bottom: 18px;
-}
-.lp-ridge .lp-btn { background: #d4733a; color: #0f281c; align-self: flex-start; }
-.lp-ridge .lp-btn:hover { background: #c0652e; }
-.lp-ridge-elevation {
-    width: 44px; flex-shrink: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-    padding: 12px 0 6px; gap: 4px;
-    border-left: 1px solid rgba(232,221,208,0.08);
-    background: rgba(0,0,0,0.1);
-}
-.lp-ridge-chart { width: 20px; height: 220px; flex-shrink: 0; }
-.lp-ridge-elev-labels {
-    display: flex; flex-direction: column; align-items: center;
-    font-size: 7px; color: rgba(232,221,208,0.25); gap: 2px;
-}
-
-/* ── Cascade City Marathon — utility bar + stat strip ── */
-.lp-slide[data-lp="cascade"] { background: #f5f6f8; color: #1a2744; }
-.lp-cascade-util {
-    display: flex; align-items: center; gap: 18px;
-    padding: 6px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em;
-    background: #1a2744; color: rgba(255,255,255,0.35);
-    flex-shrink: 0;
-}
-.lp-cascade-util-right { margin-left: auto; opacity: 0.5; }
-.lp-cascade-nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 20px; border-bottom: 1px solid rgba(26,39,68,0.06);
-    flex-shrink: 0;
-}
-.lp-cascade-logo {
-    font-weight: 800; font-size: 11px; letter-spacing: 0.1em;
-    color: #1a2744;
-}
-.lp-cascade-links { display: flex; gap: 16px; font-size: 9px; }
-.lp-cascade-links span { color: rgba(26,39,68,0.35); cursor: default; }
-.lp-cascade-hero {
-    flex: 1; display: flex; min-height: 0;
-}
-.lp-cascade-text {
-    flex: 1; display: flex; flex-direction: column;
-    justify-content: center; padding: 28px 32px;
-}
-.lp-cascade-suptitle {
-    font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
-    color: rgba(26,39,68,0.3); margin-bottom: 4px;
-}
-.lp-cascade-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 34px; font-weight: 800; line-height: 1.02; letter-spacing: -0.02em;
-    color: #1a2744; margin-bottom: 6px;
-}
-.lp-cascade-presented {
-    font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: rgba(26,39,68,0.25); margin-bottom: 20px;
-}
-.lp-cascade-presented strong { color: #2563eb; font-weight: 700; letter-spacing: 0.12em; }
-.lp-cascade .lp-btn { background: #1a2744; color: #fff; align-self: flex-start; }
-.lp-cascade .lp-btn:hover { background: #0f1a2e; }
-.lp-cascade-photo {
-    width: 180px; flex-shrink: 0; position: relative; overflow: hidden;
-}
-.lp-cascade-photo-inner {
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, #4a6fa5 0%, #2563eb 30%, #1a2744 100%);
-    opacity: 0.15;
-}
-.lp-cascade-stats {
-    display: flex; flex-shrink: 0;
-    border-top: 1px solid rgba(26,39,68,0.06);
-    background: rgba(26,39,68,0.02);
-}
-.lp-cascade-stat {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; padding: 10px 8px; gap: 2px;
-    border-right: 1px solid rgba(26,39,68,0.04);
-}
-.lp-cascade-stat:last-child { border-right: none; }
-.lp-cascade-num {
-    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700;
-    color: #1a2744; letter-spacing: -0.01em;
-}
-.lp-cascade-lbl {
-    font-size: 7px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: rgba(26,39,68,0.25);
-}
-.lp-cascade-sponsors {
-    display: flex; justify-content: center; gap: 24px;
-    padding: 8px 20px; flex-shrink: 0;
-    border-top: 1px solid rgba(26,39,68,0.04);
-    background: rgba(26,39,68,0.01);
-}
-.lp-cascade-sponsors span {
-    font-size: 8px; font-weight: 700; letter-spacing: 0.12em;
-    color: rgba(26,39,68,0.15);
-}
-
-/* ── Puddle Jumpers Fun Run — scattered + polaroids ── */
-.lp-slide[data-lp="puddle"] { background: #fff9e6; color: #2d1b0e; }
-.lp-puddle { position: relative; overflow: hidden; }
-.lp-puddle-nav {
-    position: absolute; inset: 0; z-index: 2;
-    pointer-events: none; overflow: visible;
-}
-.lp-puddle-nav-item {
-    position: absolute; font-size: 11px; font-weight: 600;
-    color: rgba(45,27,14,0.25); pointer-events: auto; cursor: default;
-    white-space: nowrap;
-}
-.lp-puddle-hero {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 40px 32px 20px; text-align: center; position: relative; z-index: 1;
-}
-.lp-puddle-icons { font-size: 32px; margin-bottom: 4px; }
-.lp-puddle-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 36px; font-weight: 800; line-height: 1.0; letter-spacing: -0.01em;
-    color: #2d1b0e; margin-bottom: 4px;
-}
-.lp-puddle-sub {
-    font-size: 14px; color: #e8634a; font-weight: 600; margin-bottom: 2px;
-}
-.lp-puddle-date {
-    font-size: 10px; color: rgba(45,27,14,0.3); margin-bottom: 16px;
-}
-.lp-puddle-btn {
-    position: relative; display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; width: 140px; height: 50px;
-    transition: transform 0.2s;
-}
-.lp-puddle-btn:hover { transform: scale(1.04) rotate(-2deg); }
-.lp-puddle-btn-shape {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    display: block; pointer-events: none;
-}
-.lp-puddle-btn-text {
-    position: relative; z-index: 1;
-    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
-    color: #fff; letter-spacing: 0.02em;
-}
-.lp-puddle-photos {
-    display: flex; gap: 10px; justify-content: center;
-    padding: 0 20px 16px; flex-shrink: 0;
-    overflow-x: auto;
-}
-.lp-puddle-photo { flex-shrink: 0; }
-.lp-polaroid {
-    width: 90px; background: #fff; padding: 5px 5px 10px;
-    border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transform: rotate(var(--r, 0deg));
-}
-.lp-puddle-photo:nth-child(1) .lp-polaroid { --r: -2deg; }
-.lp-puddle-photo:nth-child(2) .lp-polaroid { --r: 3deg; }
-.lp-puddle-photo:nth-child(3) .lp-polaroid { --r: -4deg; }
-.lp-puddle-photo:nth-child(4) .lp-polaroid { --r: 2deg; }
-.lp-polaroid-img {
-    width: 100%; aspect-ratio: 1; border-radius: 1px; margin-bottom: 5px;
-}
-.lp-polaroid span {
-    display: block; font-size: 7px; text-align: center;
-    color: rgba(45,27,14,0.35); letter-spacing: 0.02em;
-}
-
-/* ── Solstice Mile — full-bleed image, no nav ── */
-.lp-slide[data-lp="solstice"] { background: #111; color: #fff; }
-.lp-solstice { position: relative; }
-.lp-solstice-bg {
-    position: absolute; inset: 0; z-index: 0;
-}
-.lp-solstice-img {
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, #e8e4df 0%, #c5beb5 50%, #f0ece6 100%);
-}
-.lp-solstice-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(17,17,17,0.55) 0%, rgba(17,17,17,0.15) 60%, rgba(17,17,17,0.4) 100%);
-}
-.lp-solstice-content {
-    position: relative; z-index: 1;
-    flex: 1; display: flex; flex-direction: column;
-    justify-content: center; align-items: flex-start;
-    padding: 32px;
-}
-.lp-solstice-suptitle {
-    font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em;
-    color: rgba(255,255,255,0.3); margin-bottom: 4px;
-}
-.lp-solstice-title {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 52px; font-weight: 400; line-height: 0.85;
-    color: #fff; margin-bottom: 8px;
-    margin-left: -12px;
-}
-.lp-solstice-date {
-    font-size: 10px; color: rgba(255,255,255,0.3);
-    letter-spacing: 0.06em; margin-bottom: 3px;
-}
-.lp-solstice-tagline {
-    font-size: 10px; color: rgba(255,255,255,0.2);
-    font-style: italic; margin-bottom: 24px;
-}
-.lp-solstice-rsvp {
-    font-size: 11px; color: rgba(255,255,255,0.5);
-    text-decoration: none; letter-spacing: 0.06em;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    padding-bottom: 2px; transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
-}
-.lp-solstice-rsvp:hover {
-    color: #fff; border-bottom-color: rgba(255,255,255,0.4);
-}
 .frame-demo .signup-layout { flex: 1; overflow-y: auto; }
 .frame-demo .map-stage { flex: 1; min-height: 0; }
 .frame-demo .results-leaderboard { height: 100%; }
@@ -1226,23 +977,6 @@ footer {
 
     .unity-frame .results-leaderboard { height: auto; flex: 1; min-height: 0; }
     .map-stage { min-height: 200px; }
-
-    .lp-ridge-sidebar { width: 100px; padding: 14px 10px; }
-    .lp-ridge-title { font-size: 26px; }
-    .lp-ridge-content { padding: 20px 16px; }
-    .lp-ridge-elevation { width: 32px; }
-    .lp-ridge-chart { height: 140px; }
-    .lp-cascade-title { font-size: 26px; }
-    .lp-cascade-text { padding: 20px; }
-    .lp-cascade-photo { width: 100px; }
-    .lp-cascade-util { font-size: 7px; gap: 10px; padding: 4px 14px; }
-    .lp-cascade-stats { flex-wrap: wrap; }
-    .lp-cascade-stat { padding: 6px 4px; min-width: 80px; }
-    .lp-puddle-title { font-size: 28px; }
-    .lp-puddle-hero { padding: 32px 20px 12px; }
-    .lp-polaroid { width: 72px; }
-    .lp-solstice-title { font-size: 36px; margin-left: -8px; }
-    .lp-solstice-content { padding: 20px; }
 
     .featured { padding: 0 24px 48px; }
     .featured-body { padding: 20px; }

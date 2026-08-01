@@ -15,7 +15,7 @@
     var SECT_COUNT = 4;
     var HOST_BASE = 'yourrace.com';
     var PATHS = ['', '/register', '/course', '/results'];
-    var SITE_HOSTS = ['ridgeline50k.com', 'cascademarathon.com', 'puddlejumpers.com', 'solsticemile.com'];
+    var SITE_HOSTS = ['pressexpedition50.com', 'solsticemile.com', 'puddlejumpers.com'];
     var GALLERY_MS = 4000;
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
@@ -36,6 +36,9 @@
     var galleryTimer = null;
     var galleryRunning = false;
     var siteVisible = false;
+    var userPaused = false;
+    var galleryDotsBar = document.querySelector('.lp-gallery-dots');
+    var galleryPlayBtn = document.querySelector('.lp-gallery-play');
 
     function showSlide(i) {
         galleryIndex = (i + lpSlides.length) % lpSlides.length;
@@ -52,16 +55,31 @@
         }
     }
 
-    function startGallery() {
-        if (galleryRunning || !lpSlides.length) return;
-        galleryRunning = true;
-        galleryTimer = setInterval(function() { showSlide(galleryIndex + 1); }, GALLERY_MS);
+    function syncGallery() {
+        if (lpSlides.length && siteVisible && !userPaused) {
+            if (!galleryRunning) {
+                galleryRunning = true;
+                galleryTimer = setInterval(function() { showSlide(galleryIndex + 1); }, GALLERY_MS);
+            }
+        } else if (galleryRunning) {
+            galleryRunning = false;
+            if (galleryTimer) { clearInterval(galleryTimer); galleryTimer = null; }
+        }
     }
 
-    function stopGallery() {
-        galleryRunning = false;
-        if (galleryTimer) { clearInterval(galleryTimer); galleryTimer = null; }
+    function setPlayState() {
+        if (galleryDotsBar) galleryDotsBar.classList.toggle('paused', userPaused);
+        if (galleryPlayBtn) galleryPlayBtn.setAttribute('aria-label', userPaused ? 'Play gallery' : 'Pause gallery');
     }
+
+    if (galleryPlayBtn) {
+        galleryPlayBtn.addEventListener('click', function() {
+            userPaused = !userPaused;
+            setPlayState();
+            syncGallery();
+        });
+    }
+    setPlayState();
 
     galleryDots.forEach(function(d, idx) {
         d.addEventListener('click', function() {
@@ -72,6 +90,8 @@
             }
         });
     });
+
+    showSlide(0);
 
     var prevRaw = -1;
 
@@ -101,11 +121,7 @@
         });
 
         siteVisible = !!lpSlides.length && opacities[0] > 0.01;
-        if (siteVisible) {
-            if (!galleryRunning) { showSlide(galleryIndex); startGallery(); }
-        } else {
-            stopGallery();
-        }
+        syncGallery();
 
         urlHost.textContent = siteVisible ? (SITE_HOSTS[galleryIndex] || HOST_BASE) : HOST_BASE;
         urlPath.textContent = siteVisible ? '' : (PATHS[primary] || '');
@@ -362,3 +378,4 @@
     var desktopLB = document.querySelector('.desktop-unity .leaderboard-card');
     if (desktopLB) bindLeaderboard(desktopLB);
 })();
+
