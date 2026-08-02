@@ -21,10 +21,20 @@
           <mask id="expeditionMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900">
             <text x="720" y="500" text-anchor="middle" class="mask-text">EXPEDITION</text>
           </mask>
+
+          <filter id="expeditionOutline" x="-20%" y="-20%" width="140%" height="140%">
+            <feMorphology in="SourceAlpha" operator="dilate" radius="3" result="expanded" />
+            <feFlood flood-color="#25537E" result="color" />
+            <feComposite in="color" in2="expanded" operator="in" result="outline" />
+            <feComposite in="outline" in2="SourceAlpha" operator="out" />
+          </filter>
         </defs>
+
         <g mask="url(#expeditionMask)">
           <image class="mask-photo" href="pexels-brandie-9391031.jpg" x="0" y="0" width="1440" height="900" preserveAspectRatio="xMidYMid slice"/>
         </g>
+
+        <text x="720" y="500" text-anchor="middle" class="mask-text expedition-filter-text">EXPEDITION</text>
       </svg>
     </div>
     <div class="hero-layer layer-cutout"></div>
@@ -41,8 +51,8 @@
           </mask>
 
           <filter id="singleLineOutline" x="-20%" y="-20%" width="140%" height="140%">
-            <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="expanded" />
-            <feFlood flood-color="#7a6a52" result="color" />
+            <feMorphology in="SourceAlpha" operator="dilate" radius="4" result="expanded" />
+            <feFlood flood-color="#665E42" result="color" />
             <feComposite in="color" in2="expanded" operator="in" result="outline" />
             <feComposite in="outline" in2="SourceAlpha" operator="out" />
           </filter>

@@ -177,7 +177,7 @@
             type: 'vector',
             tiles: [demSource.contourProtocolUrl({
               thresholds: {
-                9:  [100]
+                9:  [80]
               },
               elevationKey: 'ele',
               levelKey: 'level',
@@ -189,7 +189,7 @@
         layers: [
           { id: 'bg', type: 'background', paint: { 'background-color': '#e8e5d8' } },
           { id: 'contours-all', type: 'line', source: 'contourSource', 'source-layer': 'contours',
-            paint: { 'line-color': '#7a6a52', 'line-width': 0.8, 'line-opacity': 0.75 } }
+            paint: { 'line-color': '#948861', 'line-width': 1, 'line-opacity': 1 } }
         ]
       }
     });

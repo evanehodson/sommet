@@ -36,7 +36,6 @@ html, body { background: #000; overflow-x: hidden; }
   height: 100%;
   display: block;
 }
-
 .mask-text {
   font-family: 'Anton', 'Arial Narrow', sans-serif;
   font-weight: 500;
@@ -49,6 +48,9 @@ html, body { background: #000; overflow-x: hidden; }
 }
 .mask-photo {
   transform: translate(50px, 100px) scale(1.2);
+}
+.expedition-filter-text {
+  filter: url(#expeditionOutline);
 }
 
 .layer-cutout {
@@ -82,8 +84,8 @@ html, body { background: #000; overflow-x: hidden; }
   font-weight: 600;
   font-size: 450px;
   line-height: 1;
-  letter-spacing: 0.01em;
-  fill: #fff;
+  letter-spacing: 0.02em;
+  fill: var(--accent);
   text-transform: uppercase;
   transform: translate(250px, 200px);
 }
@@ -95,23 +97,9 @@ html, body { background: #000; overflow-x: hidden; }
   pointer-events: none;
   z-index: 5;
 }
-
-.mask-text-fifty-map {
-  font-family: 'Anton', 'Arial Narrow', sans-serif;
-  font-weight: 600;
-  font-size: 450px;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  fill: #fff;
-  text-transform: uppercase;
-  transform: translate(250px, 200px); /* Keeps your exact preferred placement */
-}
-
 .fifty-filter-text {
-  fill: #7a6a52;
   filter: url(#singleLineOutline);
 }
-
 #fifty-map {
   position: absolute;
   inset: 0;
