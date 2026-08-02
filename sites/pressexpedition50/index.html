@@ -1,152 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Press Expedition 50</title>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Press Expedition 50</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="grain" aria-hidden="true"></div>
-    <div class="scroll-progress" aria-hidden="true"></div>
-
-    <nav class="menu">
-        <a class="menu-brand" href="#top">Press Expedition</a>
-        <div class="menu-links">
-            <a href="#history">History</a>
-            <a href="#course">Course Info</a>
-            <a class="menu-reg" href="#register">Register</a>
-            <a href="#sponsors">Sponsors</a>
-            <a href="#contact">Contact</a>
-        </div>
-    </nav>
-
-    <header class="hero" id="top">
-        <img class="hero-bg" src="pexels-vanngo-ng-105653827-33874841.jpg" alt="Black and white photograph of a trail crossing high, open mountain terrain">
-        <div class="hero-tint"></div>
-        <div class="hero-tint2"></div>
-        <div class="hero-halftone"></div>
-        <div class="hero-inner">
-            <p class="hero-kicker">The Seattle Press</p>
-            <h1 class="hero-title">Expedition<span class="hero-title-fill">Fifty</span></h1>
-            <p class="hero-sub">Olympic National Park &mdash; August 8th</p>
-            <div class="hero-actions">
-                <a class="btn" href="#register">Register</a>
-                <span class="hero-price">$185 <b>through June</b></span>
-            </div>
-            <div class="hero-meta">
-                <span><span class="stat-count" data-to="50">0</span> MILES</span>
-                <span>+<span class="stat-count" data-to="7749">0</span>&prime;</span>
-                <span>18 hour cutoff</span>
-                <span>Self-supported</span>
-            </div>
-        </div>
-    </header>
-
-    <div class="ticker" aria-hidden="true">
-        <div class="ticker-track">
-            <span class="ticker-run"><b>The Seattle Press</b> <i>&#10022;</i> <b>Press Expedition 50</b> <i>&#10022;</i> 50 miles of ridgeline <i>&#10022;</i> 6 checkpoints <i>&#10022;</i> 18-hour cutoff <i>&#10022;</i> Self-supported <i>&#10022;</i> Olympic National Park, August 8th <i>&#10022;</i></span>
-            <span class="ticker-run"><b>The Seattle Press</b> <i>&#10022;</i> <b>Press Expedition 50</b> <i>&#10022;</i> 50 miles of ridgeline <i>&#10022;</i> 6 checkpoints <i>&#10022;</i> 18-hour cutoff <i>&#10022;</i> Self-supported <i>&#10022;</i> Olympic National Park, August 8th <i>&#10022;</i></span>
-            <span class="ticker-run"><b>The Seattle Press</b> <i>&#10022;</i> <b>Press Expedition 50</b> <i>&#10022;</i> 50 miles of ridgeline <i>&#10022;</i> 6 checkpoints <i>&#10022;</i> 18-hour cutoff <i>&#10022;</i> Self-supported <i>&#10022;</i> Olympic National Park, August 8th <i>&#10022;</i></span>
-        </div>
+  <section class="hero">
+    <div class="hero-layer layer-photo"></div>
+    <div class="hero-layer layer-text">
+      <span class="word-expedition">EXPEDITION</span>
+    </div>
+    <div class="hero-layer layer-cutout"></div>
+    <div class="hero-layer layer-fifty">
+      <span class="word-fifty">50</span>
     </div>
 
-    <section class="map-layout" id="course">
-        <div class="map-stage">
-            <div id="ridge-topo"></div>
-            <div id="ridge-topo-detail"></div>
-            <span class="map-north" aria-hidden="true">
-                <svg viewBox="0 0 9 11" aria-hidden="true"><path d="M4.5 0 L9 11 L4.5 8 L0 11 Z" fill="#161310"/></svg>
-                N
-            </span>
-            <span class="map-coords">47&deg;34&prime;N&ndash;47&deg;58&prime;N &middot; 123&deg;26&prime;W&ndash;123&deg;39&prime;W</span>
-        </div>
-        <section class="field" id="history">
-            <div class="field-figure">
-                <div class="field-figure-head">Course data</div>
-                <div class="field-nums">
-                    <div class="big-num">50<em>Miles, one way</em></div>
-                    <div class="big-num dark-num">7,749&prime;<em>Total gain</em></div>
-                    <div class="big-num">5,018&prime;<em>Press Point, highest</em></div>
-                </div>
-            </div>
-            <div class="field-copy">
-                <h2>The worst piece of country conceivable.</h2>
-                <div class="columns">
-                    <p>In January of 1890 the Press party spent nine days crossing what a modern runner covers in an afternoon &mdash; chest-deep snow, failing rations, and a line no white party had recorded before them. Their diary does not flatter the terrain.</p>
-                    <p>The divide itself sits at 3,667 feet, unremarkable by Cascade standards, but it is the hinge of the whole traverse: everything before it drains toward the Elwha, everything after toward the Quinault. Runners feel the switch underfoot before they see it on a map.</p>
-                    <p>From the 5,018-foot saddle at Press Point to the ravine floor at The Slot, the course keeps the original party&rsquo;s discipline &mdash; no vehicles, no resupply beyond what a crew can walk in, and aid stations set where the old camps stood.</p>
-                    <p>Aid Station 4 sits at the same saddle today, staffed, stocked, and reachable by crew &mdash; the one mercy the modern course grants that the original party never had. Six checkpoints, fifty miles, one daylight.</p>
-                </div>
-            </div>
-        </section>
-    </section>
+    <!-- Layer 5 — Volumetric swirling fog -->
+    <div class="hero-layer layer-fog">
+      <canvas class="fog-canvas"></canvas>
+    </div>
 
-    <section class="profile" id="profile">
-        <div class="profile-head">
-            <span class="profile-kicker">Course profile &mdash; drawn from the traverse</span>
-            <span class="profile-range">Press Point 5,018&prime; <i>&#10022;</i> The Slot 864&prime;</span>
-        </div>
-        <div class="profile-chart-wrap">
-            <svg class="profile-chart" viewBox="0 0 1200 340" preserveAspectRatio="none" role="img" aria-label="Elevation profile of the Press Expedition 50 traverse from Press Point at 5,018 feet to The Slot at 864 feet">
-                <defs>
-                    <linearGradient id="profile-fill-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stop-color="#b8461f" stop-opacity="0.22"/>
-                        <stop offset="1" stop-color="#b8461f" stop-opacity="0"/>
-                    </linearGradient>
-                </defs>
-                <g class="profile-grid"></g>
-                <path class="profile-fill" fill="url(#profile-fill-grad)"></path>
-                <path class="profile-line" fill="none" stroke="#b8461f"></path>
-                <g class="profile-cps"></g>
-            </svg>
-            <div class="profile-axis" aria-hidden="true">
-                <span class="profile-axis-max"></span>
-                <span class="profile-axis-min"></span>
-            </div>
-        </div>
-        <ol class="profile-legend">
-            <li><em>01</em><span>Press Point</span><b>MIL 0.0 &middot; 5,018 FT</b></li>
-            <li><em>02</em><span>Drainage Drop</span><b>MIL 8.8 &middot; 1,199 FT</b></li>
-            <li><em>03</em><span>Mid Fork Crossing</span><b>MIL 17.6 &middot; 1,547 FT</b></li>
-            <li><em>04</em><span>Shoulder Camp</span><b>MIL 26.4 &middot; 1,954 FT</b></li>
-            <li><em>05</em><span>Crest Spur</span><b>MIL 35.2 &middot; 3,170 FT</b></li>
-            <li><em>06</em><span>The Slot</span><b>MIL 43.9 &middot; 864 FT</b></li>
-        </ol>
-    </section>
+    <span class="hero-meta hero-meta--tl">47.972°N 123.508°W</span>
+    <span class="hero-meta hero-meta--tr">AUG 8, 2026</span>
+    <span class="hero-meta hero-meta--bl">MILE 50</span>
+    <span class="hero-meta hero-meta--br">OLYMPIC NATIONAL FOREST</span>
+  </section>
 
-    <section class="register" id="register">
-        <div class="register-halftone" aria-hidden="true"></div>
-        <div class="register-inner">
-            <p class="register-kicker">Press Expedition 50 &middot; Olympic National Park &middot; August 8th</p>
-            <h2 class="register-title">Run the <em class="reg-it">paper</em> route.</h2>
-            <p class="register-sub">Fifty miles, six checkpoints, one daylight. Entries close June 30th &mdash; no refunds, no cut corners.</p>
-            <div class="register-actions">
-                <a class="btn btn-ink" href="mailto:info@pressexpedition50.com">Enter now</a>
-                <span class="register-price">$185 through June</span>
-            </div>
-        </div>
-    </section>
+  <div class="content-spacer">
+    <p>Content goes here.</p>
+  </div>
 
-    <section class="sponsors" id="sponsors">
-        <span class="sponsors-label">Sanctioned by</span>
-        <span>Rogue Running Co.</span>
-        <span>Olympic National Park</span>
-        <span>The Seattle Press</span>
-    </section>
-
-    <footer class="site-foot" id="contact">
-        <span>Olympic National Park, Washington</span>
-        <a href="mailto:info@pressexpedition50.com">info@pressexpedition50.com</a>
-        <span>Est. 1890</span>
-    </footer>
-
-    <script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
-    <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
-    <script src="app.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
