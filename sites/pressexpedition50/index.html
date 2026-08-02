@@ -12,13 +12,20 @@
 <body>
 
   <section class="hero">
-    <div class="hero-layer layer-photo"></div>
     <div class="hero-layer layer-text">
-      <span class="word-expedition">EXPEDITION</span>
+      <svg class="text-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <mask id="expeditionMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900">
+            <text x="720" y="500" text-anchor="middle" class="mask-text">EXPEDITION</text>
+          </mask>
+        </defs>
+        <g mask="url(#expeditionMask)">
+          <image class="mask-photo" href="pexels-brandie-9391031.jpg" x="0" y="0" width="1440" height="900" preserveAspectRatio="xMidYMid slice"/>
+        </g>
+      </svg>
     </div>
     <div class="hero-layer layer-cutout"></div>
 
-    <!-- Far fog — behind the "50", less spread out, minimal falloff -->
     <div class="hero-layer layer-fog-far">
       <canvas class="fog-canvas-far"></canvas>
     </div>
@@ -27,15 +34,10 @@
       <span class="word-fifty">50</span>
     </div>
 
-    <!-- Layer 5 — Volumetric swirling fog (foreground) -->
     <div class="hero-layer layer-fog">
       <canvas class="fog-canvas"></canvas>
     </div>
 
-    <span class="hero-meta hero-meta--tl">47.972°N 123.508°W</span>
-    <span class="hero-meta hero-meta--tr">AUG 8, 2026</span>
-    <span class="hero-meta hero-meta--bl">MILE 50</span>
-    <span class="hero-meta hero-meta--br">OLYMPIC NATIONAL FOREST</span>
   </section>
 
   <div class="content-spacer">
