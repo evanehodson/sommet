@@ -1,11 +1,5 @@
 (function () {
-  var canvas = document.querySelector('.fog-canvas');
-  var ctx = canvas.getContext('2d');
-
-  // Low-res render, upscaled by CSS for soft falloff + speed.
-  var W = 360, H = 200;
-  canvas.width = W;
-  canvas.height = H;
+  'use strict';
 
   // ---------- Periodic 3D value noise ----------
   // Periodic in all three axes: tiles seamlessly (fog reaches the
@@ -45,62 +39,101 @@
     return sum;
   }
 
-  // ---------- Tuning ----------
-  var TIME_SPEED    = 0.004;    // base time rate
-  var MORPH_SPEED   = 0.5;      // z-axis morph multiplier (lower = subtler)
-  var DRIFT_SPEED   = 0.0003;   // gentle horizontal translation
-  var RISE_SPEED    = 0.0018;   // upward translation
-  var SWIRL_AMOUNT  = 1.4;      // domain-warp strength
-  var X_STRETCH     = 6.0;      // cells visible horizontally (higher = finer)
-  var Y_STRETCH     = 4.0;      // cells visible vertically (higher = finer)
-  var OCTAVES       = 6;        // noise octaves (higher = more fine detail)
-  var DENSITY_FLOOR = 0.42;     // threshold below which it's transparent
-  var DENSITY_CURVE = 1.8;      // wisp sharpness
-  var MAX_ALPHA     = 200;      // peak fog alpha
-  var ALPHA_GAIN    = 1.0;      // overall visibility
-  var HEIGHT_FALLOFF = 1.6;     // density ramp: 0 at top, 1 at bottom
+  // ---------- Fog factory ----------
+  function createFog(canvas, cfg) {
+    var ctx = canvas.getContext('2d');
+    var W = cfg.W || 360;
+    var H = cfg.H || 200;
+    canvas.width = W;
+    canvas.height = H;
 
-  var t = 0;
-  var img = ctx.createImageData(W, H);
-  var data = img.data;
+    var img = ctx.createImageData(W, H);
+    var data = img.data;
+    var t = 0;
 
-  function frame() {
-    t += TIME_SPEED;
-    var drift = t * DRIFT_SPEED * 900;
-    var rise  = t * RISE_SPEED * 900;
-    var morph = t * MORPH_SPEED;
+    function frame() {
+      t += cfg.TIME_SPEED;
+      var drift = t * cfg.DRIFT_SPEED * 900;
+      var rise  = t * cfg.RISE_SPEED * 900;
+      var morph = t * cfg.MORPH_SPEED;
 
-    for (var y = 0; y < H; y++) {
-      for (var x = 0; x < W; x++) {
-        var px = x / W;
-        var py = y / H;
+      for (var y = 0; y < H; y++) {
+        for (var x = 0; x < W; x++) {
+          var px = x / W;
+          var py = y / H;
 
-        var sx = px * X_STRETCH + drift;
-        var sy = py * Y_STRETCH + rise;
+          var sx = px * cfg.X_STRETCH + drift;
+          var sy = py * cfg.Y_STRETCH + rise;
 
-        var qx = fbm(sx, sy, morph, OCTAVES);
-        var qy = fbm(sx + 5.2, sy + 1.3, morph, OCTAVES);
+          var qx = fbm(sx, sy, morph, cfg.OCTAVES);
+          var qy = fbm(sx + 5.2, sy + 1.3, morph, cfg.OCTAVES);
 
-        var v = fbm(sx + SWIRL_AMOUNT * qx, sy + SWIRL_AMOUNT * qy, morph, OCTAVES);
+          var v = fbm(sx + cfg.SWIRL_AMOUNT * qx, sy + cfg.SWIRL_AMOUNT * qy, morph, cfg.OCTAVES);
 
-        var a = (v - DENSITY_FLOOR) / (1 - DENSITY_FLOOR);
-        a = Math.pow(Math.max(0, a), DENSITY_CURVE);
+          var a = (v - cfg.DENSITY_FLOOR) / (1 - cfg.DENSITY_FLOOR);
+          a = Math.pow(Math.max(0, a), cfg.DENSITY_CURVE);
 
-        // Densest at bottom, fading toward the top.
-        a *= Math.pow(py, HEIGHT_FALLOFF);
+          // Densest at bottom, fading toward the top.
+          a *= Math.pow(py, cfg.HEIGHT_FALLOFF);
 
-        a *= ALPHA_GAIN;
-        a = Math.min(1, a) * MAX_ALPHA;
+          a *= cfg.ALPHA_GAIN;
+          a = Math.min(1, a) * cfg.MAX_ALPHA;
 
-        var i = (y * W + x) * 4;
-        data[i]     = 246;
-        data[i + 1] = 244;
-        data[i + 2] = 237;
-        data[i + 3] = a;
+          var i = (y * W + x) * 4;
+          data[i]     = 246;
+          data[i + 1] = 244;
+          data[i + 2] = 237;
+          data[i + 3] = a;
+        }
       }
+      ctx.putImageData(img, 0, 0);
+      requestAnimationFrame(frame);
     }
-    ctx.putImageData(img, 0, 0);
     requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
+
+  // ---------- Layers ----------
+
+  // Far fog — behind the "50": smaller, more numerous clumps,
+  // less height falloff.
+  var farCanvas = document.querySelector('.fog-canvas-far');
+  if (farCanvas) {
+    createFog(farCanvas, {
+      W: 360, H: 200,
+      TIME_SPEED:    0.004,
+      MORPH_SPEED:   0.4,
+      DRIFT_SPEED:   0.0002,
+      RISE_SPEED:    0.0010,
+      SWIRL_AMOUNT:  1.2,
+      X_STRETCH:     7.0,
+      Y_STRETCH:     5.0,
+      OCTAVES:       5,
+      DENSITY_FLOOR: 0.48,
+      DENSITY_CURVE: 2.0,
+      MAX_ALPHA:     200,
+      ALPHA_GAIN:    1.0,
+      HEIGHT_FALLOFF: 0.6
+    });
+  }
+
+  // Foreground fog — in front of the "50".
+  var fgCanvas = document.querySelector('.fog-canvas');
+  if (fgCanvas) {
+    createFog(fgCanvas, {
+      W: 360, H: 200,
+      TIME_SPEED:    0.004,
+      MORPH_SPEED:   0.5,
+      DRIFT_SPEED:   0.0003,
+      RISE_SPEED:    0.0018,
+      SWIRL_AMOUNT:  1.4,
+      X_STRETCH:     6.0,
+      Y_STRETCH:     4.0,
+      OCTAVES:       6,
+      DENSITY_FLOOR: 0.42,
+      DENSITY_CURVE: 1.8,
+      MAX_ALPHA:     200,
+      ALPHA_GAIN:    1.0,
+      HEIGHT_FALLOFF: 1.6
+    });
+  }
 })();

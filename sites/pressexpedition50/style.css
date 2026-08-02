@@ -76,6 +76,20 @@ html, body { background: #000; overflow-x: hidden; }
   margin-top: 30vh;
 }
 
+/* Far fog — behind the "50" (between cutout z3 and fifty z4).
+   Same z-index as the cutout; sits above it purely by DOM order. */
+.layer-fog-far {
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+.fog-canvas-far {
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: screen;
+  opacity: 1;
+}
+
 /* Layer 5 — Volumetric fog (canvas, procedural, swirling) */
 .layer-fog {
   z-index: 5;
