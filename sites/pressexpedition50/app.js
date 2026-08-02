@@ -137,3 +137,71 @@
     });
   }
 })();
+
+(function () {
+  'use strict';
+
+    async function initFiftyMap() {
+    var res = await fetch('Press_Expedition_Traverse.gpx');
+    var text = await res.text();
+    var xml = new DOMParser().parseFromString(text, 'application/xml');
+
+    var trkpts = Array.from(xml.querySelectorAll('trkpt'));
+    var coords = trkpts.map(function (pt) {
+      return [parseFloat(pt.getAttribute('lon')), parseFloat(pt.getAttribute('lat'))];
+    });
+
+    var lons = coords.map(function (c) { return c[0]; });
+    var lats = coords.map(function (c) { return c[1]; });
+    var bounds = [
+      [Math.min.apply(null, lons), Math.min.apply(null, lats)],
+      [Math.max.apply(null, lons), Math.max.apply(null, lats)]
+    ];
+
+    var demSource = new mlcontour.DemSource({
+      url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+      encoding: 'terrarium',
+      maxzoom: 13,
+      worker: true
+    });
+    demSource.setupMaplibre(maplibregl);
+
+    var map = new maplibregl.Map({
+      container: 'fifty-map',
+      interactive: false,
+      attributionControl: false,
+      style: {
+        version: 8,
+        sources: {
+          contourSource: {
+            type: 'vector',
+            tiles: [demSource.contourProtocolUrl({
+              thresholds: {
+                9:  [100]
+              },
+              elevationKey: 'ele',
+              levelKey: 'level',
+              contourLayer: 'contours'
+            })],
+            maxzoom: 14
+          }
+        },
+        layers: [
+          { id: 'bg', type: 'background', paint: { 'background-color': '#e8e5d8' } },
+          { id: 'contours-all', type: 'line', source: 'contourSource', 'source-layer': 'contours',
+            paint: { 'line-color': '#7a6a52', 'line-width': 0.8, 'line-opacity': 0.75 } }
+        ]
+      }
+    });
+
+    map.on('load', function () {
+      map.fitBounds(bounds, { padding: 40, animate: false });
+    });
+
+    window.addEventListener('resize', function () { map.resize(); });
+  }
+
+  if (document.getElementById('fifty-map')) {
+    initFiftyMap();
+  }
+})();

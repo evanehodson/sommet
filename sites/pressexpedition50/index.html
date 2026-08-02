@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
 </head>
 <body>
 
@@ -31,7 +34,14 @@
     </div>
 
     <div class="hero-layer layer-fifty">
-      <span class="word-fifty">50</span>
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <mask id="fiftyMapMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1440" height="900">
+            <text x="720" y="570" text-anchor="middle" class="mask-text-fifty-map">50</text>
+          </mask>
+        </defs>
+      </svg>
+      <div id="fifty-map"></div>
     </div>
 
     <div class="hero-layer layer-fog">
