@@ -138,25 +138,26 @@
   }
 })();
 
+
 (function () {
   'use strict';
 
-    async function initFiftyMap() {
+  async function initFiftyMap() {
     var res = await fetch('Press_Expedition_Traverse.gpx');
     var text = await res.text();
     var xml = new DOMParser().parseFromString(text, 'application/xml');
 
-    var trkpts = Array.from(xml.querySelectorAll('trkpt'));
-    var coords = trkpts.map(function (pt) {
+    var wpts = Array.from(xml.querySelectorAll('wpt'));
+    var poiCoords = wpts.map(function (pt) {
       return [parseFloat(pt.getAttribute('lon')), parseFloat(pt.getAttribute('lat'))];
     });
 
-    var lons = coords.map(function (c) { return c[0]; });
-    var lats = coords.map(function (c) { return c[1]; });
-    var bounds = [
-      [Math.min.apply(null, lons), Math.min.apply(null, lats)],
-      [Math.max.apply(null, lons), Math.max.apply(null, lats)]
-    ];
+    if (poiCoords.length === 0) {
+      var trkpts = Array.from(xml.querySelectorAll('trkpt'));
+      poiCoords = trkpts.map(function (pt) {
+        return [parseFloat(pt.getAttribute('lon')), parseFloat(pt.getAttribute('lat'))];
+      });
+    }
 
     var demSource = new mlcontour.DemSource({
       url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
@@ -170,6 +171,7 @@
       container: 'fifty-map',
       interactive: false,
       attributionControl: false,
+      fadeDuration: 0, // CRITICAL: Disables layer cross-fading tile transitions
       style: {
         version: 8,
         sources: {
@@ -177,7 +179,7 @@
             type: 'vector',
             tiles: [demSource.contourProtocolUrl({
               thresholds: {
-                9:  [80]
+                10: [200]
               },
               elevationKey: 'ele',
               levelKey: 'level',
@@ -188,14 +190,50 @@
         },
         layers: [
           { id: 'bg', type: 'background', paint: { 'background-color': '#e8e5d8' } },
-          { id: 'contours-all', type: 'line', source: 'contourSource', 'source-layer': 'contours',
-            paint: { 'line-color': '#948861', 'line-width': 1, 'line-opacity': 1 } }
+          { 
+            id: 'contours-all', 
+            type: 'line', 
+            source: 'contourSource', 
+            'source-layer': 'contours',
+            paint: { 
+              'line-color': '#7a6a52', 
+              'line-width': 2, 
+              'line-opacity': 1,
+              'line-dasharray': [15, 1]
+            } 
+          }
         ]
       }
     });
 
     map.on('load', function () {
-      map.fitBounds(bounds, { padding: 40, animate: false });
+      if (poiCoords.length === 0) return;
+
+      var targetIndices = [0, 5, 10];
+      var selectedCoords = targetIndices.map(function (idx) {
+        return poiCoords[idx] || poiCoords[0];
+      });
+
+      var frameCount = 0;
+      var FRAMES_PER_JUMP = 2;
+      var currentIndex = 0;
+
+      function frameLoop() {
+        frameCount++;
+
+        if (frameCount % FRAMES_PER_JUMP === 0) {
+          var targetPoint = selectedCoords[currentIndex];
+          
+          map.setCenter(targetPoint);
+          map.setZoom(10);
+
+          currentIndex = (currentIndex + 1) % selectedCoords.length;
+        }
+
+        requestAnimationFrame(frameLoop);
+      }
+
+      requestAnimationFrame(frameLoop);
     });
 
     window.addEventListener('resize', function () { map.resize(); });
