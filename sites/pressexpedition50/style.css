@@ -15,6 +15,10 @@ html, body { background: #000; overflow-x: hidden; }
   min-height: 600px;
   overflow: hidden;
   background: var(--accent);
+  background-image: var(--photo);
+  background-size: cover;
+  background-position: center 40%;
+  background-repeat: no-repeat;
 }
 
 .hero-layer {
@@ -31,24 +35,16 @@ html, body { background: #000; overflow-x: hidden; }
   justify-content: center;
   pointer-events: none;
 }
-.text-svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.mask-text {
+.word-expedition {
   font-family: 'Anton', 'Arial Narrow', sans-serif;
   font-weight: 500;
-  font-size: 250px;
+  font-size: 320px;
   line-height: 0.82;
   letter-spacing: -0.03em;
-  fill: #fff;
+  color: var(--accent);
   text-transform: uppercase;
-  transform: translate(80px, -150px);
-}
-.mask-photo {
-  transform: translate(50px, 100px) scale(1.2);
+  white-space: nowrap;
+  transform: translate(100px, -250px);
 }
 
 .layer-cutout {
@@ -69,61 +65,13 @@ html, body { background: #000; overflow-x: hidden; }
 .word-fifty {
   font-family: 'Anton', 'Arial Narrow', sans-serif;
   font-weight: 600;
-  font-size: 450px;
+  font-size: 500px;
   line-height: 1;
   letter-spacing: 0.01em;
   color: var(--accent);
   text-transform: uppercase;
   opacity: 1;
-  transform: translate(0px, 50px);
-}
-.mask-text-fifty-map {
-  font-family: 'Anton', 'Arial Narrow', sans-serif;
-  font-weight: 600;
-  font-size: 450px;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  fill: #fff;
-  text-transform: uppercase;
-  transform: translate(250px, 200px);
-}
-.fifty-overlay-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 5;
-}
-
-.mask-text-fifty-map {
-  font-family: 'Anton', 'Arial Narrow', sans-serif;
-  font-weight: 600;
-  font-size: 450px;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  fill: #fff;
-  text-transform: uppercase;
-  transform: translate(250px, 200px); /* Keeps your exact preferred placement */
-}
-
-.fifty-filter-text {
-  fill: #7a6a52;
-  filter: url(#singleLineOutline);
-}
-
-#fifty-map {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  -webkit-mask-image: url(#fiftyMapMask);
-  mask-image: url(#fiftyMapMask);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  background: var(--accent);
+  transform: translate(0px, 150px);
 }
 
 .layer-fog-far {
