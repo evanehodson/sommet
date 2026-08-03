@@ -1,8 +1,7 @@
 :root {
   --photo: url('pexels-brandie-9391031.jpg');
   --cutout: url('pexels-brandie-9391031.png');
-  --ink: #0d0c0a;
-  --accent: #e8e5d8;
+  --accent: #DFE667;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,38 +13,23 @@ html, body { background: #000; overflow-x: hidden; }
   height: 100vh;
   min-height: 600px;
   overflow: hidden;
-  background: var(--accent);
+  background-color: var(--accent);
   background-image: var(--photo);
   background-size: cover;
   background-position: center 40%;
-  background-repeat: no-repeat;
 }
 
 .hero-layer {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center 40%;
-  background-repeat: no-repeat;
 }
-.layer-text {
-  z-index: 2;
+.layer-center {
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
 }
-.word-expedition {
-  font-family: 'Anton', 'Arial Narrow', sans-serif;
-  font-weight: 500;
-  font-size: 320px;
-  line-height: 0.82;
-  letter-spacing: -0.03em;
-  color: var(--accent);
-  text-transform: uppercase;
-  white-space: nowrap;
-  transform: translate(100px, -250px);
-}
+.layer-text { z-index: 2; }
 
 .layer-cutout {
   z-index: 3;
@@ -55,52 +39,38 @@ html, body { background: #000; overflow-x: hidden; }
   pointer-events: none;
 }
 
-.layer-fifty {
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
+.layer-fifty { z-index: 4; }
+
+.word-expedition,
 .word-fifty {
   font-family: 'Anton', 'Arial Narrow', sans-serif;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+}
+.word-expedition {
+  font-weight: 400;
+  font-size: 320px;
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  transform: translate(100px, -250px);
+}
+.word-fifty {
   font-weight: 600;
   font-size: 500px;
   line-height: 1;
   letter-spacing: 0.01em;
-  color: var(--accent);
-  text-transform: uppercase;
-  opacity: 1;
   transform: translate(0px, 150px);
 }
 
-.layer-fog-far {
-  z-index: 3;
-  pointer-events: none;
-  overflow: hidden;
-}
-.fog-canvas-far {
-  width: 100%;
-  height: 100%;
-  mix-blend-mode: screen;
-  opacity: 1;
-}
-
-/* Layer 5 — Volumetric fog (canvas, procedural, swirling) */
-.layer-fog {
-  z-index: 5;
-  pointer-events: none;
-  overflow: hidden;
-}
+.layer-fog-far { z-index: 3; }
+.layer-fog { z-index: 5; }
+.fog-canvas-far,
 .fog-canvas {
   width: 100%;
   height: 100%;
   mix-blend-mode: screen;
-  opacity: 1;
-}
-
-.hero-meta {
-  display: none;
 }
 
 .content-spacer {

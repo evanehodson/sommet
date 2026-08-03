@@ -76,8 +76,7 @@
           // Densest at bottom, fading toward the top.
           a *= Math.pow(py, cfg.HEIGHT_FALLOFF);
 
-          a *= cfg.ALPHA_GAIN;
-          a = Math.min(1, a) * cfg.MAX_ALPHA;
+          a = Math.min(1, a) * (cfg.MAX_ALPHA || 200);
 
           var i = (y * W + x) * 4;
           data[i]     = 246;
@@ -99,7 +98,6 @@
   var farCanvas = document.querySelector('.fog-canvas-far');
   if (farCanvas) {
     createFog(farCanvas, {
-      W: 360, H: 200,
       TIME_SPEED:    0.004,
       MORPH_SPEED:   0.4,
       DRIFT_SPEED:   0.0002,
@@ -110,8 +108,6 @@
       OCTAVES:       5,
       DENSITY_FLOOR: 0.48,
       DENSITY_CURVE: 2.0,
-      MAX_ALPHA:     200,
-      ALPHA_GAIN:    1.0,
       HEIGHT_FALLOFF: 0.6
     });
   }
@@ -120,7 +116,6 @@
   var fgCanvas = document.querySelector('.fog-canvas');
   if (fgCanvas) {
     createFog(fgCanvas, {
-      W: 360, H: 200,
       TIME_SPEED:    0.004,
       MORPH_SPEED:   0.5,
       DRIFT_SPEED:   0.0003,
@@ -131,8 +126,6 @@
       OCTAVES:       6,
       DENSITY_FLOOR: 0.42,
       DENSITY_CURVE: 1.8,
-      MAX_ALPHA:     200,
-      ALPHA_GAIN:    1.0,
       HEIGHT_FALLOFF: 1.6
     });
   }
