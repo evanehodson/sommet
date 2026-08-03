@@ -6,7 +6,7 @@
 <title>Press Expedition 50</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Chivo+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,25 +22,32 @@
     </ul>
   </nav>
 
-  <section class="hero">
-    <div class="hero-layer layer-center layer-text">
-      <span class="word-expedition">EXPEDITION</span>
-    </div>
-    <div class="hero-layer layer-cutout"></div>
+  <div class="hero-stage">
+    <section class="hero">
+      <div class="hero-layer layer-center layer-text">
+        <span class="word-expedition">EXPEDITION</span>
+      </div>
+      <div class="hero-layer layer-cutout"></div>
 
-    <div class="hero-layer layer-fog-far">
-      <canvas class="fog-canvas-far"></canvas>
-    </div>
+      <div class="hero-layer layer-fog-far">
+        <canvas class="fog-canvas-far"></canvas>
+      </div>
 
-    <div class="hero-layer layer-center layer-fifty">
-      <span class="word-fifty">50</span>
-    </div>
+      <div class="hero-layer layer-center layer-fifty">
+        <span class="word-fifty">50</span>
+      </div>
 
-    <div class="hero-layer layer-fog">
-      <canvas class="fog-canvas"></canvas>
-    </div>
+      <div class="hero-layer layer-fog">
+        <canvas class="fog-canvas"></canvas>
+      </div>
+    </section>
 
-  </section>
+    <div class="hero-stat">
+      <div class="hero-stat-title">Olympic National Park</div>
+      <canvas class="hero-dot-matrix"></canvas>
+      <canvas class="hero-dot-matrix-ticker"></canvas>
+    </div>
+  </div>
 
   <div class="content-spacer">
     <p>Content goes here.</p>
