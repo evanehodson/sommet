@@ -1,17 +1,68 @@
 :root {
   --photo: url('pexels-brandie-9391031.jpg');
   --cutout: url('pexels-brandie-9391031.png');
-  --accent: #DFE667;
+  --accent: #C8E582;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: #000; overflow-x: hidden; }
+
+.menu-bar {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 32px;
+  background: #0a0a0a;
+  border-bottom: 1px solid rgba(223, 230, 103, 0.25);
+}
+
+.menu-brand {
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.menu-brand-num {
+  color: #fff;
+}
+
+.menu-links {
+  display: flex;
+  list-style: none;
+  gap: 28px;
+}
+.menu-links li {
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #cfcfcf;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .menu-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .menu-links {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+}
 
 .hero {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
+  container-type: inline-size;
   background-color: var(--accent);
   background-image: var(--photo);
   background-size: cover;
@@ -49,18 +100,18 @@ html, body { background: #000; overflow-x: hidden; }
 }
 .word-expedition {
   font-weight: 400;
-  font-size: 16.67vw;
+  font-size: 16cqw;
   line-height: 0.82;
   letter-spacing: -0.02em;
   white-space: nowrap;
-  transform: translate(5.2vw, -13vw);
+  transform: translate(5cqw, -10cqw);
 }
 .word-fifty {
   font-weight: 600;
-  font-size: 26.04vw;
+  font-size: 30cqw;
   line-height: 1;
   letter-spacing: 0.01em;
-  transform: translate(0vw, 7.8vw);
+  transform: translate(5cqw, 9cqw);
 }
 
 .layer-fog-far { z-index: 3; }
@@ -89,4 +140,12 @@ html, body { background: #000; overflow-x: hidden; }
   max-width: 600px;
   padding: 0 24px;
   line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    width: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
