@@ -151,4 +151,55 @@
     fitMenuLinks();
     window.addEventListener('resize', fitMenuLinks);
   }
+
+  // ---------- Countdown to race day (Aug 8, 9:00 AM PST = 17:00 UTC) ----------
+  var countdownEl = document.querySelector('.countdown-val');
+  if (countdownEl) {
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+    function pad3(n) { return (n < 100 ? '0' : '') + (n < 10 ? '0' : '') + n; }
+    function updateCountdown() {
+      var now = new Date();
+      var y = now.getUTCFullYear();
+      var deadline = new Date(Date.UTC(y, 7, 8, 17, 0, 0));
+      if (now >= deadline) deadline = new Date(Date.UTC(y + 1, 7, 8, 17, 0, 0));
+      var diff = deadline - now;
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor(diff / 3600000) % 24;
+      var m = Math.floor(diff / 60000) % 60;
+      var s = Math.floor(diff / 1000) % 60;
+      countdownEl.textContent = pad3(d) + 'D ' + pad2(h) + ':' + pad2(m) + ':' + pad2(s);
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+
+  // ---------- Scroll parallax: inverse, back layers move more ----------
+  // The "50" is grouped with the stats/register block (static), so it does
+  // not parallax. The layers behind it (cutout, then expedition) carry the
+  // motion instead, rising on scroll — stronger as the z-index is lower.
+  // The background photo never moves.
+  var heroEl = document.querySelector('.hero');
+  var cutEl = document.querySelector('.layer-cutout');
+  var expEl = document.querySelector('.layer-text');
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (heroEl && !reduced) {
+    var AMT_CUT = 34, AMT_EXP = 52;
+    var ticking = false;
+
+    function applyParallax() {
+      ticking = false;
+      var p = Math.max(0, Math.min(1, window.pageYOffset / window.innerHeight));
+      if (cutEl) cutEl.style.transform = 'translateY(' + (-(p * AMT_CUT)) + 'px)';
+      if (expEl) expEl.style.transform = 'translateY(' + (-(p * AMT_EXP)) + 'px)';
+    }
+
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(applyParallax); }
+    }
+
+    applyParallax();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+  }
 })();
