@@ -1,0 +1,192 @@
+/* Solstice Mile — bento-box mosaic hero */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background: #111;
+    color: #fff;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+.lp { height: 100%; display: flex; flex-direction: column; }
+.lp-solstice { position: relative; height: 100%; }
+.lp-solstice-bg {
+    position: absolute; inset: 0; z-index: 0;
+}
+.lp-solstice-img {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #e8e4df 0%, #c5beb5 50%, #f0ece6 100%);
+}
+.lp-solstice-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(17,17,17,0.55) 0%, rgba(17,17,17,0.15) 60%, rgba(17,17,17,0.4) 100%);
+}
+
+/* ── Mosaic squares ─────────────────────────────────── */
+.lp-solstice-squares {
+    position: absolute; inset: 0; z-index: 1;
+    overflow: hidden;
+    background: #1c1619;
+}
+.lp-solstice-squares.is-built {}
+
+@keyframes sq-in {
+    from { opacity: 0; transform: translate(-12px, -12px) scale(0.95); }
+    to   { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+.sq {
+    position: absolute;
+    box-sizing: border-box;
+    overflow: hidden;
+    opacity: 0;
+    animation: sq-in 0.5s ease both;
+}
+.sq.paper { background: #F0EEE9; }
+.sq.orange { background: #ff582d; }
+.sq.purple { background: #685BC7; }
+.sq.black { background: #3a3533; }
+
+/* ── Title tile ─────────────────────────────────────── */
+.tile-title {
+    position: absolute;
+    top: 0; left: 0;
+    padding: 0;
+    font-family: 'BBH Bartle', cursive;
+    font-weight: 400;
+    line-height: 0.85;
+    color: #fff;
+    text-align: left;
+    pointer-events: none;
+    font-size: clamp(28px, 6vw, 72px);
+}
+
+/* ── Menu tile ──────────────────────────────────────── */
+.tile-menu {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 clamp(8px, 1.5vw, 20px);
+}
+.tile-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.tile-menu a {
+    font-family: 'BBH Bartle', cursive;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: clamp(12px, 1.6vw, 20px);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+.tile-menu a:hover {
+    color: #fff;
+}
+
+/* Landscape tile: horizontal bar */
+.tile-menu.tile-landscape ul {
+    display: flex;
+    flex-direction: row;
+    gap: clamp(12px, 2.5vw, 32px);
+}
+
+/* Portrait tile: vertical stacked list */
+.tile-menu.tile-portrait ul {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.5vh, 18px);
+    align-items: flex-start;
+}
+
+/* ── CTA tiles — real 3D cube flip ──────────────────── */
+.sq[data-role="cta"] {
+    perspective: 800px;
+    cursor: pointer;
+    background: transparent;
+}
+.tile-cta-inner {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sq[data-role="cta"]:hover .tile-cta-inner {
+    transform: rotateY(-90deg);
+}
+.cube-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+}
+.cube-front {
+    background: #3a3533;
+    transform: translateZ(var(--half-w));
+}
+.cube-back {
+    background: #3a3533;
+    transform: rotateY(180deg) translateZ(var(--half-w));
+}
+.cube-right {
+    background: #ff582d;
+    transform: rotateY(90deg) translateZ(var(--half-w));
+}
+.cube-left {
+    background: #3a3533;
+    transform: rotateY(-90deg) translateZ(var(--half-w));
+}
+.cube-text {
+    font-family: 'BBH Bartle', cursive;
+    font-size: clamp(14px, 1.8vw, 22px);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* ── Legacy content styles (unused but kept) ────────── */
+.lp-solstice-content {
+    position: relative; z-index: 1;
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 32px;
+}
+.lp-solstice-suptitle {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.3); margin-bottom: 4px;
+}
+.lp-solstice-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 52px; font-weight: 400; line-height: 0.85;
+    color: #fff; margin-bottom: 8px;
+    margin-left: -12px;
+}
+.lp-solstice-date {
+    font-size: 10px; color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em; margin-bottom: 3px;
+}
+.lp-solstice-tagline {
+    font-size: 10px; color: rgba(255,255,255,0.2);
+    font-style: italic; margin-bottom: 24px;
+}
+.lp-solstice-rsvp {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    text-decoration: none; letter-spacing: 0.06em;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding-bottom: 2px; transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+.lp-solstice-rsvp:hover {
+    color: #fff; border-bottom-color: rgba(255,255,255,0.4);
+}

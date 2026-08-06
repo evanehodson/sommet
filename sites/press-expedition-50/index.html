@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Press Expedition 50</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Chivo+Mono:wght@400;500&family=Old+Standard+TT:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+<link rel="stylesheet" href="index.css">
+<script src="config.js"></script>
+</head>
+<body>
+
+  <nav class="menu-bar">
+    <span class="menu-brand">PRESS EXPEDITION <span class="menu-brand-num">50</span></span>
+    <ul class="menu-links">
+      <li>History</li>
+      <li>Course</li>
+      <li>Register</li>
+      <li>Schedule</li>
+      <li>Contact</li>
+    </ul>
+  </nav>
+
+  <div class="hero-stage">
+    <div class="hero-clip">
+      <section class="hero">
+        <div class="hero-layer layer-center layer-text">
+          <span class="word-expedition">EXPEDITION</span>
+        </div>
+        <div class="hero-layer layer-cutout"></div>
+
+        <div class="hero-layer layer-center layer-fifty">
+          <span class="word-fifty">50</span>
+        </div>
+
+        <div class="hero-layer layer-fog">
+          <canvas class="fog-canvas"></canvas>
+        </div>
+      </section>
+
+      <div class="hero-grain"></div>
+    </div>
+
+    <div class="hero-stat">
+      <div class="map-stat">
+        <div class="map-stat-title">Olympic National Park</div>
+        <div class="map-stat-field">
+          <span class="map-stat-key">COORD</span>
+          <span class="map-stat-val">47°58'14"N 123°30'13"W</span>
+        </div>
+        <div class="map-stat-rule"></div>
+        <div class="map-stat-field">
+          <span class="map-stat-key">DIST</span>
+          <span class="map-stat-val">50 MILES</span>
+        </div>
+        <div class="map-stat-rule"></div>
+        <div class="map-stat-field">
+          <span class="map-stat-key">GAIN</span>
+          <span class="map-stat-val">7,749 FT ELEV</span>
+        </div>
+        <div class="map-stat-rule"></div>
+        <div class="map-stat-field">
+          <span class="map-stat-key">DATE</span>
+          <span class="map-stat-val">AUG. 8</span>
+        </div>
+        <div class="map-stat-rule"></div>
+        <div class="map-stat-field">
+          <span class="map-stat-key">COUNTDOWN</span>
+          <span class="map-stat-val countdown-val">000D 00:00:00</span>
+        </div>
+        <div class="map-stat-rule"></div>
+        <div class="map-stat-field">
+          <span class="map-stat-key">SPOTS</span>
+          <span class="map-stat-val">182 / 200</span>
+        </div>
+        <div class="map-stat-rule"></div>
+        <div class="map-stat-field">
+          <span class="map-stat-key">START</span>
+          <span class="map-stat-val">9:00 AM PST</span>
+        </div>
+        <div class="map-stat-rule"></div>
+        <div class="map-stat-field">
+          <span class="map-stat-key">CUTOFF</span>
+          <span class="map-stat-val">18:00:00</span>
+        </div>
+      </div>
+    </div>
+
+    <a class="register-stamp" href="register.html">REGISTER</a>
+  </div>
+
+  <section class="dispatch" id="history">
+    <div class="paper-texture"></div>
+    <div class="paper-grain"></div>
+
+    <header class="masthead">
+      <div class="masthead-rule"></div>
+      <div class="masthead-meta">
+        <span>Vol. V &middot; No. 50</span>
+        <span>Thursday, August 8, 1889</span>
+        <span>Price 5&cent;</span>
+      </div>
+      <h2 class="masthead-title">The Seattle Press</h2>
+      <div class="masthead-loc">Seattle, Wash.</div>
+      <div class="masthead-rule"></div>
+    </header>
+
+    <div class="dispatch-grid">
+      <div class="blurb-col">
+        <p class="blurb"><span class="dropcap">I</span>n 1889, Washington's governor issued an open challenge: cross the Olympic Mountains, a range still unmapped and largely unknown even as the rest of the territory filled in around it. The Seattle Press answered, sponsoring an expedition under James H. Christie, a Scottish-born adventurer. Six men, four dogs, and two mules set out that December, into one of the worst winters on record, racing a rival government expedition scheduled for the following summer.</p>
+
+        <figure class="plate plate-inline">
+          <img src="assets/Seattle_Press_Exploring_Expedition,_Seattle,_Washington,_December_6,_1889_(LAROCHE_20).jpeg" alt="The 1889 Press Expedition party posing with pack animals and equipment in Seattle.">
+          <figcaption>The Press Expedition, Seattle, Dec. 6, 1889. Laroche Collection.</figcaption>
+        </figure>
+
+        <p class="blurb">The route north up the Elwha and south down the Quinault took nearly six months. Both mules died along the way. A dog was killed by an elk. The party misnamed a pass, corrected course, and pressed on through snow that swallowed their equipment and their timeline alike. They reached Aberdeen at two in the morning on May 21, 1890, bearded and behind schedule, having done something no one else had.</p>
+        <p class="blurb">This race retraces a piece of that ground. They took six months. You have 18 hours.</p>
+      </div>
+
+      <div class="plate-col">
+        <div class="map-plate-head">
+          <span>Course Survey</span>
+        </div>
+        <div id="course-map" class="course-map">
+          <div class="north-arrow" aria-hidden="true">
+            <svg width="18" height="26" viewBox="0 0 18 26" fill="none">
+              <path d="M9 0 L16 12 L11.5 12 L11.5 26 L6.5 26 L6.5 12 L2 12 Z" fill="currentColor"/>
+            </svg>
+            <span>N</span>
+          </div>
+        </div>
+        <div class="map-plate-caption">
+          <span>48.8 mi &middot; 515&ndash;5,026 ft</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script src="app.js"></script>
+<script src="course-map.js"></script>
+
+</body>
+</html>

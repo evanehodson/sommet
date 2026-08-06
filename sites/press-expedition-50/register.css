@@ -1,0 +1,201 @@
+/* Registration page — paper & ink, matching the Press Expedition index.css. */
+
+.register-body {
+  background: var(--paper, #f1ecdf);
+  color: var(--ink, #1b1a17);
+  min-height: 100vh;
+}
+
+.register-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 64px 24px 96px;
+}
+
+.register-head {
+  margin-bottom: 40px;
+  border-bottom: 2px solid var(--ink, #1b1a17);
+  padding-bottom: 24px;
+}
+
+.register-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  margin: 0 0 12px;
+}
+
+.register-sub {
+  font-family: 'Old Standard TT', Georgia, serif;
+  font-size: 1.15rem;
+  margin: 0;
+  opacity: 0.85;
+}
+
+.register-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 48px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .register-layout { grid-template-columns: 1fr; }
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 32px;
+}
+
+legend {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 560px) {
+  .field-row { grid-template-columns: 1fr; }
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-family: 'Chivo Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+
+.optional { opacity: 0.55; }
+
+.field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font-family: 'Old Standard TT', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--ink, #1b1a17);
+  background: #faf7ee;
+  border: 1px solid rgba(27, 26, 23, 0.35);
+  border-radius: 2px;
+}
+
+.field input:focus {
+  outline: 2px solid var(--accent, #C8E582);
+  outline-offset: 1px;
+  border-color: var(--ink, #1b1a17);
+}
+
+.waiver {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-family: 'Old Standard TT', Georgia, serif;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+
+.waiver input {
+  margin-top: 4px;
+  accent-color: var(--ink, #1b1a17);
+}
+
+.form-error {
+  font-family: 'Chivo Mono', monospace;
+  font-size: 0.82rem;
+  color: #8b1a1a;
+  background: rgba(139, 26, 26, 0.08);
+  border: 1px solid rgba(139, 26, 26, 0.4);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 2px;
+}
+
+.register-submit {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper, #f1ecdf);
+  background: var(--ink, #1b1a17);
+  border: 2px solid var(--ink, #1b1a17);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.register-submit:hover { background: #000; }
+.register-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.register-note {
+  font-family: 'Old Standard TT', Georgia, serif;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-top: 14px;
+  min-height: 1.2em;
+}
+
+/* ── Sidebar card ── */
+
+.register-card {
+  border: 2px solid var(--ink, #1b1a17);
+  border-radius: 2px;
+  padding: 24px;
+  position: sticky;
+  top: 24px;
+  background: var(--paper, #f1ecdf);
+}
+
+.register-price {
+  font-family: 'Anton', sans-serif;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.register-price-lbl {
+  font-family: 'Chivo Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin: 4px 0 16px;
+}
+
+.register-perks {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.register-perks li {
+  font-family: 'Old Standard TT', Georgia, serif;
+  padding: 8px 0;
+  border-top: 1px solid rgba(27, 26, 23, 0.2);
+}
+
+.register-spots {
+  font-family: 'Chivo Mono', monospace;
+  font-size: 0.82rem;
+  padding-top: 12px;
+  border-top: 2px solid var(--ink, #1b1a17);
+}

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sommet Innovations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/maplibre-contour@0.1.0/dist/index.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <nav>
+        <a href="./" class="logo">Sommet<span>.</span></a>
+    </nav>
+
+    <section class="hero">
+        <h1>One connected engine from <span>registration</span> to <span>results</span>.</h1>
+        <p>Your race website, course maps, and live results — one place, one team, no runaround.</p>
+    </section>
+
+    <!-- ── Desktop: scroll unity layout ── -->
+    <div class="desktop-unity">
+
+        <div class="unity-text" id="unity-text">
+            <div class="unity-text-block active" data-demo="site">
+                <h3>Custom race site</h3>
+                <p>We design and build custom race websites from the ground up, hosted or skinned within your existing CMS. Every site is built to your event's own brand, not assembled from a template.</p>
+            </div>
+            <div class="unity-text-block" data-demo="register">
+                <h3>Seamless registration</h3>
+                <p>We build registration directly into your event's own website, on your own domain, design, and hosting, no subdomain, no embedded iframe, no separate login for runners to find. Other platforms put ads for competing races and insurance upsells on your checkout page while runners are trying to pay you. Payments settle directly to your own Stripe account, with refund and deferral policies fully under your control.</p>
+            </div>
+            <div class="unity-text-block" data-demo="course">
+                <h3>Immersive course maps</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+            <div class="unity-text-block" data-demo="results">
+                <h3>Live race results</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+            </div>
+        </div>
+
+        <div class="unity-scroll-room" id="unity-scroll-room">
+            <div class="unity-frame" id="unity-frame">
+            <div class="browser-chrome">
+                <div class="traffic-lights">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <div class="url-bar">
+                    <span class="url-lock">&#x1F512;</span>
+                    <span class="url-host" id="url-host-desktop">yourrace.com</span>
+                    <span class="url-path" id="url-path-desktop">/sites</span>
+                </div>
+            </div>
+            <div class="frame-demos">
+                <div class="frame-demos-inner">
+                <div class="frame-demo active" data-demo="site">
+                    <div class="lp-slides">
+                        <div class="lp-slide active" data-lp="ridge"><iframe class="lp-site-frame" src="../sites/press-expedition-50/index.html" title="Press Expedition 50" scrolling="no"></iframe></div>
+                        <div class="lp-slide" data-lp="solstice"><iframe class="lp-site-frame" src="../sites/solstice-mile/index.html" title="Solstice Mile" scrolling="no"></iframe></div>
+                        <div class="lp-slide" data-lp="puddle"><iframe class="lp-site-frame" src="../sites/puddlejumpers/index.html" title="Puddle Jumpers" scrolling="no"></iframe></div>
+                        <div class="lp-gallery-dots">
+                            <button class="lp-gallery-play" aria-label="Pause gallery">
+                                <svg class="ico-pause" viewBox="0 0 10 12"><rect x="0.5" y="0.5" width="3.4" height="11" rx="1.2" fill="currentColor"/><rect x="6.1" y="0.5" width="3.4" height="11" rx="1.2" fill="currentColor"/></svg>
+                                <svg class="ico-play" viewBox="0 0 10 12"><path d="M1.5 0.8l8 5.2-8 5.2z" fill="currentColor"/></svg>
+                            </button>
+                            <button class="lp-gallery-dot active" data-lp="ridge" aria-label="Press Expedition 50"></button>
+                            <button class="lp-gallery-dot" data-lp="solstice" aria-label="Solstice Mile"></button>
+                            <button class="lp-gallery-dot" data-lp="puddle" aria-label="Puddle Jumpers"></button>
+                        </div>
+                    </div>
+                    <div class="frame-demo-text">
+                        <h3>Custom race site</h3>
+                        <p>We design and build custom race websites from the ground up, hosted or skinned within your existing CMS. Every site is built to your event's own brand, not assembled from a template.</p>
+                    </div>
+                </div>
+                <div class="frame-demo" data-demo="register">
+
+                    <div class="signup-layout">
+                        <div class="signup-form">
+                            <h2>Register for Pre's Trail 5k</h2>
+                            <p class="signup-sub">Pre's Trail &middot; Eugene, OR &middot; October 11, 2026 &middot; 8:00 AM</p>
+                            <div class="signup-field">
+                                <label>Full Name</label>
+                                <input type="text" placeholder="e.g. Alex Rivera">
+                            </div>
+                            <div class="signup-field">
+                                <label>Email</label>
+                                <input type="email" placeholder="alex@example.com">
+                            </div>
+                            <div class="signup-row">
+                                <div class="signup-field">
+                                    <label>Gender</label>
+                                    <select><option>Male</option><option>Female</option><option>Non-Binary</option></select>
+                                </div>
+                                <div class="signup-field">
+                                    <label>Age Group</label>
+                                    <select><option>18-29</option><option>30-39</option><option>40-49</option><option>50+</option></select>
+                                </div>
+                            </div>
+                            <div class="signup-field">
+                                <label>Emergency Contact</label>
+                                <input type="text" placeholder="Name &amp; Phone">
+                            </div>
+                            <div class="signup-divider"></div>
+                            <div class="signup-section-label">Payment Details</div>
+                            <div class="signup-field">
+                                <label>Card Number</label>
+                                <input type="text" placeholder="1234 5678 9012 3456">
+                            </div>
+                            <div class="signup-row">
+                                <div class="signup-field">
+                                    <label>Expiry</label>
+                                    <input type="text" placeholder="MM/YY">
+                                </div>
+                                <div class="signup-field">
+                                    <label>CVC</label>
+                                    <input type="text" placeholder="123">
+                                </div>
+                            </div>
+                            <div class="signup-badge">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="9" r="1.5" fill="currentColor"/></svg>
+                                All payments processed securely via Stripe
+                            </div>
+                            <button class="signup-submit">Pay $35 &amp; Register</button>
+                            <p class="signup-note">Registration closes Sep 30 &middot; 120 spots remaining</p>
+                        </div>
+                        <div class="signup-sidebar">
+                            <div class="signup-card">
+                                <div class="signup-price">$35</div>
+                                <div class="signup-price-lbl">Registration Fee</div>
+                                <ul class="signup-perks">
+                                    <li>Chip-timed results</li>
+                                    <li>Custom race bib</li>
+                                    <li>Finisher medal</li>
+                                    <li>Post-race refreshments</li>
+                                    <li>Age-group awards</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="frame-demo-text">
+                        <h3>Seamless registration</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                    </div>
+
+                </div>
+                <div class="frame-demo" data-demo="course">
+
+                    <div class="map-stage" id="mesh-map-container-desktop">
+                        <div id="mesh-map-desktop"></div>
+                        <div class="map-legend">
+                            <span class="dot blue"></span> Start / Finish<br>
+                            <span class="dot purple"></span> Parking<br>
+                            <span class="dot yellow"></span> Restrooms
+                        </div>
+                    </div>
+                    <div class="demo-dock" id="elevation-dock-desktop">
+                        <div class="dock-header">
+                            <span class="dock-label">COURSE</span>
+                            <span class="dock-stats">Distance: 5k &middot; Surface: Bark chip &middot; Mostly flat</span>
+                        </div>
+                        <div class="dock-chart" id="elevation-chart-desktop"></div>
+                    </div>
+
+                    <div class="frame-demo-text">
+                        <h3>Immersive course maps</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    </div>
+
+                </div>
+                <div class="frame-demo" data-demo="results">
+
+                    <div class="results-leaderboard leaderboard-card">
+                        <div class="lb-metrics">
+                            <div class="stat"><div class="num">156</div><div class="lbl">Finished</div></div>
+                            <div class="stat"><div class="num">18:24</div><div class="lbl">Fastest Time</div></div>
+                            <div class="stat"><div class="num">32:10</div><div class="lbl">Median Time</div></div>
+                        </div>
+                        <div class="lb-filters">
+                            <span class="filter-pill active" data-filter="overall">Overall</span>
+                            <span class="filter-pill" data-filter="men">Men</span>
+                            <span class="filter-pill" data-filter="women">Women</span>
+                            <span class="filter-pill" data-filter="18-29">18-29</span>
+                            <span class="filter-pill" data-filter="30-39">30-39</span>
+                            <span class="filter-pill" data-filter="40-49">40-49</span>
+                            <span class="filter-pill" data-filter="50+">50+</span>
+                            <input class="search-box" placeholder="Search bib or name…">
+                        </div>
+                        <div class="lb-scroll">
+                            <table>
+                                <thead>
+                                    <tr><th>RK</th><th>BIB</th><th>ATHLETE</th><th>DIV</th><th>TIME</th><th>PACE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="rank">1</td><td class="bib">#101</td><td class="name">Martinez, Carlos</td><td class="div">M30-39</td><td class="finish">18:24</td><td class="pace">5:56/mi</td></tr>
+                                    <tr><td class="rank">2</td><td class="bib">#204</td><td class="name">Thompson, Sarah</td><td class="div">F25-29</td><td class="finish">19:12</td><td class="pace">6:11/mi</td></tr>
+                                    <tr><td class="rank">3</td><td class="bib">#307</td><td class="name">Wilson, James</td><td class="div">M40-49</td><td class="finish">19:48</td><td class="pace">6:23/mi</td></tr>
+                                    <tr><td class="rank">4</td><td class="bib">#112</td><td class="name">Patel, Anika</td><td class="div">F30-39</td><td class="finish">20:05</td><td class="pace">6:29/mi</td></tr>
+                                    <tr><td class="rank">5</td><td class="bib">#425</td><td class="name">O'Brien, Liam</td><td class="div">M25-29</td><td class="finish">20:33</td><td class="pace">6:38/mi</td></tr>
+                                    <tr><td class="rank">6</td><td class="bib">#089</td><td class="name">Chang, Emily</td><td class="div">F30-39</td><td class="finish">21:02</td><td class="pace">6:47/mi</td></tr>
+                                    <tr><td class="rank">7</td><td class="bib">#156</td><td class="name">Rodriguez, Miguel</td><td class="div">M18-29</td><td class="finish">21:44</td><td class="pace">7:01/mi</td></tr>
+                                    <tr><td class="rank">8</td><td class="bib">#233</td><td class="name">Washington, Keisha</td><td class="div">F40-49</td><td class="finish">22:10</td><td class="pace">7:09/mi</td></tr>
+                                    <tr><td class="rank">9</td><td class="bib">#378</td><td class="name">Baker, Sam</td><td class="div">M30-39</td><td class="finish">22:48</td><td class="pace">7:21/mi</td></tr>
+                                    <tr><td class="rank">10</td><td class="bib">#045</td><td class="name">Kim, Soo-Jin</td><td class="div">F50+</td><td class="finish">23:15</td><td class="pace">7:30/mi</td></tr>
+                                    <tr><td class="rank">11</td><td class="bib">#501</td><td class="name">Hernandez, David</td><td class="div">M40-49</td><td class="finish">24:02</td><td class="pace">7:45/mi</td></tr>
+                                    <tr><td class="rank">12</td><td class="bib">#167</td><td class="name">Garcia, Maria</td><td class="div">F25-29</td><td class="finish">24:38</td><td class="pace">7:57/mi</td></tr>
+                                    <tr><td class="rank">13</td><td class="bib">#292</td><td class="name">Taylor, Ryan</td><td class="div">M30-39</td><td class="finish">25:14</td><td class="pace">8:08/mi</td></tr>
+                                    <tr><td class="rank">14</td><td class="bib">#330</td><td class="name">Nakamura, Yuki</td><td class="div">F18-29</td><td class="finish">25:50</td><td class="pace">8:20/mi</td></tr>
+                                    <tr><td class="rank">15</td><td class="bib">#118</td><td class="name">Collins, Brendan</td><td class="div">M50+</td><td class="finish">26:32</td><td class="pace">8:34/mi</td></tr>
+                                    <tr><td class="rank">16</td><td class="bib">#276</td><td class="name">Davis, Jasmine</td><td class="div">F30-39</td><td class="finish">27:18</td><td class="pace">8:48/mi</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="frame-demo-text">
+                        <h3>Live race results</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                    </div>
+
+                </div>
+            </div>
+            </div>
+        </div>
+
+        </div>
+    </div>
+
+    <section class="featured">
+        <div class="section-label">Featured Deployment</div>
+        <a href="../demos/wurl-course-map/" class="featured-card">
+            <div class="featured-preview">
+                <video src="../demos/wurl-course-map/data/wurl-hero.mp4" autoplay muted loop playsinline></video>
+            </div>
+            <div class="featured-body">
+                <div class="featured-tags">
+                    <span>3D Terrain</span><span>Scrollytelling</span><span>Elevation Profile</span><span>Fly-Through</span>
+                </div>
+                <h2>WURL Course Map</h2>
+                <p>Wasatch Ultimate Ridge Linkup&mdash;a 35.6-mile course through Utah's high country. Real-time elevation profile, animated fly-through, and layered 3D terrain. Built with MapLibre GL and maplibre-contour.</p>
+                <span class="cta">Explore the Interactive Map<svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+            </div>
+        </a>
+    </section>
+
+    <section class="cta-banner">
+        <div class="cta-banner-inner">
+            <h2>Ready to bring your race together?</h2>
+            <p>We work one race at a time. That means yours gets our full attention — from the first draft of your site to the last finisher's time. One platform, one team, one point of contact.</p>
+            <a href="#" class="cta">Book a Demo<svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+        </div>
+    </section>
+
+    <footer><span>&copy; 2026 Sommet Innovations</span></footer>
+
+    <script src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — Press Expedition 50</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Chivo+Mono:wght@400;500&family=Old+Standard+TT:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+    <link rel="stylesheet" href="index.css">
+<link rel="stylesheet" href="register.css">
+</head>
+<body class="register-body">
+
+  <nav class="menu-bar">
+    <a class="menu-brand" href="index.html">PRESS EXPEDITION <span class="menu-brand-num">50</span></a>
+    <ul class="menu-links">
+      <li><a href="index.html#history">History</a></li>
+      <li><a href="index.html#course-map">Course</a></li>
+      <li><a href="register.html">Register</a></li>
+    </ul>
+  </nav>
+
+  <main class="register-main">
+    <header class="register-head">
+      <h1 class="register-title">Register</h1>
+      <p class="register-sub">One entry. One finisher&rsquo;s number. The route is surveyed; the rest is up to you.</p>
+    </header>
+
+    <div class="register-layout">
+
+      <form id="register-form" class="register-form" novalidate>
+        <fieldset>
+          <legend>Runner</legend>
+          <div class="field-row">
+            <div class="field">
+              <label for="first_name">First name</label>
+              <input id="first_name" name="first_name" type="text" autocomplete="given-name" required>
+            </div>
+            <div class="field">
+              <label for="last_name">Last name</label>
+              <input id="last_name" name="last_name" type="text" autocomplete="family-name" required>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="date_of_birth">Date of birth <span class="optional">(optional)</span></label>
+            <input id="date_of_birth" name="date_of_birth" type="date">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Emergency contact</legend>
+          <div class="field-row">
+            <div class="field">
+              <label for="emergency_contact_name">Name</label>
+              <input id="emergency_contact_name" name="emergency_contact_name" type="text" required>
+            </div>
+            <div class="field">
+              <label for="emergency_contact_phone">Phone</label>
+              <input id="emergency_contact_phone" name="emergency_contact_phone" type="tel" required>
+            </div>
+          </div>
+        </fieldset>
+
+        <label class="waiver" for="waiver_accepted">
+          <input id="waiver_accepted" name="waiver_accepted" type="checkbox" required>
+          <span>I understand the race covers 48.8 miles of remote, rugged trail with 7,749 ft of elevation gain, and I accept the risks and the waiver.</span>
+        </label>
+
+        <div id="form-error" class="form-error" hidden></div>
+
+        <button id="submit-btn" class="register-submit" type="submit">Register</button>
+        <p class="register-note" id="register-note"></p>
+      </form>
+
+      <aside class="register-sidebar">
+        <div class="register-card">
+          <div class="register-price" id="price-display">&mdash;</div>
+          <div class="register-price-lbl">Registration Fee</div>
+          <ul class="register-perks">
+            <li>Chip-timed results</li>
+            <li>Custom race bib</li>
+            <li>Finisher medal</li>
+            <li>Course-survey map</li>
+          </ul>
+          <div class="register-spots" id="spots-display">Checking availability&hellip;</div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <script src="register.js"></script>
+</body>
+</html>

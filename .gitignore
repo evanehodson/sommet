@@ -3,3 +3,9 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
+
+# Python backend
+__pycache__/
+*.pyc
+backend/.env
+*.db
