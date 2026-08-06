@@ -33,6 +33,35 @@ html, body {
     from { opacity: 0; transform: translate(-12px, -12px) scale(0.95); }
     to   { opacity: 1; transform: translate(0, 0) scale(1); }
 }
+.no-anim .sq {
+    animation: none;
+    opacity: 1;
+}
+
+/* ── Mobile: stacked hero (title top, then menu, then CTAs) ── */
+.is-stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.is-stacked .sq {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    flex: none;
+    opacity: 1;
+    animation: none;
+}
+.is-stacked .stack-row {
+    display: flex;
+    gap: 4px;
+    flex: none;
+}
+.is-stacked .stack-row .sq {
+    width: 50%;
+    height: 64px;
+}
 
 .sq {
     position: absolute;
@@ -57,7 +86,8 @@ html, body {
     color: #fff;
     text-align: left;
     pointer-events: none;
-    font-size: clamp(28px, 6vw, 72px);
+    font-size: var(--title-text-size, clamp(28px, 6vw, 72px));
+    white-space: nowrap;
 }
 
 /* ── Menu tile ──────────────────────────────────────── */
@@ -66,26 +96,39 @@ html, body {
     inset: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     padding: 0 clamp(8px, 1.5vw, 20px);
 }
 .tile-menu ul {
     list-style: none;
     margin: 0;
     padding: 0;
+    text-align: right;
+}
+.tile-menu li {
+    text-align: right;
 }
 .tile-menu a {
-    font-family: 'BBH Bartle', cursive;
-    color: rgba(255,255,255,0.75);
+    font-family: 'League Gothic', sans-serif;
+    font-weight: 400;
+    font-stretch: 75%;
+    color: rgba(255,255,255,0.85);
     text-decoration: none;
-    font-size: clamp(12px, 1.6vw, 20px);
-    letter-spacing: 0.04em;
+    font-size: var(--menu-text-size, 18px);
+    letter-spacing: 0.03em;
     text-transform: uppercase;
+    line-height: 1.3;
     transition: color 0.2s;
     white-space: nowrap;
 }
 .tile-menu a:hover {
     color: #fff;
+}
+.tile-menu--paper a {
+    color: rgba(0,0,0,0.8);
+}
+.tile-menu--paper a:hover {
+    color: #000;
 }
 
 /* Landscape tile: horizontal bar */
@@ -103,56 +146,55 @@ html, body {
     align-items: flex-start;
 }
 
-/* ── CTA tiles — real 3D cube flip ──────────────────── */
+/* ── CTA tiles — side-wipe reveal ───────────────────── */
 .sq[data-role="cta"] {
-    perspective: 800px;
+    overflow: hidden;
     cursor: pointer;
-    background: transparent;
+    background: #3a3533;
 }
-.tile-cta-inner {
+.cta-front,
+.cta-back {
     position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
-    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.sq[data-role="cta"]:hover .tile-cta-inner {
-    transform: rotateY(-90deg);
-}
-.cube-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+    top: 0; bottom: 0; left: 0; right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    backface-visibility: hidden;
 }
-.cube-front {
+.cta-front {
     background: #3a3533;
-    transform: translateZ(var(--half-w));
+    z-index: 1;
 }
-.cube-back {
-    background: #3a3533;
-    transform: rotateY(180deg) translateZ(var(--half-w));
-}
-.cube-right {
+.cta-back {
     background: #ff582d;
-    transform: rotateY(90deg) translateZ(var(--half-w));
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.5s ease;
+    z-index: 2;
 }
-.cube-left {
-    background: #3a3533;
-    transform: rotateY(-90deg) translateZ(var(--half-w));
+.sq[data-role="cta"]:hover .cta-back {
+    clip-path: inset(0 0 0 0);
 }
-.cube-text {
-    font-family: 'BBH Bartle', cursive;
-    font-size: clamp(14px, 1.8vw, 22px);
+.cta-text {
+    font-family: 'League Gothic', sans-serif;
     font-weight: 400;
-    letter-spacing: 0.06em;
+    font-stretch: 75%;
+    font-size: var(--tile-text-size, 16px);
+    font-weight: 400;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
     color: #fff;
     pointer-events: none;
     white-space: nowrap;
+    padding: 0 8px;
+}
+.cta-back .cta-text {
+    color: #000;
+}
+.sq[data-role="cta"].cta-watch .cta-back {
+    background: #685BC7;
+}
+.sq[data-role="cta"].cta-watch .cta-back .cta-text {
+    color: #fff;
 }
 
 /* ── Legacy content styles (unused but kept) ────────── */

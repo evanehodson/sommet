@@ -295,6 +295,31 @@
             }
         }
 
+        // Guarantee minimum cell counts for the special roles, for ANY viewport:
+        // 1 orange (title) and 2 black (Tickets / Watch). Prefer papers that do
+        // not touch a same-colour cell; fall back to forcing any paper if needed.
+        function ensureCount(color, minCount) {
+            var cnt = 0;
+            for (var q = 0; q < n; q++) if (tiles[q].color === color) cnt++;
+            if (cnt >= minCount) return;
+            var cands = [];
+            for (q = 0; q < n; q++) if (tiles[q].color === 0) cands.push(q);
+            cands.sort(function (a, b) {
+                return (tiles[b].w * tiles[b].h) - (tiles[a].w * tiles[a].h);
+            });
+            for (q = 0; q < cands.length && cnt < minCount; q++) {
+                var conflict = false;
+                for (var e2 = 0; e2 < adj[cands[q]].length; e2++)
+                    if (tiles[adj[cands[q]][e2]].color === color) { conflict = true; break; }
+                if (!conflict) { tiles[cands[q]].color = color; cnt++; }
+            }
+            for (q = 0; q < cands.length && cnt < minCount; q++) {
+                if (tiles[cands[q]].color === 0) { tiles[cands[q]].color = color; cnt++; }
+            }
+        }
+        ensureCount(2, 1);
+        ensureCount(4, 2);
+
         return tiles;
     }
 
@@ -305,13 +330,103 @@
     // ── DOM ────────────────────────────────────────────────
     if (typeof document === 'undefined') return;
 
+    // Measure the real on-screen text and scale the font to fit the cell.
+    function fitTextSize(text, maxW, maxH) {
+        if (typeof document === 'undefined' || !document.createElement) return 16;
+        var c = document.createElement('canvas');
+        var ctx = c.getContext && c.getContext('2d');
+        if (!ctx) return 16;
+        var base = 16;
+        ctx.font = '400 75% ' + base + 'px "League Gothic", sans-serif';
+        var tw = ctx.measureText(text).width || 16;
+        // Fit to ~85% of cell width (letter-spacing + padding margin) and 90% height.
+        var byW = (maxW * 0.85 * base) / tw;
+        var byH = maxH * 0.9;
+        var s = Math.min(byW, byH);
+        return Math.max(8, Math.min(64, Math.round(s)));
+    }
+
+    // Size "Fenwick" so it spans the FULL cell width.
+    function fitTitleSize(text, maxW) {
+        if (typeof document === 'undefined' || !document.createElement) return 72;
+        var c = document.createElement('canvas');
+        var ctx = c.getContext && c.getContext('2d');
+        if (!ctx) return 72;
+        var base = 16;
+        ctx.font = '400 ' + base + 'px "BBH Bartle", cursive';
+        var tw = ctx.measureText(text).width || 16;
+        return Math.max(20, Math.round((maxW * base) / tw));
+    }
+
     function init() {
         var el = document.querySelector('.lp-solstice-squares');
         if (!el) return;
 
+                // Mobile (≤640px): a vertical hero — title at the top, menu below,
+        // then Tickets/Watch side by side. No absolute mosaic on phones.
+        function buildStacked() {
+            var gap = 4;
+            el.classList.add('is-stacked');
+            el.innerHTML = '';
+            var frag = document.createDocumentFragment();
+            var W = el.clientWidth - gap;
+
+            function mk(role, cls) {
+                var d = document.createElement('div');
+                d.className = 'sq ' + cls;
+                d.setAttribute('data-role', role);
+                return d;
+            }
+
+            // Title — top band, right at the top of the hero.
+            var t = mk('title', 'orange');
+            var ts = fitTitleSize('Fenwick', W);
+            t.style.setProperty('--title-text-size', ts + 'px');
+            t.style.height = (Math.round(ts * 1.75) + 24) + 'px';
+            t.innerHTML = '<span class="tile-title">Fenwick<br>Mile</span>';
+            frag.appendChild(t);
+
+            // Menu.
+            var m = mk('menu', 'purple');
+            var ms = fitTextSize('Schedule', W, Math.round(el.clientHeight * 0.4) / 6);
+            m.style.setProperty('--menu-text-size', ms + 'px');
+            m.style.height = (Math.round(ms * 6.5) + 24) + 'px';
+            m.innerHTML = '<nav class="tile-menu"><ul>' +
+                '<li><a href="#">Lineup</a></li>' +
+                '<li><a href="#">Schedule</a></li>' +
+                '<li><a href="#">Results</a></li>' +
+                '<li><a href="#">About</a></li>' +
+                '<li><a href="#">News</a></li>' +
+                '</ul></nav>';
+            frag.appendChild(m);
+
+            // Tickets + Watch, side by side.
+            var row = document.createElement('div');
+            row.className = 'stack-row';
+            var labels = ['Tickets \u2192', 'Watch \u2192'];
+            for (var k = 0; k < 2; k++) {
+                var c = mk('cta', k === 0 ? 'black' : 'black cta-watch');
+                var cw = (W - gap) / 2;
+                var cs = fitTextSize(labels[k], cw, 64);
+                c.style.setProperty('--tile-text-size', cs + 'px');
+                c.innerHTML = '<div class="cta-front"><span class="cta-text">' + labels[k] + '</span></div>' +
+                    '<div class="cta-back"><span class="cta-text">' + labels[k] + '</span></div>';
+                row.appendChild(c);
+            }
+            frag.appendChild(row);
+
+            el.appendChild(frag);
+        }
+
         function build() {
             var w = el.clientWidth, h = el.clientHeight;
             if (w < 10 || h < 10) return;
+
+            if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) {
+                buildStacked();
+                return;
+            }
+
             var result = buildTiles(w, h);
             colorize(result.tiles);
             var gap = 4;
@@ -319,27 +434,70 @@
             // ── Identify special tiles ───────────────────────
             var tiles = result.tiles;
             var orangeTiles = [];
-            var purpleTiles = [];
             var blackTiles = [];
             for (var i = 0; i < tiles.length; i++) {
                 if (tiles[i].color === 2) orangeTiles.push(i);
-                if (tiles[i].color === 3) purpleTiles.push(i);
                 if (tiles[i].color === 4) blackTiles.push(i);
             }
             // Sort by area descending.
             orangeTiles.sort(function (a, b) {
                 return (tiles[b].w * tiles[b].h) - (tiles[a].w * tiles[a].h);
             });
-            purpleTiles.sort(function (a, b) {
-                return (tiles[b].w * tiles[b].h) - (tiles[a].w * tiles[a].h);
-            });
             blackTiles.sort(function (a, b) {
                 return (tiles[b].w * tiles[b].h) - (tiles[a].w * tiles[a].h);
             });
             var titleIdx = orangeTiles.length > 0 ? orangeTiles[0] : -1;
-            var menuIdx = purpleTiles.length > 0 ? purpleTiles[0] : -1;
-            var ctaIdx1 = blackTiles.length > 0 ? blackTiles[0] : -1;
-            var ctaIdx2 = blackTiles.length > 1 ? blackTiles[1] : -1;
+
+            // CTA: always two black cells for Tickets / Watch. Prefer the two
+            // SMALLEST black cells that still fit the label; if fewer than two
+            // fit, top up with the largest black cells (guaranteed to exist).
+            var ctaPool = [];
+            for (i = 0; i < blackTiles.length; i++) {
+                var bi = blackTiles[i];
+                var bW = tiles[bi].w * result.baseX - gap;
+                var bH = tiles[bi].h * result.baseY - gap;
+                var lab = 'Tickets \u2192';
+                if (fitTextSize(lab, bW, bH) >= 9) ctaPool.push(bi);
+            }
+            ctaPool.sort(function (a, b) {
+                return (tiles[a].w * tiles[a].h) - (tiles[b].w * tiles[b].h);
+            });
+            for (i = 0; i < blackTiles.length && ctaPool.length < 2; i++) {
+                if (ctaPool.indexOf(blackTiles[i]) === -1) ctaPool.push(blackTiles[i]);
+            }
+            var ctaIdx1 = ctaPool.length > 0 ? ctaPool[0] : -1;
+            var ctaIdx2 = ctaPool.length > 1 ? ctaPool[1] : -1;
+
+            // Menu: always a PORTRAIT cell (taller than wide) that isn't already
+            // claimed by the title or a CTA. Prefer one that also meets a
+            // minimum pixel size; fall back to any portrait, then any cell.
+            var MIN_MENU_W = 120, MIN_MENU_H = 160;
+            var menuIdx = -1, best = 0;
+            for (i = 0; i < tiles.length; i++) {
+                if (i === titleIdx || i === ctaIdx1 || i === ctaIdx2) continue;
+                var twp = tiles[i].w * result.baseX - gap, thp = tiles[i].h * result.baseY - gap;
+                if (thp <= twp) continue; // not portrait
+                if (twp < MIN_MENU_W || thp < MIN_MENU_H) continue;
+                var ar = tiles[i].w * tiles[i].h;
+                if (ar > best) { best = ar; menuIdx = i; }
+            }
+            if (menuIdx < 0) {
+                best = 0;
+                for (i = 0; i < tiles.length; i++) {
+                    if (i === titleIdx || i === ctaIdx1 || i === ctaIdx2) continue;
+                    if (tiles[i].h * result.baseY <= tiles[i].w * result.baseX) continue;
+                    var ar1 = tiles[i].w * tiles[i].h;
+                    if (ar1 > best) { best = ar1; menuIdx = i; }
+                }
+            }
+            if (menuIdx < 0) {
+                best = 0;
+                for (i = 0; i < tiles.length; i++) {
+                    if (i === titleIdx || i === ctaIdx1 || i === ctaIdx2) continue;
+                    var ar2 = tiles[i].w * tiles[i].h;
+                    if (ar2 > best) { best = ar2; menuIdx = i; }
+                }
+            }
 
             el.classList.add('is-built');
             el.innerHTML = '';
@@ -357,13 +515,19 @@
 
                 if (i === titleIdx) {
                     d.setAttribute('data-role', 'title');
+                    var titleSize = fitTitleSize('Fenwick', s.w * result.baseX - gap);
+                    d.style.setProperty('--title-text-size', titleSize + 'px');
                     d.innerHTML =
                         '<span class="tile-title">Fenwick<br>Mile</span>';
                 } else if (i === menuIdx) {
                     d.setAttribute('data-role', 'menu');
-                    var menuClass = s.w >= s.h ? 'tile-landscape' : 'tile-portrait';
+                    if (s.color === 0) d.classList.add('tile-menu--paper');
+                    var mw = s.w * result.baseX - gap;
+                    var mh = s.h * result.baseY - gap;
+                    var menuText = fitTextSize('Schedule', mw, mh / 6);
+                    d.style.setProperty('--menu-text-size', menuText + 'px');
                     d.innerHTML =
-                        '<nav class="tile-menu ' + menuClass + '"><ul>' +
+                        '<nav class="tile-menu"><ul>' +
                         '<li><a href="#">Lineup</a></li>' +
                         '<li><a href="#">Schedule</a></li>' +
                         '<li><a href="#">Results</a></li>' +
@@ -372,16 +536,15 @@
                         '</ul></nav>';
                 } else if (i === ctaIdx1 || i === ctaIdx2) {
                     d.setAttribute('data-role', 'cta');
-                    var halfW = (s.w * result.baseX - gap) / 2;
-                    d.style.setProperty('--half-w', halfW + 'px');
-                    var label = i === ctaIdx1 ? 'Tickets &rarr;' : 'Watch &rarr;';
+                    if (i === ctaIdx2) d.classList.add('cta-watch');
+                    var tileW = s.w * result.baseX - gap;
+                    var tileH = s.h * result.baseY - gap;
+                    var label = i === ctaIdx1 ? 'Tickets \u2192' : 'Watch \u2192';
+                    var textSize = fitTextSize(label, tileW, tileH);
+                    d.style.setProperty('--tile-text-size', textSize + 'px');
                     d.innerHTML =
-                        '<div class="tile-cta-inner">' +
-                        '<div class="cube-face cube-front"></div>' +
-                        '<div class="cube-face cube-right"><span class="cube-text">' + label + '</span></div>' +
-                        '<div class="cube-face cube-back"></div>' +
-                        '<div class="cube-face cube-left"></div>' +
-                        '</div>';
+                        '<div class="cta-front"><span class="cta-text">' + label + '</span></div>' +
+                        '<div class="cta-back"><span class="cta-text">' + label + '</span></div>';
                 }
 
                 frag.appendChild(d);
@@ -390,6 +553,14 @@
         }
 
         build();
+
+        // Re-measure once the display font is actually available (if it loads).
+        if (document.fonts && document.fonts.ready && typeof document.fonts.ready.then === 'function') {
+            document.fonts.ready.then(function () {
+                el.classList.add('no-anim');
+                build();
+            });
+        }
 
         var t = null;
         window.addEventListener('resize', function () {
