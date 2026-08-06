@@ -362,71 +362,9 @@
         var el = document.querySelector('.lp-solstice-squares');
         if (!el) return;
 
-                // Mobile (≤640px): a vertical hero — title at the top, menu below,
-        // then Tickets/Watch side by side. No absolute mosaic on phones.
-        function buildStacked() {
-            var gap = 4;
-            el.classList.add('is-stacked');
-            el.innerHTML = '';
-            var frag = document.createDocumentFragment();
-            var W = el.clientWidth - gap;
-
-            function mk(role, cls) {
-                var d = document.createElement('div');
-                d.className = 'sq ' + cls;
-                d.setAttribute('data-role', role);
-                return d;
-            }
-
-            // Title — top band, right at the top of the hero.
-            var t = mk('title', 'orange');
-            var ts = fitTitleSize('Fenwick', W);
-            t.style.setProperty('--title-text-size', ts + 'px');
-            t.style.height = (Math.round(ts * 1.75) + 24) + 'px';
-            t.innerHTML = '<span class="tile-title">Fenwick<br>Mile</span>';
-            frag.appendChild(t);
-
-            // Menu.
-            var m = mk('menu', 'purple');
-            var ms = fitTextSize('Schedule', W, Math.round(el.clientHeight * 0.4) / 6);
-            m.style.setProperty('--menu-text-size', ms + 'px');
-            m.style.height = (Math.round(ms * 6.5) + 24) + 'px';
-            m.innerHTML = '<nav class="tile-menu"><ul>' +
-                '<li><a href="#">Lineup</a></li>' +
-                '<li><a href="#">Schedule</a></li>' +
-                '<li><a href="#">Results</a></li>' +
-                '<li><a href="#">About</a></li>' +
-                '<li><a href="#">News</a></li>' +
-                '</ul></nav>';
-            frag.appendChild(m);
-
-            // Tickets + Watch, side by side.
-            var row = document.createElement('div');
-            row.className = 'stack-row';
-            var labels = ['Tickets \u2192', 'Watch \u2192'];
-            for (var k = 0; k < 2; k++) {
-                var c = mk('cta', k === 0 ? 'black' : 'black cta-watch');
-                var cw = (W - gap) / 2;
-                var cs = fitTextSize(labels[k], cw, 64);
-                c.style.setProperty('--tile-text-size', cs + 'px');
-                c.innerHTML = '<div class="cta-front"><span class="cta-text">' + labels[k] + '</span></div>' +
-                    '<div class="cta-back"><span class="cta-text">' + labels[k] + '</span></div>';
-                row.appendChild(c);
-            }
-            frag.appendChild(row);
-
-            el.appendChild(frag);
-        }
-
         function build() {
             var w = el.clientWidth, h = el.clientHeight;
             if (w < 10 || h < 10) return;
-
-            if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) {
-                buildStacked();
-                return;
-            }
-
             var result = buildTiles(w, h);
             colorize(result.tiles);
             var gap = 4;
@@ -515,6 +453,9 @@
 
                 if (i === titleIdx) {
                     d.setAttribute('data-role', 'title');
+                    d.style.backgroundImage = "url('assets/title.png')";
+                    d.style.backgroundSize = 'cover';
+                    d.style.backgroundPosition = 'center';
                     var titleSize = fitTitleSize('Fenwick', s.w * result.baseX - gap);
                     d.style.setProperty('--title-text-size', titleSize + 'px');
                     d.innerHTML =

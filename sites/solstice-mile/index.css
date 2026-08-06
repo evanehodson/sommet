@@ -38,31 +38,6 @@ html, body {
     opacity: 1;
 }
 
-/* ── Mobile: stacked hero (title top, then menu, then CTAs) ── */
-.is-stacked {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.is-stacked .sq {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: 100%;
-    flex: none;
-    opacity: 1;
-    animation: none;
-}
-.is-stacked .stack-row {
-    display: flex;
-    gap: 4px;
-    flex: none;
-}
-.is-stacked .stack-row .sq {
-    width: 50%;
-    height: 64px;
-}
-
 .sq {
     position: absolute;
     box-sizing: border-box;
