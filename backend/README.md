@@ -6,10 +6,10 @@ with a Postgres backend in production and a local SQLite fallback in dev.
 ## Layout
 
 ```
-main.py         routes (race info, registration, admin registry)
-models.py       SQLModel tables: Race, Registrant
+models.py       SQLModel tables: Race, Registrant, Result
 schemas.py      request/response models (pydantic)
 database.py     engine + session setup
+alembic/        DB migrations (alembic)
 requirements.txt
 .env.example    copy to .env and fill in
 ```
@@ -28,6 +28,18 @@ uvicorn main:app --reload
 With no `DATABASE_URL` set, the API uses `local_dev.db` (SQLite). Point
 `DATABASE_URL` at Neon Postgres for real data (see `.env.example`).
 
+## Migrations (Alembic)
+
+Schema changes go through Alembic, not `create_all`. `init_db()` still runs
+`create_all` on startup for brand-new dev SQLite, but it never alters existing
+tables — so any model change must ship as a migration:
+
+```bash
+cd backend
+alembic revision --autogenerate -m "describe change"   # draft a migration
+alembic upgrade head                                     # apply it (local or prod via DATABASE_URL)
+```
+
 ## Endpoints
 
 | Method | Path                          | Auth      | Purpose                        |
@@ -35,6 +47,8 @@ With no `DATABASE_URL` set, the API uses `local_dev.db` (SQLite). Point
 | GET    | /api/races/{slug}             | public    | Race info, price, spots free   |
 | POST   | /api/races/{slug}/register    | public    | Register a runner              |
 | GET    | /api/races/{slug}/registrants | X-Admin-Key | RD dashboard registry (WIP)  |
+| POST   | /api/races/{slug}/results/import | X-Admin-Key | Upsert finish results by place (from sync_results.py) |
+| GET    | /api/races/{slug}/results     | public    | Published results, ordered by place |
 | GET    | /api/health                   | public    | Health check                   |
 
 ## Client wiring

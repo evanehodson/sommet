@@ -19,9 +19,20 @@ class Timer:
         self.user_email = user_email
         self.date = str(dt.date.today())
 
+        # Absolute path to this script's folder, so launches work regardless of
+        # the current working directory (credentials.json sits next to timer.py).
+        self.timing_dir = os.path.dirname(os.path.abspath(__file__))
+        self.credentials_file = os.path.join(self.timing_dir, "credentials.json")
+
+        # Per-race output directory at the Sommet level (sibling to Race_Web)
+        race_web_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sommet_dir = os.path.dirname(race_web_dir)
+        self.output_dir = os.path.join(sommet_dir, self.race)
+        os.makedirs(self.output_dir, exist_ok=True)
+
         # File Naming Standards
-        self.csv_file = f"{self.race}.csv"
-        self.state_file = f"{self.race}_state.json"
+        self.csv_file = os.path.join(self.output_dir, f"{self.race}.csv")
+        self.state_file = os.path.join(self.output_dir, f"{self.race}_state.json")
 
         # Window Setup
         self.root.title(f"Race Timer - {self.race.capitalize()}")
@@ -44,7 +55,7 @@ class Timer:
         self.init_csv_file()
 
         # Initialize Google Sheets connection directly in background
-        if os.path.exists("credentials.json"):
+        if os.path.exists(self.credentials_file):
             threading.Thread(target=self.init_google_sheet, daemon=True).start()
         else:
             self.status_label.config(text="Status: Missing credentials.json")
@@ -144,7 +155,7 @@ class Timer:
         """Connects to Google API and creates/opens a worksheet tab named {race} - {date}."""
         try:
             scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-            creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
+            creds = Credentials.from_service_account_file(self.credentials_file, scopes=scopes)
             client = gspread.authorize(creds)
 
             # PASTE YOUR GOOGLE SHEET URL HERE
@@ -284,5 +295,5 @@ class Timer:
 # --- PROGRAM LAUNCH ---
 if __name__ == "__main__":
     root = Tk()
-    app = Timer(root, race_name="test", user_email="evanehodson@gmail.com")
+    app = Timer(root, race_name="press-expedition-50", user_email="evanehodson@gmail.com")
     root.mainloop()

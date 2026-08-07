@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, field_validator
 
@@ -34,6 +34,7 @@ class RegistrationRequest(BaseModel):
 
 class RegistrationResponse(BaseModel):
     id: int
+    bib_number: Optional[int]
     status: RegistrantStatus
     message: str
 
@@ -61,3 +62,29 @@ class RegistrantAdminView(BaseModel):
     checked_in: bool
     tags: Optional[str]
     created_at: datetime
+
+
+class ResultRow(BaseModel):
+    """One row as it comes off the Sheet after person 2 fills in bibs.
+    bib_number is how we match it to a Registrant -- it's not stored on
+    Result itself, only registrant_id is, once the match succeeds."""
+    bib_number: int
+    place: int
+    finish_time_seconds: float
+
+
+class ResultImportRequest(BaseModel):
+    results: List[ResultRow]
+
+
+class ResultImportResponse(BaseModel):
+    imported: int
+    unmatched_bibs: List[int]
+
+
+class ResultPublicView(BaseModel):
+    place: int
+    bib_number: int
+    first_name: str
+    last_name: str
+    finish_time_seconds: float
