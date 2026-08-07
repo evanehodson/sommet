@@ -453,9 +453,6 @@
 
                 if (i === titleIdx) {
                     d.setAttribute('data-role', 'title');
-                    d.style.backgroundImage = "url('assets/title.png')";
-                    d.style.backgroundSize = 'cover';
-                    d.style.backgroundPosition = 'center';
                     var titleSize = fitTitleSize('Fenwick', s.w * result.baseX - gap);
                     d.style.setProperty('--title-text-size', titleSize + 'px');
                     d.innerHTML =
