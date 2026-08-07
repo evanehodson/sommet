@@ -9,3 +9,6 @@ __pycache__/
 *.pyc
 backend/.env
 *.db
+
+*.json
+*.csv
