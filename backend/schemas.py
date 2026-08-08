@@ -1,9 +1,9 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
 
-from models import RegistrantStatus
+from models import RegistrantStatus, ResultOutcome
 
 
 class RegistrationRequest(BaseModel):
@@ -65,12 +65,27 @@ class RegistrantAdminView(BaseModel):
 
 
 class ResultRow(BaseModel):
-    """One row as it comes off the Sheet after person 2 fills in bibs.
+    """One row as it comes off the timer sheet after person 2 fills in bibs.
     bib_number is how we match it to a Registrant -- it's not stored on
-    Result itself, only registrant_id is, once the match succeeds."""
+    Result itself, only registrant_id is, once the match succeeds.
+
+    A finisher carries place + finish_time_seconds. A non-finisher (outcome=dnf)
+    has neither, so both are optional here -- they only matter when finished.
+    """
     bib_number: int
-    place: int
-    finish_time_seconds: float
+    outcome: ResultOutcome = ResultOutcome.finished
+    place: Optional[int] = None
+    finish_time_seconds: Optional[float] = None
+
+    @model_validator(mode="after")
+    def finished_rows_need_place_and_time(self):
+        if self.outcome == ResultOutcome.finished:
+            if self.place is None or self.finish_time_seconds is None:
+                raise ValueError("Finished rows need both place and finish_time_seconds.")
+        else:
+            if self.place is not None or self.finish_time_seconds is not None:
+                raise ValueError("Non-finisher rows shouldn't carry a place or finish time.")
+        return self
 
 
 class ResultImportRequest(BaseModel):
@@ -83,8 +98,9 @@ class ResultImportResponse(BaseModel):
 
 
 class ResultPublicView(BaseModel):
-    place: int
+    outcome: ResultOutcome
+    place: Optional[int]          # null for the dnf bucket
     bib_number: int
     first_name: str
     last_name: str
-    finish_time_seconds: float
+    finish_time_seconds: Optional[float] = None

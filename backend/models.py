@@ -7,21 +7,31 @@ Race        - one row per event. Even though today there's only Press Expedition
               modeling this as its own table (instead of hardcoding) means every
               future Sommet race reuses this same backend without a schema change.
 
-Registrant  - one row per signup. Status is the field the RD dashboard will act on:
-              a registrant moves through pending_payment -> registered -> (optionally)
-              waitlisted / transferred / refunded / dns / dq over their lifecycle.
-              bib_number is assigned automatically at registration (see main.py's
-              _assign_bib), not filled in later by an RD -- it's the runner's
-              receipt, so it exists the moment they sign up. Waitlisted registrants
-              don't get one until they're promoted to registered.
+Registrant  - one row per signup. status is a *payment/later lifecycle* field
+              only: how that person's slot gets handled. A registrant moves through
+              pending_payment -> registered and (depending on what happens with their
+              slot and money) waitlisted / transferred / refunded.
 
-Result      - one row per finish. Deliberately thin: place, finish time, and a link
-              back to the registrant it belongs to. Everything else about that
-              runner (name, distance, tags) is retrieved by joining to Registrant,
-              not duplicated here. race_id is kept on Result too even though it's
-              reachable via registrant.race_id, because the public results page
-              queries "all results for this race" constantly on race day and
-              shouldn't need a join through Registrant just to filter by race.
+              When they line up on race day, their *result* status is a separate
+              concern and lives on Result.outcome (did-not-finish/start/disq are
+              race-day outcomes, not registration states -- see registrations.py
+              docs on _seed). bib_number is assigned automatically at registration
+              (see main.py's _assign_bib), not filled in later by an RD -- it's the
+              runner's receipt, so it exists the moment they sign up. Waitlisted
+              registrants don't get one until they're promoted to registered.
+
+Result      - one row per registrant's *outcome* for a race. Two kinds:
+                finish     (outcome=finished)  place + finish_time_seconds set,
+                                              tied to a position on the board
+                dnf/DNS/dq (outcome=dnf)      no place, no time; a public
+                                              "did not finish" line on the results
+
+              Deliberately thin: everything distinguishing the runner (name,
+              distance, tags) is retrieved by joining to Registrant, not duplicated
+              here. race_id is kept on Result too even though it's reachable via
+              registrant.race_id, because the public results page queries "all
+              results for this race" constantly on race day and shouldn't need a
+              join through Registrant just to filter by race.
 
 Payment fields are stubbed (stripe_payment_intent_id, amount_paid_cents) so Stripe
 can be wired in later without another migration.
@@ -35,13 +45,30 @@ from sqlmodel import SQLModel, Field, UniqueConstraint
 
 
 class RegistrantStatus(str, Enum):
+    """Where a signup sits in the payment/registration lifecycle.
+
+    Race-day outcomes (finished / dnf / dns / dq) deliberately do NOT live here -
+    they're about the *race*, not about the registration. See Result.outcome.
+    """
     pending_payment = "pending_payment"
     registered = "registered"
     waitlisted = "waitlisted"
     transferred = "transferred"
     refunded = "refunded"
-    dns = "dns"          # did not start
-    dq = "dq"            # disqualified
+
+
+class ResultOutcome(str, Enum):
+    """How a registrant's race-day experience ended, as one tag on Result.
+
+    dns / dnf / dq are folded into a single `dnf` bucket: with no timing chips
+    in play (timer.py punches a FINISH button per runner), the system can't
+    distinguish "never started" from "didn't finish" from "disqualified" - the
+    only fact it measures is "bib never crossed the line". Finer distinctions
+    can be scribbled in Registrant.notes, but they don't deserve schema space
+    that the public results page will treat identically anyway.
+    """
+    finished = "finished"   # crossed the line: has place + finish_time_seconds
+    dnf = "dnf"             # didn't cross the line (covers dns / dnf / dq for now)
 
 
 class Race(SQLModel, table=True):
@@ -90,18 +117,24 @@ class Registrant(SQLModel, table=True):
 
 
 class Result(SQLModel, table=True):
-    # One finish per position per race. This is what makes /results/import
-    # safe to re-run: place is fixed by the finish-line order, so re-syncing
-    # the same sheet (or correcting a typo'd bib) overwrites that position's
-    # row in place instead of stacking a duplicate finisher.
-    __table_args__ = (UniqueConstraint("race_id", "place", name="uq_result_race_place"),)
+    # One outcome row per (race, registrant). place is populated only for
+    # finishers, and (race_id, place) is what makes /results/import safe to
+    # re-run: place is fixed by the finish-line order, so re-syncing the same
+    # sheet (or correcting a typo'd bib) overwrites that position's row in
+    # place instead of stacking a duplicate finisher. Non-finishers have no
+    # place, so they're uniqued per registrant instead (uq_result_race_registrant).
+    __table_args__ = (
+        UniqueConstraint("race_id", "place", name="uq_result_race_place"),
+        UniqueConstraint("race_id", "registrant_id", name="uq_result_race_registrant"),
+    )
 
     id: Optional[int] = Field(default=None, primary_key=True)
     race_id: int = Field(foreign_key="race.id", index=True)
     registrant_id: int = Field(foreign_key="registrant.id", index=True)
 
-    place: int
-    finish_time_seconds: float
+    outcome: ResultOutcome = Field(default=ResultOutcome.finished)
+    place: Optional[int] = Field(default=None)              # null for anything except finished
+    finish_time_seconds: Optional[float] = Field(default=None)  # null for anything except finished
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

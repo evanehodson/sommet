@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select, func
 
 from database import get_session, init_db, engine
-from models import Race, Registrant, RegistrantStatus, Result
+from models import Race, Registrant, RegistrantStatus, Result, ResultOutcome
 from schemas import (
     RegistrationRequest,
     RegistrationResponse,
@@ -191,9 +191,14 @@ def import_results(slug: str, payload: ResultImportRequest, session: Session = D
     that don't match anyone are reported back, not silently dropped --
     a typo'd bib should surface as something to check, not vanish.
 
-    Results are upserted by (race_id, place): place is fixed by finish order,
-    so re-running the sync (or fixing a corrected bib on a second pass)
-    overwrites that position's row in place instead of stacking a duplicate."""
+    Two kinds of rows land differently:
+      * Finishers (outcome=finished) are upserted by (race_id, place): place is
+        fixed by finish order, so re-running the sync (or fixing a corrected bib
+        on a second pass) overwrites that position's row in place instead of
+        stacking a duplicate.
+      * Non-finishers (outcome=dnf) have no place at all, so they're upserted by
+        (race_id, registrant_id) instead -- one dnf row per registrant.
+    """
     race = session.exec(select(Race).where(Race.slug == slug)).first()
     if not race:
         raise HTTPException(status_code=404, detail="Race not found.")
@@ -211,26 +216,54 @@ def import_results(slug: str, payload: ResultImportRequest, session: Session = D
             unmatched.append(row.bib_number)
             continue
 
-        # Upsert on (race_id, place): correct a typo'd bib by overwriting the
-        # place's row with the right registrant, not by stacking another one.
-        existing = session.exec(
-            select(Result).where(Result.race_id == race.id, Result.place == row.place)
-        ).first()
+        if row.outcome == ResultOutcome.finished:
+            # Upsert on (race_id, place): correct a typo'd bib by overwriting the
+            # place's row with the right registrant, not by stacking another one.
+            existing = session.exec(
+                select(Result).where(Result.race_id == race.id, Result.place == row.place)
+            ).first()
 
-        if existing:
-            existing.registrant_id = registrant.id
-            existing.finish_time_seconds = row.finish_time_seconds
-            existing.updated_at = datetime.utcnow()
-            session.add(existing)
-        else:
-            session.add(
-                Result(
-                    race_id=race.id,
-                    registrant_id=registrant.id,
-                    place=row.place,
-                    finish_time_seconds=row.finish_time_seconds,
+            if existing:
+                existing.registrant_id = registrant.id
+                existing.outcome = ResultOutcome.finished
+                existing.finish_time_seconds = row.finish_time_seconds
+                existing.updated_at = datetime.utcnow()
+                session.add(existing)
+            else:
+                session.add(
+                    Result(
+                        race_id=race.id,
+                        registrant_id=registrant.id,
+                        outcome=ResultOutcome.finished,
+                        place=row.place,
+                        finish_time_seconds=row.finish_time_seconds,
+                    )
                 )
-            )
+        else:
+            # Upsert on (race_id, registrant_id): a runner either DNF'd or
+            # didn't; there's at most one outcome row per registrant.
+            existing = session.exec(
+                select(Result).where(
+                    Result.race_id == race.id, Result.registrant_id == registrant.id
+                )
+            ).first()
+
+            if existing:
+                existing.outcome = ResultOutcome.dnf
+                existing.place = None
+                existing.finish_time_seconds = None
+                existing.updated_at = datetime.utcnow()
+                session.add(existing)
+            else:
+                session.add(
+                    Result(
+                        race_id=race.id,
+                        registrant_id=registrant.id,
+                        outcome=ResultOutcome.dnf,
+                        place=None,
+                        finish_time_seconds=None,
+                    )
+                )
         imported += 1
 
     session.commit()
@@ -243,21 +276,39 @@ def get_results(slug: str, session: Session = Depends(get_session)):
     if not race:
         raise HTTPException(status_code=404, detail="Race not found.")
 
-    rows = session.exec(
+    # Two buckets, one response: finishers in place order first, then everyone
+    # who didn't finish (dnf/dns/dq share one public line), so the page reads
+    # like a real race board -- results, then the runners who were there.
+    finishers = session.exec(
         select(Result, Registrant)
-        .where(Result.race_id == race.id, Result.registrant_id == Registrant.id)
+        .where(
+            Result.race_id == race.id,
+            Result.outcome == ResultOutcome.finished,
+            Result.registrant_id == Registrant.id,
+        )
         .order_by(Result.place)
+    ).all()
+
+    dnfs = session.exec(
+        select(Result, Registrant)
+        .where(
+            Result.race_id == race.id,
+            Result.outcome != ResultOutcome.finished,
+            Result.registrant_id == Registrant.id,
+        )
+        .order_by(Registrant.last_name, Registrant.first_name)
     ).all()
 
     return [
         ResultPublicView(
+            outcome=result.outcome,
             place=result.place,
             bib_number=registrant.bib_number,
             first_name=registrant.first_name,
             last_name=registrant.last_name,
             finish_time_seconds=result.finish_time_seconds,
         )
-        for result, registrant in rows
+        for result, registrant in list(finishers) + list(dnfs)
     ]
 
 

@@ -47,7 +47,7 @@ alembic upgrade head                                     # apply it (local or pr
 | GET    | /api/races/{slug}             | public    | Race info, price, spots free   |
 | POST   | /api/races/{slug}/register    | public    | Register a runner              |
 | GET    | /api/races/{slug}/registrants | X-Admin-Key | RD dashboard registry (WIP)  |
-| POST   | /api/races/{slug}/results/import | X-Admin-Key | Upsert finish results by place (from sync_results.py) |
+| POST   | /api/races/{slug}/results/import | X-Admin-Key | Import results; finishers upsert by place, DNFs by registrant |
 | GET    | /api/races/{slug}/results     | public    | Published results, ordered by place |
 | GET    | /api/health                   | public    | Health check                   |
 
