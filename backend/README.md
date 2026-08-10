@@ -54,9 +54,9 @@ alembic upgrade head                                     # apply it (local or pr
 ## Client wiring
 
 Each site ships a `config.js` exposing `window.SOMMET_API_BASE` (and
-`window.SOMMET_RACE_SLUG`). `sites/press-expedition-50/register.*` posts to
+`window.SOMMET_RACE_SLUG`). `sites/pres-trail-5k/register.*` posts to
 that base and slug, so deploy-time you only rewrite the base URL.
 
-> Note: the database seeds Press Expedition 50 automatically on startup, since
-> it's currently the only race and there's no RD dashboard yet. When a real
+> Note: the database seeds Press Expedition 50 and Pre's Trail 5k
+> automatically on startup, since there's no RD dashboard yet. When a real
 > dashboard exists, race creation moves there.

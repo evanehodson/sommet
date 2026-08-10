@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre's Trail 5k — Eugene, OR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Chivo:ital,wght@0,400;0,500;0,700;1,400&family=Chivo+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="index.html">PRE&rsquo;S TRAIL<span class="brand-em">5K</span></a>
+            <ul class="nav-links">
+                <li><a href="course.html">Course</a></li>
+                <li><a href="register.html">Register</a></li>
+                <li><a href="results.html">Results</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-inner">
+            <div class="tile-wrap">
+                <svg viewBox="0 0 900 900" xmlns="http://www.w3.org/2000/svg" id="tileSvg"></svg>
+            </div>
+        </div>
+    </section>
+
+    <script src="app.js"></script>
+    <script>
+    (function () {
+        var svg = document.getElementById('tileSvg');
+        if (!svg) return;
+        var NS = 'http://www.w3.org/2000/svg';
+        var TILE = 100;
+        var PALETTE = ['#0B4D34', '#1B8A5A', '#CDEFDA'];
+        var GOLD = '#DFB040';
+        var navH = 61;
+
+        // Cover the screen (minus nav bar) with square 100px tiles,
+        // cropping overflow instead of stretching so tiles stay 1:1.
+        var availH = Math.max(window.innerHeight - navH, 400);
+        var availW = window.innerWidth;
+        var COLS = Math.max(1, Math.ceil(availW / TILE));
+        var ROWS = Math.max(1, Math.ceil(availH / TILE));
+        var GRID_W = COLS * TILE;
+        var GRID_H = ROWS * TILE;
+
+        svg.setAttribute('viewBox', '0 0 ' + GRID_W + ' ' + GRID_H);
+        svg.setAttribute('width', GRID_W);
+        svg.setAttribute('height', GRID_H);
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+
+        function el(tag, attrs) {
+            var e = document.createElementNS(NS, tag);
+            for (var k in attrs) e.setAttribute(k, attrs[k]);
+            return e;
+        }
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function otherColor(exclude) {
+            return pick(PALETTE.filter(function (c) { return c !== exclude; }));
+        }
+
+        var motifs = [
+            function quarterTL(g, x, y, bg, fg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+                g.appendChild(el('path', { d: 'M'+x+','+y+' L'+(x+TILE)+','+y+' A'+TILE+','+TILE+' 0 0 1 '+x+','+(y+TILE)+' Z', fill: fg, stroke: GOLD, 'stroke-width': 2 }));
+            },
+            function quarterTR(g, x, y, bg, fg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+                g.appendChild(el('path', { d: 'M'+(x+TILE)+','+y+' L'+(x+TILE)+','+(y+TILE)+' A'+TILE+','+TILE+' 0 0 1 '+x+','+y+' Z', fill: fg, stroke: GOLD, 'stroke-width': 2 }));
+            },
+            function quarterBL(g, x, y, bg, fg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+                g.appendChild(el('path', { d: 'M'+x+','+(y+TILE)+' L'+x+','+y+' A'+TILE+','+TILE+' 0 0 1 '+(x+TILE)+','+(y+TILE)+' Z', fill: fg, stroke: GOLD, 'stroke-width': 2 }));
+            },
+            function quarterBR(g, x, y, bg, fg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+                g.appendChild(el('path', { d: 'M'+(x+TILE)+','+(y+TILE)+' L'+x+','+(y+TILE)+' A'+TILE+','+TILE+' 0 0 1 '+(x+TILE)+','+y+' Z', fill: fg, stroke: GOLD, 'stroke-width': 2 }));
+            },
+            function halfTop(g, x, y, bg, fg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+                g.appendChild(el('path', { d: 'M'+x+','+(y+TILE/2)+' A'+(TILE/2)+','+(TILE/2)+' 0 0 1 '+(x+TILE)+','+(y+TILE/2)+' Z', fill: fg, stroke: GOLD, 'stroke-width': 2 }));
+            },
+            function halfBottom(g, x, y, bg, fg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+                g.appendChild(el('path', { d: 'M'+x+','+(y+TILE/2)+' A'+(TILE/2)+','+(TILE/2)+' 0 0 0 '+(x+TILE)+','+(y+TILE/2)+' Z', fill: fg, stroke: GOLD, 'stroke-width': 2 }));
+            },
+            function fullCircle(g, x, y, bg, fg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+                g.appendChild(el('circle', { cx: x+TILE/2, cy: y+TILE/2, r: TILE*0.36, fill: fg, stroke: GOLD, 'stroke-width': 2 }));
+            },
+            function plain(g, x, y, bg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+            },
+            function stripesV(g, x, y, bg, fg) {
+                g.appendChild(el('rect', { x: x, y: y, width: TILE, height: TILE, fill: bg, stroke: GOLD, 'stroke-width': 1 }));
+                for (var i = 0; i < 3; i++) {
+                    g.appendChild(el('rect', { x: x + i*TILE/3, y: y, width: TILE/6, height: TILE, fill: fg, stroke: GOLD, 'stroke-width': 1 }));
+                }
+            }
+        ];
+
+        // Build the mosaic
+        var mainGroup = el('g');
+        svg.appendChild(mainGroup);
+        for (var r = 0; r < ROWS; r++) {
+            for (var c = 0; c < COLS; c++) {
+                var x = c * TILE, y = r * TILE;
+                var bg = pick(PALETTE);
+                var fg = otherColor(bg);
+                var motif = pick(motifs);
+                var cellGroup = el('g');
+                motif(cellGroup, x, y, bg, fg);
+                mainGroup.appendChild(cellGroup);
+            }
+        }
+
+        // Outer border
+        svg.appendChild(el('rect', { x: 1, y: 1, width: GRID_W-2, height: GRID_H-2, fill: 'none', stroke: GOLD, 'stroke-width': 4 }));
+
+        // Title band
+        var bandH = 250;
+        var bandY = Math.round((GRID_H - bandH) / 2);
+        svg.appendChild(el('rect', { x: 0, y: bandY, width: GRID_W, height: bandH, fill: '#0B4D34' }));
+        svg.appendChild(el('line', { x1: 0, y1: bandY, x2: GRID_W, y2: bandY, stroke: GOLD, 'stroke-width': 4 }));
+        svg.appendChild(el('line', { x1: 0, y1: bandY+bandH, x2: GRID_W, y2: bandY+bandH, stroke: GOLD, 'stroke-width': 4 }));
+
+        var t1 = el('text', {
+            x: GRID_W/2, y: bandY + 100, 'text-anchor': 'middle',
+            'font-family': 'Righteous, sans-serif', 'font-weight': 400, 'font-size': 84,
+            fill: GOLD
+        });
+        t1.textContent = "PRE\u2019S TRAIL";
+        svg.appendChild(t1);
+
+        var t2 = el('text', {
+            x: GRID_W/2, y: bandY + 210, 'text-anchor': 'middle',
+            'font-family': 'Righteous, sans-serif', 'font-weight': 400, 'font-size': 96,
+            'letter-spacing': '0.18em', fill: GOLD
+        });
+        t2.textContent = "5K";
+        svg.appendChild(t2);
+
+        // CTA tiles integrated into the grid, just below the band.
+        var ctaY = bandY + bandH;
+        var ctaH = 70;
+        var btnW = 190, btnH = 48;
+        var btnY = ctaY + 12;
+        var gap = 24;
+        var totalW = btnW * 2 + gap;
+        var startX = Math.round((GRID_W - totalW) / 2);
+
+        function makeCta(g, x, label, href) {
+            var bg = el('rect', {
+                x: x, y: btnY, width: btnW, height: btnH,
+                fill: '#DFB040', stroke: '#12231C', 'stroke-width': 2, rx: 2
+            });
+            var t = el('text', {
+                x: x + btnW/2, y: btnY + btnH/2 + 6, 'text-anchor': 'middle',
+                'font-family': 'Righteous, sans-serif', 'font-weight': 400,
+                'font-size': 15, 'letter-spacing': '0.1em', fill: '#12231C'
+            });
+            t.textContent = label;
+            var link = el('a', { href: href });
+            var wrap = el('g', { style: 'cursor:pointer' });
+            wrap.appendChild(bg);
+            wrap.appendChild(t);
+            link.appendChild(wrap);
+            g.appendChild(link);
+        }
+
+        var ctaGroup = el('g');
+        svg.appendChild(ctaGroup);
+        makeCta(ctaGroup, startX, 'REGISTER', 'register.html');
+        makeCta(ctaGroup, startX + btnW + gap, 'COURSE', 'course.html');
+    })();
+    </script>
+</body>
+</html>

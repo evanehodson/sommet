@@ -2,7 +2,7 @@
   'use strict';
 
   var API_BASE = window.SOMMET_API_BASE || 'http://localhost:8000';
-  var RACE_SLUG = window.SOMMET_RACE_SLUG || 'press-expedition-50';
+  var RACE_SLUG = window.SOMMET_RACE_SLUG || 'pres-trail-5k';
 
   var form = document.getElementById('register-form');
   var submitBtn = document.getElementById('submit-btn');

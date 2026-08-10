@@ -8,7 +8,7 @@ open `models.py`, `schemas.py`, and `main.py` beside it.
 
 ```
 ┌────────────────────────  the one shared backend  ────────────────────────┐
-│  sites/press-expedition-50/register.js  ──POST /register──►  FastAPI      │
+│  sites/pres-trail-5k/register.js    ──POST /register──►  FastAPI      │
 │  demos/ins_live_map (live model)        ──WebSocket───────►  (unchanged)  │
 │  timing/sync_results.py  ───POST /results/import───►   ┌──────────────┐   │
 │  portfolio gallery (iframes race sites)               │ SQLModel +   │   │
@@ -22,8 +22,8 @@ The tables and the flow around them are the architecture.
 
 ## The three tables and why they're shaped that way
 
-**Race** - one row per event. Even though there's currently exactly one race
-(Press Expedition 50, auto-seeded in `main._seed_press_expedition_50`), it's a
+**Race** - one row per event. Even though today there are two races
+(Press Expedition 50 and Pre's Trail 5k, auto-seeded in `main`), each is a
 row, not a constant — so every future Sommet race reuses this backend with zero
 schema change. `slug` is the public identifier every URL keys on.
 

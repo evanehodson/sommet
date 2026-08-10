@@ -8,8 +8,8 @@ Race websites, course maps, and registration in one repository.
 backend/        shared FastAPI registration service (one backend for all sites)
 portfolio/      Sommet Innovations landing page (this repo's front door)
 sites/          each live event's own site, one folder per race
+  pres-trail-5k/
   press-expedition-50/
-  puddlejumpers/
   solstice-mile/
 demos/          portfolio pieces & interactive experiments, not live races
   wurl-course-map/

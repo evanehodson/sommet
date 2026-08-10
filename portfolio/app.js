@@ -15,7 +15,7 @@
     var SECT_COUNT = 4;
     var HOST_BASE = 'yourrace.com';
     var PATHS = ['', '/register', '/course', '/results'];
-    var SITE_HOSTS = ['pressexpedition50.com', 'solsticemile.com', 'puddlejumpers.com'];
+    var SITE_HOSTS = ['prestrail5k.com', 'solsticemile.com', 'pressexpedition50.com'];
     var GALLERY_MS = 4000;
 
     function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }

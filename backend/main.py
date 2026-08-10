@@ -29,6 +29,7 @@ ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "dev-only-change-me")
 async def lifespan(app: FastAPI):
     init_db()
     _seed_press_expedition_50()
+    _seed_pres_trail_5k()
     yield
 
 
@@ -37,7 +38,9 @@ app = FastAPI(title="Sommet Registration API", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     # Lock this down to your actual domain(s) before going live.
-    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
+    # Trailing slashes are stripped so a value like "http://127.0.0.1:5500/"
+    # still matches the browser's "Origin: http://127.0.0.1:5500".
+    allow_origins=[o.rstrip("/") for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -57,6 +60,25 @@ def _seed_press_expedition_50():
             race_date=date(2026, 8, 8),
             capacity=200,
             price_cents=15000,
+            is_registration_open=True,
+        )
+        session.add(race)
+        session.commit()
+
+
+def _seed_pres_trail_5k():
+    """Seeds the Pre's Trail 5k demo race if it doesn't exist yet."""
+    with Session(engine) as session:
+        existing = session.exec(select(Race).where(Race.slug == "pres-trail-5k")).first()
+        if existing:
+            return
+        race = Race(
+            slug="pres-trail-5k",
+            name="Pre's Trail 5k",
+            distance_miles=3.1,
+            race_date=date(2026, 10, 11),
+            capacity=200,
+            price_cents=3500,
             is_registration_open=True,
         )
         session.add(race)

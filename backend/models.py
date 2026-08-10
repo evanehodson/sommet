@@ -40,20 +40,15 @@ can be wired in later without another migration.
 from datetime import datetime, date
 from enum import Enum
 from typing import Optional
-
 from sqlmodel import SQLModel, Field, UniqueConstraint
 
 
 class RegistrantStatus(str, Enum):
     """Where a signup sits in the payment/registration lifecycle.
-
-    Race-day outcomes (finished / dnf / dns / dq) deliberately do NOT live here -
-    they're about the *race*, not about the registration. See Result.outcome.
     """
     pending_payment = "pending_payment"
     registered = "registered"
     waitlisted = "waitlisted"
-    transferred = "transferred"
     refunded = "refunded"
 
 
@@ -67,8 +62,8 @@ class ResultOutcome(str, Enum):
     can be scribbled in Registrant.notes, but they don't deserve schema space
     that the public results page will treat identically anyway.
     """
-    finished = "finished"   # crossed the line: has place + finish_time_seconds
-    dnf = "dnf"             # didn't cross the line (covers dns / dnf / dq for now)
+    finished = "finished"
+    dnf = "dnf"
 
 
 class Race(SQLModel, table=True):
