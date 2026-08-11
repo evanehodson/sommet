@@ -1,22 +1,23 @@
 /* Pre's Trail 5k -- Art Deco / Bauhaus identity.
- * Forest / cream / gold palette. Righteous for display, Chivo for body,
+ * Dark forest / misty sky / cream palette (matched to the hero photo
+ * and finisher patch). Righteous for display, Chivo for body,
  * Chivo Mono for labels. */
 
 :root {
-  --pine:     #14291c;
-  --forest:   #0B4D34;
-  --emerald:  #1B8A5A;
-  --mint:     #CDEFDA;
-  --moss:     #4a7c59;
-  --sage:     #6b8f71;
+  --pine:     #101713;
+  --forest:   #0C3A2B;
+  --emerald:  #1E7A52;
+  --mint:     #C9E3F4;
+  --moss:     #4E7F6A;
+  --sage:     #9FB4C4;
   --cream:    #F3EFE2;
   --paper:    #f7f5eb;
-  --ink:      #12231C;
-  --gold:     #DFB040;
-  --gold-dim: #bd8f2c;
-  --gold-lt:  #e9ce78;
+  --ink:      #0A0E0C;
+  --gold:     #7FB4D9;
+  --gold-dim: #5A87A6;
+  --gold-lt:  #A4CBE8;
   --bark:     #6f4e2e;
-  --tick:     rgba(13, 31, 20, 0.18);
+  --tick:     rgba(8, 12, 10, 0.18);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +41,7 @@ img { max-width: 100%; display: block; }
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(18, 35, 28, 0.94);
+  background: rgba(10, 14, 12, 0.94);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--gold);
 }
@@ -130,29 +131,41 @@ img { max-width: 100%; display: block; }
 .hero {
   position: relative;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
   height: calc(100svh - 61px);
-  padding: 0;
+  background-color: var(--ink);
+  background-image: url('assets/pexels-nick-noyes-271794-19188854.jpg');
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+/* Subtle dark scrim so the bright patch sits comfortably on the photo. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 45%, rgba(6, 10, 8, 0) 40%, rgba(6, 10, 8, 0.55) 100%),
+    linear-gradient(to bottom, rgba(6, 10, 8, 0.16), rgba(6, 10, 8, 0.3));
+  pointer-events: none;
 }
 
 .hero-inner {
-  width: 100%;
-  display: flex;
-  align-items: stretch;
-}
-
-.tile-wrap {
-  width: 100%;
   position: relative;
-  overflow: hidden;
-}
-.tile-wrap svg {
-  position: absolute;
-  inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.hero-patch {
+  max-width: min(92vw, 980px);
+  max-height: 64vh;
+  filter: drop-shadow(0 16px 36px rgba(4, 8, 6, 0.55));
 }
 
 /* -- Active nav state ---------------------------------------- */
@@ -256,7 +269,7 @@ img { max-width: 100%; display: block; }
   content: '';
   position: absolute;
   inset: 5px;
-  border: 1px solid rgba(217, 176, 64, 0.35);
+  border: 1px solid rgba(127, 180, 217, 0.35);
   pointer-events: none;
 }
 .fact .k {

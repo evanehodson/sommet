@@ -81,7 +81,7 @@ legend {
   box-shadow: 0 0 0 1px var(--gold);
 }
 
-.field input::placeholder { color: rgba(205, 239, 218, 0.35); }
+.field input::placeholder { color: rgba(201, 227, 244, 0.35); }
 
 .waiver {
   display: flex;
@@ -147,7 +147,7 @@ legend {
   content: '';
   position: absolute;
   inset: 6px;
-  border: 1px solid rgba(217, 176, 64, 0.35);
+  border: 1px solid rgba(127, 180, 217, 0.35);
   pointer-events: none;
 }
 
@@ -175,7 +175,7 @@ legend {
 .register-perks li {
   font-family: 'Chivo', Georgia, serif;
   padding: 8px 0;
-  border-top: 1px solid rgba(205, 239, 218, 0.16);
+  border-top: 1px solid rgba(201, 227, 244, 0.16);
   color: var(--mint);
 }
 

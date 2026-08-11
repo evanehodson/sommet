@@ -1,4 +1,4 @@
-/* Results page -- dark board with gold hairline seams. */
+/* Results page -- dark board with sky hairline seams. */
 
 .results-body {
   background: var(--ink);
@@ -22,7 +22,7 @@
   content: '';
   position: absolute;
   inset: 6px;
-  border: 1px solid rgba(217, 176, 64, 0.35);
+  border: 1px solid rgba(127, 180, 217, 0.35);
   pointer-events: none;
   z-index: 1;
 }
@@ -49,9 +49,9 @@
 .results-board tbody td {
   font-family: 'Chivo', Georgia, serif;
   padding: 13px 18px;
-  border-top: 1px solid rgba(205, 239, 218, 0.16);
+  border-top: 1px solid rgba(201, 227, 244, 0.16);
 }
-.results-board tbody tr:nth-child(even) td { background: rgba(11, 77, 52, 0.55); }
+.results-board tbody tr:nth-child(even) td { background: rgba(12, 58, 43, 0.55); }
 
 .results-board .rank {
   font-family: 'Righteous', 'Arial Narrow', sans-serif;
@@ -72,7 +72,7 @@
 .results-empty {
   text-align: center;
   padding: 72px 32px;
-  border-top: 1px solid rgba(205, 239, 218, 0.16);
+  border-top: 1px solid rgba(201, 227, 244, 0.16);
 }
 .results-empty[hidden] { display: none; }
 .results-empty h2 {

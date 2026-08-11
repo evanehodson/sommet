@@ -4,13 +4,13 @@
   var container = document.getElementById('course-map');
   if (!container) return;
 
-  var INK = '#12231C';
+  var INK = '#0A0E0C';
   var PAPER = '#F3EFE2';
-  var GOLD = '#DFB040';
+  var GOLD = '#7FB4D9';
   var PARK = '#2B6FAF';
   var TRANSIT = '#A94BD1';
   var BARK = '#8B5E3C';
-  var MINT = '#CDEFDA';
+  var MINT = '#C9E3F4';
 
   var demSource = new mlcontour.DemSource({
     url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
@@ -78,7 +78,7 @@
     });
     var fill = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     fill.setAttribute('points', pad + ',' + (pad + drawH) + ' ' + pts.join(' ') + ' ' + (pad + drawW) + ',' + (pad + drawH));
-    fill.setAttribute('fill', 'rgba(223, 176, 64, 0.16)');
+    fill.setAttribute('fill', 'rgba(127, 180, 217, 0.16)');
     svg.appendChild(fill);
     var polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
     polyline.setAttribute('points', pts.join(' '));
@@ -96,7 +96,7 @@
       id: 'trail-casing',
       type: 'line', source: 'trail',
       layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': '#12231C', 'line-width': 7, 'line-opacity': 0.95 }
+      paint: { 'line-color': '#0A0E0C', 'line-width': 7, 'line-opacity': 0.95 }
     });
     map.addLayer({
       id: 'trail-core',
