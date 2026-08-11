@@ -142,7 +142,7 @@ def push_to_backend(race_slug: str, results: list):
         f"{API_BASE}/api/races/{race_slug}/results/import",
         json={"results": results},
         headers={"X-Admin-Key": ADMIN_KEY},
-        timeout=30,
+        timeout=60,
     )
     resp.raise_for_status()
     return resp.json()

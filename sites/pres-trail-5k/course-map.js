@@ -7,8 +7,9 @@
   var INK = '#12231C';
   var PAPER = '#F3EFE2';
   var GOLD = '#DFB040';
-  var MOSS = '#4a7c59';
-  var BARK = '#6f4e2e';
+  var PARK = '#2B6FAF';
+  var TRANSIT = '#A94BD1';
+  var BARK = '#8B5E3C';
   var MINT = '#CDEFDA';
 
   var demSource = new mlcontour.DemSource({
@@ -22,19 +23,7 @@
 
   var map = new maplibregl.Map({
     container: 'course-map',
-    style: {
-      version: 8,
-      glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
-      sources: {
-        light: {
-          type: 'raster',
-          tiles: ['https://basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'],
-          tileSize: 256,
-          attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-        }
-      },
-      layers: [{ id: 'light', type: 'raster', source: 'light', paint: { 'raster-saturation': 0.6, 'raster-contrast': 0.1 } }]
-    },
+    style: 'https://tiles.versatiles.org/assets/styles/colorful/style.json',
     center: [-123.067, 44.052],
     zoom: 15,
     pitch: 0,
@@ -115,7 +104,7 @@
       layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: { 'line-color': GOLD, 'line-width': 3.5 }
     });
-    ['nodes-start', 'nodes-parking', 'nodes-restrooms'].forEach(function (l) {
+    ['nodes-start', 'nodes-parking', 'nodes-transit'].forEach(function (l) {
       try { map.moveLayer(l); } catch (e) {}
     });
     var bounds = new maplibregl.LngLatBounds();
@@ -125,17 +114,21 @@
 
   function addNodes() {
     var nodes = [
-      { lat: 44.05627, lng: -123.08085, label: 'Start / Finish', type: 'start', color: GOLD, radius: 8 },
-      { lat: 44.054, lng: -123.074, label: 'Parking', type: 'parking', color: MOSS, radius: 6 },
-      { lat: 44.051, lng: -123.060, label: 'Restrooms', type: 'restrooms', color: BARK, radius: 6 }
+      { lat: 44.05627, lng: -123.08085, label: 'Start / Finish', type: 'start', color: GOLD, radius: 10 },
+      { lat: 44.057326, lng: -123.072921, label: 'Alton Baker Main Lot', type: 'parking', color: PARK, radius: 8,
+        maps: 'https://www.google.com/maps/dir/?api=1&destination=44.057326,-123.072921' },
+      { lat: 44.0575, lng: -123.0655, label: 'Oregon Stadium Parking', type: 'parking', color: PARK, radius: 8,
+        maps: 'https://www.google.com/maps/dir/?api=1&destination=44.0575,-123.0655' },
+      { lat: 44.058, lng: -123.0705, label: 'LTD Stop \u2014 MLK Blvd & Autzen', type: 'transit', color: TRANSIT, radius: 8,
+        maps: 'https://www.google.com/maps/dir/?api=1&destination=44.058,-123.0705' }
     ];
     var features = nodes.map(function (n) {
       return { type: 'Feature', geometry: { type: 'Point', coordinates: [n.lng, n.lat] },
-        properties: { type: n.type, label: n.label, color: n.color, radius: n.radius } };
+        properties: { type: n.type, label: n.label, color: n.color, radius: n.radius, maps: n.maps } };
     });
     map.addSource('nodes', { type: 'geojson', data: { type: 'FeatureCollection', features: features } });
 
-    ['start', 'parking', 'restrooms'].forEach(function (t) {
+    ['start', 'parking', 'transit'].forEach(function (t) {
       map.addLayer({
         id: 'nodes-' + t,
         type: 'circle',
@@ -144,8 +137,8 @@
         paint: {
           'circle-radius': ['get', 'radius'],
           'circle-color': ['get', 'color'],
-          'circle-opacity': 0.92,
-          'circle-stroke-width': 2.5,
+          'circle-opacity': 1,
+          'circle-stroke-width': 3,
           'circle-stroke-color': '#fff'
         }
       });
@@ -154,13 +147,18 @@
     function showPopup(e) {
       if (!e.features || !e.features[0]) return;
       var p = e.features[0].properties;
+      var chip = '<span class="popup-chip" style="background:' + p.color + '"></span>';
+      var html = chip + '<b>' + p.label + '</b>';
+      if (p.maps) {
+        html += ' &middot; <a href="' + p.maps + '" target="_blank" rel="noopener">Get directions &rarr;</a>';
+      }
       new maplibregl.Popup({ offset: 16, closeButton: false })
         .setLngLat(e.features[0].geometry.coordinates)
-        .setHTML('<b>' + p.label + '</b>')
+        .setHTML(html)
         .addTo(map);
     }
 
-    ['nodes-start', 'nodes-parking', 'nodes-restrooms'].forEach(function (layerId) {
+    ['nodes-start', 'nodes-parking', 'nodes-transit'].forEach(function (layerId) {
       map.on('click', layerId, showPopup);
       map.on('mouseenter', layerId, function () { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', layerId, function () { map.getCanvas().style.cursor = ''; });

@@ -13,7 +13,7 @@ from google.oauth2.service_account import Credentials
 
 
 class Timer:
-    def __init__(self, root, race_name="test", user_email="your_email@gmail.com"):
+    def __init__(self, root, race_name="race-slug", user_email="your_email@gmail.com"):
         self.root = root
         self.race = race_name
         self.user_email = user_email
@@ -295,5 +295,5 @@ class Timer:
 # --- PROGRAM LAUNCH ---
 if __name__ == "__main__":
     root = Tk()
-    app = Timer(root, race_name="press-expedition-50", user_email="evanehodson@gmail.com")
+    app = Timer(root, race_name="pres-trail-5k", user_email="evanehodson@gmail.com")
     root.mainloop()
