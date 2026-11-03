@@ -12,8 +12,6 @@ sites/          each live event's own site, one folder per race
   press-expedition-50/
   solstice-mile/
 demos/          portfolio pieces & interactive experiments, not live races
-  wurl-course-map/
-  ins_live_map/
 packages/       shared front-end packages (planned)
 ```
 
@@ -31,12 +29,8 @@ cd portfolio
 npm run dev          # npx serve ../.. — serves the repo root
 ```
 
-Or serve/run pieces individually:
-
-```bash
-npm run dev:wurl      # serves demos/wurl-course-map in isolation
-npm run dev:live      # runs the WebSocket relay for demos/ins_live_map
-```
+The WURL course map is its own project at
+<https://github.com/evanehodson/wurl-course-map>.
 
 Run the backend separately (see `backend/README.md`):
 

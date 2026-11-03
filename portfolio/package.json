@@ -4,8 +4,6 @@
   "description": "Sommet Innovations portfolio landing page",
   "private": true,
   "scripts": {
-    "dev": "npx serve ../..",
-    "dev:wurl": "npx serve ../demos/wurl-course-map",
-    "dev:live": "node ../demos/ins_live_map/server.js"
+    "dev": "npx serve ../.."
   }
 }
